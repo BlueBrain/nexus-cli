@@ -1,9 +1,12 @@
 import click
 import getpass
 from keycloak import KeycloakOpenID
+from blessings import Terminal
 
 import cli
 from utils import error, success
+
+t = Terminal()
 
 
 def print_time(seconds):
@@ -23,34 +26,49 @@ def print_time(seconds):
 
 
 @click.command()
-@click.option('--nexus_url', '-n', help='URL of the nexus deployment you are trying to log into')
 @click.option('--user', '-u', help='username to log you in as')
-def login(nexus_url, user):
+@click.option('--show-token', '-t', is_flag=True, help='Show token acquired upon successful login')
+@click.option('--show-groups', '-g', is_flag=True, help='Show groups the user belongs to upon successful login')
+def login(user, show_token, show_groups):
     """Log the user into a deployment of Nexus."""
-    click.echo("login.login")
-
     config = cli.get_cli_config()
-    active_deployment_cfg = None
-    for key in config.keys():
-        if 'selected' in config[key]:
-            active_deployment_cfg = config[key]
-    if active_deployment_cfg is None:
-        error("You must select a deployment prior to login.")
+    c = cli.get_selected_deployment_config()
+    if c is None:
+        error("You must select a deployment using `deployment --select` prior to running this command.")
+    active_deployment_cfg = c[1]
 
     if user is None or user == '':
         user = input("Username:")
 
     auth_server = KeycloakOpenID(server_url="https://bbpteam.epfl.ch/auth/",
-                                    realm_name='BBP',
-                                    client_id='bbp-nexus-production',
-                                    client_secret_key='3feeed86-b6d6-4d87-b825-a792c28780b8')
+                                 realm_name='BBP',
+                                 client_id='bbp-nexus-production',
+                                 client_secret_key='3feeed86-b6d6-4d87-b825-a792c28780b8')
 
     password = getpass.getpass('Password:')
-    token = auth_server.token(username=user, password=password)
+    try:
+        token = auth_server.token(username=user, password=password)
+    except Exception as e:
+        error("Login failed: {0}".format(e))
+
     userinfo = auth_server.userinfo(token['access_token'])
 
-    # store token in user directory (.nexus-cli/)
+    print(t.green("Login successful"))
     if 'expires_in' in token:
         print("Token is valid for %s" % print_time(token['expires_in']))
     active_deployment_cfg['token'] = token
     cli.save_cli_config(config)
+
+    if show_token is True:
+        if token is None:
+            token = active_deployment_cfg['token']
+        print("\nAccess-Token:")
+        print(token['access_token'])
+
+    if show_groups is True:
+        if userinfo is not None:
+            groups = userinfo['groups']
+            print("\nGroups (" + str(len(groups)) + "):")
+            for g in groups:
+                print(g)
+

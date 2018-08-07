@@ -1,9 +1,11 @@
 import click
-import cli
 import re
+import requests
+import json
 from blessings import Terminal
 from prettytable import PrettyTable
 
+import cli
 from utils import error
 
 t = Terminal()
@@ -32,7 +34,14 @@ def deployment(add, remove, select, url, list):
         if add in config and 'url' in config[add]:
             error("This deployment already exist (%s) with url: %s" % (add, config[add]))
 
-        config[add] = {'url': url}
+        # Validate URL
+        data_url = url.rstrip("/") + '/v0/data'
+        r = requests.get(data_url)
+        if r.status_code != 200:
+            error("Failed to get entity count from URL: " + data_url +
+                  '\nRequest status: ' + str(r.status_code))
+
+        config[add] = {'url': url.rstrip("/")}
         cli.save_cli_config(config)
 
     if remove is not None:
@@ -64,11 +73,29 @@ def deployment(add, remove, select, url, list):
     if list is True:
         # print('list:'+str(list))
         config = cli.get_cli_config()
-        table = PrettyTable(['Deployment', 'Selected', 'URL'])
+        table = PrettyTable(['Deployment', 'Selected', 'URL', '#entities (public)'])
+        table.align["Deployment"] = "l"
+        table.align["URL"] = "l"
         for key in config.keys():
             selected = ""
+
             if 'selected' in config[key] and config[key]['selected'] is True:
                 selected = "Yes"
-            table.add_row([key, selected, config[key]['url']])
+
+            data_url = config[key]['url'] + '/v0/data'
+            r = requests.get(data_url)
+            if r.status_code != 200:
+                error("Failed to get entity count from URL: " + data_url +
+                      '\nRequest status: ' + str(r.status_code))
+            payload = r.json()
+            if 'total' not in payload:
+                print(t.red(json.dumps(payload, indent=2)))
+                error('Unexpected payload return from Nexus ' + key + ' URL: ' + data_url +
+                      "\nCould not find attribute 'total'.")
+            data_count = payload['total']
+
+            # TODO this is only public data, if a token is available, we could also show private count
+            table.add_row([key, selected, config[key]['url'], data_count])
+
         print(table)
 
