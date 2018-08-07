@@ -2,9 +2,11 @@ import click
 import os
 import json
 from pathlib import Path
+
 from login import commands as login
 from upload import commands as upload
 from deployment import commands as deployment
+from contexts import commands as contexts
 
 
 def get_cli_config_dir():
@@ -40,6 +42,17 @@ def save_cli_config(dict_cfg):
         json.dump(dict_cfg, fp, sort_keys=True, indent=4)
 
 
+def get_selected_deployment_config():
+    """Searches for currently selected nexus deployment.
+       Returns a tuple containing (name, config) or None if not found.
+    """
+    config = get_cli_config()
+    for key in config.keys():
+        if 'selected' in config[key] and config[key]['selected'] is True:
+            return key, config[key]
+    return None
+
+
 @click.group()
 def entry_point():
     """CLI entry point to all commands."""
@@ -49,6 +62,7 @@ def entry_point():
 entry_point.add_command(deployment.deployment)
 entry_point.add_command(login.login)
 entry_point.add_command(upload.upload)
+entry_point.add_command(contexts.contexts)
 
 if __name__ == "__main__":
     entry_point()
