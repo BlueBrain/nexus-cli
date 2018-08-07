@@ -1,4 +1,8 @@
 
+# Backup
+
+tar zcvf nexus-cli.tar.gz setup.py utils.py upload deployment login README __init__.py .gitignore cli.py test.sh
+
 # Setup
 
 as seen in http://click.pocoo.org/6/setuptools/#setuptools-integration

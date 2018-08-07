@@ -55,7 +55,7 @@ def get_selected_deployment_config():
 
 @click.group()
 def entry_point():
-    """CLI entry point to all commands."""
+    """Nexus CLI"""
     pass
 
 
