@@ -7,7 +7,10 @@ setup(
     install_requires=[
         'Click',
         'blessings',
-        'python-keycloak'
+        'python-keycloak',
+        'requests',
+        'prettytable',
+        'jwt'
     ],
     entry_points='''
         [console_scripts]

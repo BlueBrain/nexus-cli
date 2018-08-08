@@ -41,7 +41,7 @@ start using the CLI:
 
 ## organisations
 
-### TODO list organizations on the currently selected local deployment of nexus
+### list organizations on the currently selected local deployment of nexus
 ### TODO deprecate an organization
 ### TODO create a new organization
 ### TODO list ACLs on an organization
@@ -49,13 +49,13 @@ start using the CLI:
 
 ## domains
 
-### TODO list domains of a given organization (--list)
+### list domains of a given organization (--list)
 ### TODO create a new domain in an organisation (--new)
 ### TODO deprecate a domain
 
 ## schemas
 
-### TODO list schemas of a given organization/domain (--list)
+### list schemas of a given organization/domain (--list)
 ### TODO create a new schema in an organisation/domain (--new)
 ### TODO deprecate a schema
 ### TODO list entities for a given schema
