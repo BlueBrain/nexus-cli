@@ -5,12 +5,13 @@ setup(
     version='0.1',
     py_modules=['cli'],
     install_requires=[
-        'Click',
+        'click',
         'blessings',
         'python-keycloak',
         'requests',
         'prettytable',
-        'jwt'
+        'jwt',
+        'pygments'
     ],
     entry_points='''
         [console_scripts]
