@@ -14,8 +14,9 @@ t = Terminal()
 @click.command()
 @click.option('--list', '-l', is_flag=True, help='List all nexus registered contexts in selected deployment')
 @click.option('--public-only', '-p', is_flag=True, default=False, help='List only public datasets (i.e. no authentication)')
+@click.option('--no-format', '-n', is_flag=True, default=False, help='print without table formatting')
 @click.option('--search', '-s', help='Free text search through contexts')
-def contexts(list, public_only, search):
+def contexts(list, public_only, no_format, search):
     """Manage Nexus contexts."""
     c = config_utils.get_selected_deployment_config()
     if c is None:
@@ -40,44 +41,45 @@ def contexts(list, public_only, search):
         results = data[0]
 
         for item in results:
-            table.add_row([item['resultId']])
+            s = item['resultId']
+            if no_format:
+                print(s)
+            else:
+                table.add_row([s])
 
-        print(table)
-        print(t.green('Total:'+str(total)))
-
+        if not no_format:
+            print(table)
+            print(t.green('Total:'+str(total)))
 
     if search is not None:
-        utils.error("--search not supported yet")
+        # utils.error("--search not supported yet")
+        if public_only:
+            print("Limiting results to publicly accessible records")
+            authenticate = False
+        else:
+            authenticate = True
+
         data_url = config['url'] + '/v0/contexts'
-        count = 0
-        while data_url is not None:
-            r = requests.get(data_url)
-            if r.status_code != 200:
-                utils.error("Failed to list contexts from URL: " + data_url +
-                      '\nRequest status: ' + str(r.status_code))
 
-            payload = r.json()
-            if 'results' not in payload:
-                print(t.red(json.dumps(payload, indent=2)))
-                utils.error('\nUnexpected payload return from Nexus ' + cfg_name + ' URL: ' + data_url +
-                            "\nCould not find attribute 'results'.")
-            context_list = payload['results']
+        data = nexus_utils.get_results_by_uri(data_url, authenticate=authenticate)
+        results = data[0]
 
-            for context in context_list:
-                context_url = context['resultId']
-                r2 = requests.get(context_url)
-                if r.status_code != 200:
-                    utils.error("Failed to get context: " + context_url +
-                                '\nRequest status: ' + str(r.status_code))
-
-                context_payload = r2.json()
-                print(t.green(json.dumps(context_payload, indent=2)))
-                if '@context' in context_payload:
-                    for term in context_payload['@context']:
-                        print(term)
-
-            if 'links' in payload and 'next' in payload['links']:
-                data_url = payload['links']['next']
+        for item in results:
+            context_id = item['resultId']
+            print("Getting " + context_id + " ...")
+            context_json = nexus_utils.get_by_id(context_id, authenticate=authenticate)
+            if '@context' in context_json:
+                for key in context_json['@context']:
+                    if type(key) is str:
+                        if search in key:
+                            print(t.green(key))
+                    elif type(key) is dict:
+                        for k in key.keys():
+                            if search in k:
+                                print(t.green(k + ": " + key[k]))
             else:
-                data_url = None  # exit loop
+                print("no @context found")
+
+
+
 
