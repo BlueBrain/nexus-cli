@@ -1,7 +1,10 @@
 import click
 import os
 from blessings import Terminal
-from utils import error
+
+import config_utils
+import nexus_utils
+import utils
 
 
 t = Terminal()
@@ -14,16 +17,16 @@ t = Terminal()
 @click.option('--type',   default='nxv:Entity', help='The type of the entity to be uploaded.')
 def upload(file, org, domain, type):
     """Upload a file in Nexus."""
-    click.echo(file)
+    utils.error("upload not implemented yet")
 
     """Upload a given file into Nexus"""
     if file is None:
-        error('ERROR: you must give a filename')
+        utils.error('ERROR: you must give a filename')
 
     print(os.path.abspath(file))
     if not os.path.isfile(file):
-        error('ERROR: File doesn''t exist:' + file)
+        utils.error('ERROR: File doesn''t exist:' + file)
     else:
-        success('File found.')
+        utils.success('File found.')
 
         # TODO perform upload into Nexus

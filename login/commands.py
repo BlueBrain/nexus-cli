@@ -6,8 +6,10 @@ from datetime import datetime
 import time
 import jwt
 
-import cli
-from utils import error, success
+import config_utils
+import auth_utils
+import utils
+
 
 t = Terminal()
 
@@ -40,21 +42,21 @@ def print_time(seconds):
 @click.option('--show-groups', '-g', is_flag=True, help='Show groups the user belongs to upon successful login')
 def login(user, show_token, show_groups):
     """Log the user into a deployment of Nexus."""
-    config = cli.get_cli_config()
-    c = cli.get_selected_deployment_config(config)
+    config = config_utils.get_cli_config()
+    c = config_utils.get_selected_deployment_config(config)
     if c is None:
-        error("You must select a deployment using `deployment --select` prior to running this command.")
+        utils.error("You must select a deployment using `deployment --select` prior to running this command.")
     active_deployment_cfg = c[1]
 
     if user is None or user == '':
         user = input("Username:")
 
-    auth_server = cli.get_auth_server()
+    auth_server = auth_utils.get_auth_server()
     password = getpass.getpass('Password:')
     try:
         token = auth_server.token(username=user, password=password)
     except Exception as e:
-        error("Login failed: {0}".format(e))
+        utils.error("Login failed: {0}".format(e))
 
     userinfo = auth_server.userinfo(token['access_token'])
 
@@ -67,7 +69,7 @@ def login(user, show_token, show_groups):
 
     active_deployment_cfg['token'] = token
     active_deployment_cfg['userinfo'] = userinfo
-    cli.save_cli_config(config)
+    config_utils.save_cli_config(config)
 
     if show_token is True:
         if token is None:
