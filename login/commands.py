@@ -2,11 +2,21 @@ import click
 import getpass
 from keycloak import KeycloakOpenID
 from blessings import Terminal
+import json
+from datetime import datetime
+import time
+import jwt
 
 import cli
 from utils import error, success
 
 t = Terminal()
+
+
+def datetime_from_utc_to_local(utc_datetime):
+    now_timestamp = time.time()
+    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+    return utc_datetime + offset
 
 
 def print_time(seconds):
@@ -32,7 +42,7 @@ def print_time(seconds):
 def login(user, show_token, show_groups):
     """Log the user into a deployment of Nexus."""
     config = cli.get_cli_config()
-    c = cli.get_selected_deployment_config()
+    c = cli.get_selected_deployment_config(config)
     if c is None:
         error("You must select a deployment using `deployment --select` prior to running this command.")
     active_deployment_cfg = c[1]
@@ -55,20 +65,33 @@ def login(user, show_token, show_groups):
 
     print(t.green("Login successful"))
     if 'expires_in' in token:
-        print("Token is valid for %s" % print_time(token['expires_in']))
+        access_token = jwt.decode(token['access_token'], verify=False)
+        expiry_utc = datetime.utcfromtimestamp(access_token['exp'])
+        print("Token is valid for %s, expiry at %s" % (print_time(token['expires_in']),
+                                                       datetime_from_utc_to_local(expiry_utc)))
+
     active_deployment_cfg['token'] = token
+    active_deployment_cfg['userinfo'] = userinfo
     cli.save_cli_config(config)
 
     if show_token is True:
         if token is None:
             token = active_deployment_cfg['token']
-        print("\nAccess-Token:")
+        print(t.yellow("\nAccess-Token:"))
+        print(json.dumps(jwt.decode(token['access_token'], verify=False), indent=2))
+        print(t.yellow("\nAccess-Token (encoded):"))
         print(token['access_token'])
+        print(t.yellow("\nID-Token:"))
+        print(json.dumps(jwt.decode(token['id_token'], verify=False), indent=2))
+        print(t.yellow("\nRefresh-Token:"))
+        print(json.dumps(jwt.decode(token['refresh_token'], verify=False), indent=2))
 
     if show_groups is True:
-        if userinfo is not None:
-            groups = userinfo['groups']
-            print("\nGroups (" + str(len(groups)) + "):")
-            for g in groups:
-                print(g)
+        if userinfo is None:
+            userinfo = active_deployment_cfg['userinfo']
+
+        groups = userinfo['groups']
+        print(t.yellow("\nGroups (" + str(len(groups)) + "):"))
+        for g in groups:
+            print(g)
 
