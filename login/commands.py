@@ -1,6 +1,5 @@
 import click
 import getpass
-from keycloak import KeycloakOpenID
 from blessings import Terminal
 import json
 from datetime import datetime
@@ -50,11 +49,7 @@ def login(user, show_token, show_groups):
     if user is None or user == '':
         user = input("Username:")
 
-    auth_server = KeycloakOpenID(server_url="https://bbpteam.epfl.ch/auth/",
-                                 realm_name='BBP',
-                                 client_id='bbp-nexus-production',
-                                 client_secret_key='3feeed86-b6d6-4d87-b825-a792c28780b8')
-
+    auth_server = cli.get_auth_server()
     password = getpass.getpass('Password:')
     try:
         token = auth_server.token(username=user, password=password)

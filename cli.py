@@ -2,8 +2,10 @@ import click
 import os
 import json
 from pathlib import Path
+from keycloak import KeycloakOpenID
 
 from login import commands as login
+from logout import commands as logout
 from upload import commands as upload
 from deployment import commands as deployment
 from contexts import commands as contexts
@@ -44,16 +46,30 @@ def save_cli_config(dict_cfg):
     with open(cfg_file, 'w') as fp:
         json.dump(dict_cfg, fp, sort_keys=True, indent=4)
 
+def get_access_token():
+    cfg = get_selected_deployment_config()
+    token = None
+    if 'token' in cfg:
+        token = cfg['token']['access_token']
+    return token
 
-def get_selected_deployment_config():
+def get_selected_deployment_config(config=None):
     """Searches for currently selected nexus deployment.
        Returns a tuple containing (name, config) or None if not found.
     """
-    config = get_cli_config()
+    if config is None:
+        # load from disk if not given
+        config = get_cli_config()
     for key in config.keys():
         if 'selected' in config[key] and config[key]['selected'] is True:
             return key, config[key]
     return None
+
+def get_auth_server():
+    return KeycloakOpenID(server_url="https://bbpteam.epfl.ch/auth/",
+                          realm_name='BBP',
+                          client_id='bbp-nexus-production',
+                          client_secret_key='3feeed86-b6d6-4d87-b825-a792c28780b8')
 
 
 @click.group()
@@ -64,6 +80,7 @@ def entry_point():
 
 entry_point.add_command(deployment.deployment)
 entry_point.add_command(login.login)
+entry_point.add_command(logout.logout)
 entry_point.add_command(upload.upload)
 entry_point.add_command(contexts.contexts)
 entry_point.add_command(organizations.organizations)
