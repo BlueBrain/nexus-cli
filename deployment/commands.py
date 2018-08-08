@@ -10,6 +10,7 @@ from utils import error
 
 t = Terminal()
 
+
 def is_valid_deployment_name(name, reg=re.compile('^[a-zA-Z0-9\.\-_]+$')):
     return bool(reg.match(name))
 
@@ -19,9 +20,9 @@ def is_valid_deployment_name(name, reg=re.compile('^[a-zA-Z0-9\.\-_]+$')):
 @click.option('--remove', '-r', help='Name of the nexus deployment to be locally removed')
 @click.option('--select', '-r', help='Name of the nexus deployment to be selected for subsequent CLI calls')
 @click.option('--url', '-u', help='URL of a nexus deployment (for --add, --remove)')
-@click.option('--list', '-l', is_flag=True, help='List all nexus deployment registered')
+@click.option('--list', '-l', is_flag=True, help='List all nexus deployment locally registered')
 def deployment(add, remove, select, url, list):
-    """Manage Nexus deployment accessed by the CLI."""
+    """Manage Nexus deployments."""
     # click.echo("deployment")
     if add is not None and remove is not None:
         error("You cannot add and remove on the same command line.")
