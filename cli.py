@@ -8,6 +8,8 @@ from contexts import commands as contexts
 from organizations import commands as organizations
 from domains import commands as domains
 from schemas import commands as schemas
+from search import commands as search
+from get import commands as get
 
 
 @click.group()
@@ -24,6 +26,9 @@ entry_point.add_command(contexts.contexts)
 entry_point.add_command(organizations.organizations)
 entry_point.add_command(domains.domains)
 entry_point.add_command(schemas.schemas)
+entry_point.add_command(schemas.schemas)
+entry_point.add_command(search.search)
+entry_point.add_command(get.get)
 
 
 if __name__ == "__main__":
