@@ -1,6 +1,30 @@
 from utils import error
 import config_utils
 import requests, json
+from http.client import responses
+
+
+def get_by_id(entity_url, authenticate=True):
+    """
+    Retrieve an entity description from a given URL (ID).
+
+    :param entity_url: the URL of the entity to retrieve
+    :param authenticate: if True, attempts to use the token of the logged in user.
+    :return: the payload this URL points to
+    :rtype: dict
+    """
+    headers = {}
+    if authenticate:
+        access_token = config_utils.get_access_token()
+        if access_token is not None:
+            headers["Authorization"] = "Bearer " + access_token
+
+    r = requests.get(entity_url, headers=headers)
+    if r.status_code != 200:
+        error("Failed to get entity from URL: " + entity_url +
+              '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
+
+    return r.json()
 
 
 def get_results_by_uri(data_url, first_page_only=False, authenticate=True):
@@ -26,7 +50,7 @@ def get_results_by_uri(data_url, first_page_only=False, authenticate=True):
         r = requests.get(data_url, headers=headers)
         if r.status_code != 200:
             error("Failed to list results from URL: " + data_url +
-                  '\nRequest status: ' + str(r.status_code))
+                  '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
 
         payload = r.json()
         if 'results' not in payload:

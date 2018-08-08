@@ -1,6 +1,9 @@
 import sys
 from blessings import Terminal
 import requests, json
+from pygments import highlight
+from pygments.lexers import JsonLdLexer
+from pygments.formatters import TerminalFormatter, TerminalTrueColorFormatter
 
 
 def error(message):
@@ -12,6 +15,19 @@ def error(message):
 def success(message):
     t = Terminal()
     print(t.green(message))
+
+
+def print_json(data, colorize=False):
+    """
+    Print a json payload.
+    :param data: the json payload to print
+    :param colorize: if true, colorize the output
+    """
+    json_str = json.dumps(data, indent=2)
+    if colorize:
+        print(highlight(json_str, JsonLdLexer(), TerminalFormatter()))
+    else:
+        print(json_str)
 
 
 def get_results_by_uri(data_url, first_page_only=False, token=None):
