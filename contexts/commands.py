@@ -52,7 +52,6 @@ def contexts(list, public_only, no_format, search):
             print(t.green('Total:'+str(total)))
 
     if search is not None:
-        # utils.error("--search not supported yet")
         if public_only:
             print("Limiting results to publicly accessible records")
             authenticate = False
@@ -60,7 +59,6 @@ def contexts(list, public_only, no_format, search):
             authenticate = True
 
         data_url = config['url'] + '/v0/contexts'
-
         data = nexus_utils.get_results_by_uri(data_url, authenticate=authenticate)
         results = data[0]
 
