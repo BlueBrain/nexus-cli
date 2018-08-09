@@ -3,7 +3,7 @@ import click
 from login import commands as login
 from logout import commands as logout
 from upload import commands as upload
-from deployment import commands as deployment
+from deployments import commands as deployments
 from contexts import commands as contexts
 from organizations import commands as organizations
 from domains import commands as domains
@@ -18,7 +18,7 @@ def entry_point():
     pass
 
 
-entry_point.add_command(deployment.deployment)
+entry_point.add_command(deployments.deployments)
 entry_point.add_command(login.login)
 entry_point.add_command(logout.logout)
 entry_point.add_command(upload.upload)

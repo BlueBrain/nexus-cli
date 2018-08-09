@@ -6,6 +6,7 @@ from blessings import Terminal
 from prettytable import PrettyTable
 
 import config_utils
+import nexus_utils
 import utils
 
 
@@ -22,9 +23,10 @@ def is_valid_deployment_name(name, reg=re.compile('^[a-zA-Z0-9\.\-_]+$')):
 @click.option('--select', '-r', help='Name of the nexus deployment to be selected for subsequent CLI calls')
 @click.option('--url', '-u', help='URL of a nexus deployment (for --add, --remove)')
 @click.option('--list', '-l', is_flag=True, help='List all nexus deployment locally registered')
-def deployment(add, remove, select, url, list):
+@click.option('--count', '-c', is_flag=True, default=False, help='Show count of entities when listing')
+@click.option('--public-only', '-p', is_flag=True, default=False, help='Count only public entities (i.e. no authentication)')
+def deployments(add, remove, select, url, list, count, public_only):
     """Manage Nexus deployments."""
-    # click.echo("deployment")
     if add is not None and remove is not None:
         utils.error("You cannot add and remove on the same command line.")
 
@@ -41,7 +43,7 @@ def deployment(add, remove, select, url, list):
         r = requests.get(data_url)
         if r.status_code != 200:
             utils.error("Failed to get entity count from URL: " + data_url +
-                  '\nRequest status: ' + str(r.status_code))
+                        '\nRequest status: ' + str(r.status_code))
 
         config[add] = {'url': url.rstrip("/")}
         config_utils.save_cli_config(config)
@@ -73,9 +75,15 @@ def deployment(add, remove, select, url, list):
         config_utils.save_cli_config(config)
 
     if list is True:
-        # print('list:'+str(list))
         config = config_utils.get_cli_config()
-        table = PrettyTable(['Deployment', 'Selected', 'URL', '#entities (public)'])
+        if count:
+            if public_only:
+                scope = 'public'
+            else:
+                scope = 'authenticated'
+            table = PrettyTable(['Deployment', 'Selected', 'URL', '#entities (' + scope + ')'])
+        else:
+            table = PrettyTable(['Deployment', 'Selected', 'URL'])
         table.align["Deployment"] = "l"
         table.align["URL"] = "l"
         for key in config.keys():
@@ -84,20 +92,14 @@ def deployment(add, remove, select, url, list):
             if 'selected' in config[key] and config[key]['selected'] is True:
                 selected = "Yes"
 
-            data_url = config[key]['url'] + '/v0/data'
-            r = requests.get(data_url)
-            if r.status_code != 200:
-                utils.error("Failed to get entity count from URL: " + data_url +
-                      '\nRequest status: ' + str(r.status_code))
-            payload = r.json()
-            if 'total' not in payload:
-                print(t.red(json.dumps(payload, indent=2)))
-                utils.error('Unexpected payload return from Nexus ' + key + ' URL: ' + data_url +
-                      "\nCould not find attribute 'total'.")
-            data_count = payload['total']
+            total = '-'
+            if count:
+                data_url = config[key]['url'] + '/v0/data'
+                authenticate = not public_only
+                results, total = nexus_utils.get_results_by_uri(data_url, first_page_only=True, authenticate=authenticate)
 
-            # TODO this is only public data, if a token is available, we could also show private count
-            table.add_row([key, selected, config[key]['url'], data_count])
+                table.add_row([key, selected, config[key]['url'], format(total, ',d')])
+            else:
+                table.add_row([key, selected, config[key]['url']])
 
         print(table)
-
