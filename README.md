@@ -58,6 +58,11 @@ start using the CLI:
 * TODO deprecate a schema
 * TODO list entities for a given schema
 
+# acls
+* list all acls by path (--list)
+* filter acls by organizations (--organization) and domains (--domain)
+* ability to limit acl listing to what is public (no auth)
+
 ## types
 * TODO list entity types supported in the selected nexus instance 
 

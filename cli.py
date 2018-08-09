@@ -10,6 +10,7 @@ from domains import commands as domains
 from schemas import commands as schemas
 from search import commands as search
 from get import commands as get
+from acls import commands as acls
 
 
 @click.group()
@@ -29,6 +30,7 @@ entry_point.add_command(schemas.schemas)
 entry_point.add_command(schemas.schemas)
 entry_point.add_command(search.search)
 entry_point.add_command(get.get)
+entry_point.add_command(acls.acls)
 
 
 if __name__ == "__main__":
