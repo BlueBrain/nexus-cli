@@ -15,8 +15,9 @@ t = Terminal()
 @click.option('list_', '--list', '-l', is_flag=True, help='List all nexus registered contexts in selected deployment')
 @click.option('--organization', '-o', help='The organisation for which to list schemas')
 @click.option('--domain', '-d', help='The domain for which to list schemas')
-@click.option('--public-only', '-po', is_flag=True, default=False, help='List only public datasets (i.e. no authentication)')
-def acls(list_, organization, domain, public_only):
+@click.option('--public-only', '-p', is_flag=True, default=False, help='List only public datasets (i.e. no authentication)')
+@click.option('--show-raw', '-r', is_flag=True, default=False, help='Show raw data coming from the ACL service')
+def acls(list_, organization, domain, public_only, show_raw):
     """Manage Nexus ACLs."""
     c = config_utils.get_selected_deployment_config()
     if c is None:
@@ -37,6 +38,9 @@ def acls(list_, organization, domain, public_only):
 
         data_url = config['url'] + '/v0/acls/kg/*/*?self=false&parents=true'
         data = nexus_utils.get_by_id(data_url, authenticate=authenticate)
+
+        if show_raw:
+            utils.print_json(data, colorize=True)
 
         acl = data['acl']
         acl_by_path = {}
@@ -64,9 +68,6 @@ def acls(list_, organization, domain, public_only):
 
             if not skip:
                 acl_by_path[path].append(e)
-
-        # print("\n\n===== ACLS by paths")
-        # utils.print_json(acl_by_path, colorize=True)
 
         for path in acl_by_path.keys():
             entries = acl_by_path[path]
