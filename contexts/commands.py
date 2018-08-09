@@ -76,7 +76,7 @@ def contexts(list, public_only, no_format, search):
                     elif type(key) is dict:
                         for k in key.keys():
                             if search in k:
-                                print(t.green(k + ": " + key[k]))
+                                print(t.green(k + ": " + str(key[k])))
             else:
                 print("no @context found")
 
