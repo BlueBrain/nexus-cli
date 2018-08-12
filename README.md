@@ -82,7 +82,7 @@ start using the CLI:
     * colorize json-ld output (--pretty) 
     * print the resulting entity payloads (--show-entities)
     * limits the count of entities being retrieved (--max-entities)
-    * TODO download the data attached to resulting entities (--download)
+    * download the metadata and, if any, the data attached to resulting entities (--download)
 
 ## get
 * retrieve entity payload (i.e. metadata) by its id with auth support (--url)
