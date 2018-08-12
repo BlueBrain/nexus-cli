@@ -19,8 +19,9 @@ t = Terminal()
 @click.option('--show-entities', '-e', is_flag=True, help='Fetch full payload for each entity, otherwise show only ID')
 @click.option('--max-entities', '-m', type=int, help='Limits the number of results to show')
 @click.option('--download', '-d', is_flag=True, help='Download metadata and data (if available)')
+@click.option('--download-directory', '-D', default='.', help='Where to download metadata and attachments (will create if not found)')
 @click.option('--verbose', '-v', is_flag=True, help='Prints additional information')
-def search(entity_type, context, field, value, show_query, pretty, show_entities, max_entities, download, verbose):
+def search(entity_type, context, field, value, show_query, pretty, show_entities, max_entities, download, download_directory, verbose):
     """Search Nexus."""
     if entity_type is None and (field is None or value is None):
         utils.error("You must give a query parameter, either --type or --field/--value")
@@ -30,6 +31,11 @@ def search(entity_type, context, field, value, show_query, pretty, show_entities
 
     if value is not None and field is None:
         utils.error("if you provide a value, you must give a field")
+
+    if download_directory is not None:
+        download_directory = os.path.abspath(download_directory)
+        if not os.path.exists(download_directory):
+            os.makedirs(download_directory)
 
     default_context = "https://bbp.epfl.ch/nexus/v0/contexts/neurosciencegraph/core/data/v1.0.3"
     if context is not None:
@@ -71,11 +77,12 @@ def search(entity_type, context, field, value, show_query, pretty, show_entities
             print(item['@id'])
 
         if download:
-            id = item['@id']
-            uuid = id.split("/")[-1:][0]
-            if not os.path.exists(uuid):
-                os.makedirs(uuid)
-            with open(uuid + '/metadata.json', 'w') as outfile:
+            _id = item['@id']
+            uuid = _id.split("/")[-1:][0]
+            local_dir = download_directory + "/" + uuid
+            if not os.path.exists(local_dir):
+                os.makedirs(local_dir)
+            with open(local_dir + '/metadata.json', 'w') as outfile:
                 json.dump(item, outfile, indent=2)
 
             # download data if any attachment
@@ -91,4 +98,4 @@ def search(entity_type, context, field, value, show_query, pretty, show_entities
                         print(t.red("It appears this attachment is duplicated: " + filename + " - SKIPPING"))
                     else:
                         filenames.add(filename)
-                        nexus_utils.download_file(d, uuid, verbose=True)
+                        nexus_utils.download_file(d, local_dir, verbose=True)

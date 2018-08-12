@@ -1,7 +1,7 @@
 import requests, json
 from blessings import Terminal
 from http.client import responses
-import os
+import os, sys
 
 import config_utils
 import utils
@@ -150,6 +150,14 @@ def search(query, fetch_entities=True, max_results=None, authenticate=True, verb
     return results
 
 
+def pretty_filesize(num, suffix='B'):
+    for unit in ['','K','M','G','T','P','E','Z']:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f %s%s" % (num, 'Yi', suffix)
+
+
 def download_file(distribution, local_dir, authenticate=True, verbose=False):
     if distribution is None:
         utils.error("You must give a non null distribution")
@@ -157,21 +165,29 @@ def download_file(distribution, local_dir, authenticate=True, verbose=False):
 
     downloadURL = distribution['downloadURL']
     originalFileName = distribution['originalFileName']
+    contentSize = distribution['contentSize']['value']
+
     local_file = abs_local_dir + '/' + originalFileName
 
-    headers = {}
-    if authenticate:
-        add_authorization_to_headers(headers)
+    if os.path.isfile(local_file):
+        print(originalFileName+" - file exists already, SKIPPING")
+    else:
+        headers = {}
+        if authenticate:
+            add_authorization_to_headers(headers)
 
-    if verbose:
-        print("Downloading %s into %s" % (downloadURL, local_file))
+        if verbose:
+            sys.stdout.write("Downloading %s (%s)" % (originalFileName, pretty_filesize(contentSize)) + " ... ")
+            sys.stdout.flush()
 
-    r = requests.get(downloadURL, headers=headers, stream=True)
-    if r.status_code != 200:
-        utils.error("Download error, received HTTP %d (%s)" % (r.status_code, r.reasons))
-    with open(local_file, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=1024):
-            if chunk: # filter out keep-alive new chunks
-                f.write(chunk)
+        r = requests.get(downloadURL, headers=headers, stream=True)
+        if r.status_code != 200:
+            utils.error("Download error, received HTTP %d (%s)" % (r.status_code, r.reasons))
+        with open(local_file, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+
+        print("done")
 
     return local_file
