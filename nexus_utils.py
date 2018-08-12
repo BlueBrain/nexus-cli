@@ -1,9 +1,9 @@
-from utils import error
-import config_utils
 import requests, json
 from blessings import Terminal
 from http.client import responses
+import os
 
+import config_utils
 import utils
 
 
@@ -97,9 +97,10 @@ def get_results_by_uri(data_url, first_page_only=False, max_results=None, authen
 
 def search(query, fetch_entities=True, max_results=None, authenticate=True, verbose=False):
     """
+    Execute provided search query and return resulting entities.
 
-    :param pretty:
     :param query: a dict
+    :param fetch_entities: bool
     :param max_results:
     :param authenticate:
     :param verbose:
@@ -149,3 +150,28 @@ def search(query, fetch_entities=True, max_results=None, authenticate=True, verb
     return results
 
 
+def download_file(distribution, local_dir, authenticate=True, verbose=False):
+    if distribution is None:
+        utils.error("You must give a non null distribution")
+    abs_local_dir = os.path.abspath(local_dir)
+
+    downloadURL = distribution['downloadURL']
+    originalFileName = distribution['originalFileName']
+    local_file = abs_local_dir + '/' + originalFileName
+
+    headers = {}
+    if authenticate:
+        add_authorization_to_headers(headers)
+
+    if verbose:
+        print("Downloading %s into %s" % (downloadURL, local_file))
+
+    r = requests.get(downloadURL, headers=headers, stream=True)
+    if r.status_code != 200:
+        utils.error("Download error, received HTTP %d (%s)" % (r.status_code, r.reasons))
+    with open(local_file, 'wb') as f:
+        for chunk in r.iter_content(chunk_size=1024):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+
+    return local_file
