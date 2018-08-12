@@ -78,8 +78,12 @@ start using the CLI:
 
 ## search (note that the context right now is hard coded)
 * search by entity types (--type) and/or by field/value (--field, --value) and list resulting entity IDs
+    * override default context (--context)
+* search from a provided search query in a file (--query-file)
+
+All the above can use the following options:
     * show the Nexus query generated (--show-query)
-    * colorize json-ld output (--pretty) 
+    * colorize json-ld output (--pretty)
     * print the resulting entity payloads (--show-entities)
     * limits the count of entities being retrieved (--max-entities)
     * download the metadata and, if any, the data attached to resulting entities (--download)

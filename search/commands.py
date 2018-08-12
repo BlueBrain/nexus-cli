@@ -14,6 +14,7 @@ t = Terminal()
 @click.option('--context', '-c', help='Override default context.')
 @click.option('--field', '-f', help='The field to filter on.')
 @click.option('--value', '-v', help='The field value to filter on.')
+@click.option('--query-file', '-F', help='Provide the query from a file.')
 @click.option('--show-query', '-s', is_flag=True, help='print the generated search query')
 @click.option('--pretty', '-p', is_flag=True, help='colorize output')
 @click.option('--show-entities', '-e', is_flag=True, help='Fetch full payload for each entity, otherwise show only ID')
@@ -21,10 +22,13 @@ t = Terminal()
 @click.option('--download', '-d', is_flag=True, help='Download metadata and data (if available)')
 @click.option('--download-directory', '-D', default='.', help='Where to download metadata and attachments (will create if not found)')
 @click.option('--verbose', '-v', is_flag=True, help='Prints additional information')
-def search(entity_type, context, field, value, show_query, pretty, show_entities, max_entities, download, download_directory, verbose):
+def search(entity_type, context, field, value, query_file, show_query, pretty, show_entities, max_entities, download, download_directory, verbose):
     """Search Nexus."""
-    if entity_type is None and (field is None or value is None):
-        utils.error("You must give a query parameter, either --type or --field/--value")
+    if query_file is not None and (entity_type is not None or field is not None or value is not None):
+        utils.error("You must either use --query-file or (--type, --field, --value)")
+    elif query_file is None:
+        if entity_type is None and (field is None or value is None):
+            utils.error("You must give a query parameter, either --type or --field/--value")
 
     if field is not None and value is None:
         utils.error("if you provide a field, you must give a value")
@@ -32,38 +36,38 @@ def search(entity_type, context, field, value, show_query, pretty, show_entities
     if value is not None and field is None:
         utils.error("if you provide a value, you must give a field")
 
-    if download_directory is not None:
-        download_directory = os.path.abspath(download_directory)
-        if not os.path.exists(download_directory):
-            os.makedirs(download_directory)
-
-    default_context = "https://bbp.epfl.ch/nexus/v0/contexts/neurosciencegraph/core/data/v1.0.3"
-    if context is not None:
-        c = context
+    query = None
+    if query_file is not None:
+        with open(query_file) as f:
+            query = json.load(f)
     else:
-        c = default_context
+        default_context = "https://bbp.epfl.ch/nexus/v0/contexts/neurosciencegraph/core/data/v1.0.3"
+        if context is not None:
+            c = context
+        else:
+            c = default_context
 
-    query = {
-              "@context": c,
-              "filter": {
-                "op": "and",
-                "value": []
-              }
-            }
+        query = {
+                  "@context": c,
+                  "filter": {
+                    "op": "and",
+                    "value": []
+                  }
+                }
 
-    if entity_type is not None:
-        query['filter']['value'].append({
-                                            "op": "eq",
-                                            "path": "rdf:type",
-                                            "value": entity_type
-                                          })
+        if entity_type is not None:
+            query['filter']['value'].append({
+                                                "op": "eq",
+                                                "path": "rdf:type",
+                                                "value": entity_type
+                                              })
 
-    if field is not None:
-        query['filter']['value'].append({
-            "op": "eq",
-            "path": field,
-            "value": value
-        })
+        if field is not None:
+            query['filter']['value'].append({
+                "op": "eq",
+                "path": field,
+                "value": value
+            })
 
     if show_query:
         utils.print_json(query, colorize=pretty)
@@ -77,6 +81,11 @@ def search(entity_type, context, field, value, show_query, pretty, show_entities
             print(item['@id'])
 
         if download:
+            if download_directory is not None:
+                download_directory = os.path.abspath(download_directory)
+                if not os.path.exists(download_directory):
+                    os.makedirs(download_directory)
+
             _id = item['@id']
             uuid = _id.split("/")[-1:][0]
             local_dir = download_directory + "/" + uuid
