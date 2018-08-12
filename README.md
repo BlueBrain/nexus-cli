@@ -22,9 +22,12 @@ start using the CLI:
 # Currently supported features
 
 ## deployments
- * adding a new deployment (--add)
+* adding a new deployment (--add <name> --url <URL>)
 * removing a locally registered deployment (--remove)
-* list locally registered deployment (--list), show entity count (--count), limit to public entities (--public-only)
+* list locally registered deployment (--list), 
+  * show entity count (--count), 
+    * show public counts of entities, i.e. no autentication (--public-only) 
+  * limit to public entities (--public-only)
 * select a locally registered deployment (--select)
 
 ## login
@@ -34,14 +37,18 @@ start using the CLI:
 * TODO show token status
 
 ## logout
- * revoke token from the oauth server and clear token stored locally
+* revoke token from the oauth server and clear token stored locally
 
 ## contexts
-* List contexts available on the currently selected local deployment of nexus
-* search for fragments
+* List contexts available on the currently selected local deployment of nexus (--list)
+    * list contexts URLs without formatting (--no-format)
+    * list contexts that are public only, i.e. no-authentication (--public-only)
+* search for fragments (--search). Note that this feature isn't following contexts declared in contexts yet, 
+  it merely browse the contexts registered in Nexus.
 
 ## organisations
-* list organizations on the currently selected local deployment of nexus
+* list organizations on the currently selected local deployment of nexus (--list)
+    * list organizations that are public only, i.e. no-authentication (--public-only)
 * TODO deprecate an organization
 * TODO create a new organization
 * TODO list ACLs on an organization
@@ -49,28 +56,38 @@ start using the CLI:
 
 ## domains
 * list domains of a given organization (--list)
-* TODO create a new domain in an organisation (--new)
+    * list domains that are public only, i.e. no-authentication (--public-only)
+* TODO create a new domain in an organisation
 * TODO deprecate a domain
 
 ## schemas
 * list schemas of a given organization/domain (--list)
-* TODO create a new schema in an organisation/domain (--new)
+* TODO create a new schema in an organisation/domain
 * TODO deprecate a schema
 * TODO list entities for a given schema
 
 # acls
 * list all acls by path (--list)
-* filter acls by organizations (--organization) and domains (--domain)
-* ability to limit acl listing to what is public (no auth)
+    * filter acls by organizations (--organization) and domains (--domain)
+    * filter acls by domains (--domain)
+    * ability to limit acl listing to what is public (i.e. no auth, --public-only)
+    * show raw ACLs as returned by the Nexus service (--show-raw)
 
 ## types
 * TODO list entity types supported in the selected nexus instance 
 
-## search
-* WIP search by entity types
+## search (note that the context right now is hard coded)
+* search by entity types (--type) and/or by field/value (--field, --value) and list resulting entity IDs
+    * show the Nexus query generated (--show-query)
+    * colorize json-ld output (--pretty) 
+    * print the resulting entity payloads (--show-entities)
+    * limits the count of entities being retrieved (--max-entities)
+    * TODO download the data attached to resulting entities (--download)
 
 ## get
-* retrieve entity payload by its id with auth support
+* retrieve entity payload (i.e. metadata) by its id with auth support (--url)
+    * colorize json-ld output (--pretty)
+* TODO download attached data if available (--data) 
 
 ## upload
 * TODO upload a file in a given organization/domain
