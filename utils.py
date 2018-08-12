@@ -25,7 +25,8 @@ def print_json(data, colorize=False):
     """
     json_str = json.dumps(data, indent=2)
     if colorize:
-        print(highlight(json_str, JsonLdLexer(), TerminalFormatter()))
+        sys.stdout.write(highlight(json_str, JsonLdLexer(), TerminalFormatter()))
+        sys.stdout.flush()
     else:
         print(json_str)
 
