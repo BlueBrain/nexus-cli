@@ -1,10 +1,25 @@
 from utils import error
 import config_utils
 import requests, json
+from blessings import Terminal
 from http.client import responses
 
+import utils
 
-def get_by_id(entity_url, authenticate=True):
+
+t = Terminal()
+
+
+def add_authorization_to_headers(headers):
+    if headers is None:
+        headers = {}
+    access_token = config_utils.get_access_token()
+    if access_token is not None:
+        headers["Authorization"] = "Bearer " + access_token
+    return headers
+
+
+def get_by_id(entity_url, authenticate=True, verbose=False):
     """
     Retrieve an entity description from a given URL (ID).
 
@@ -13,26 +28,30 @@ def get_by_id(entity_url, authenticate=True):
     :return: the payload this URL points to
     :rtype: dict
     """
+
     headers = {}
     if authenticate:
-        access_token = config_utils.get_access_token()
-        if access_token is not None:
-            headers["Authorization"] = "Bearer " + access_token
+        add_authorization_to_headers(headers)
 
+    if verbose:
+        print("Fetching: " + entity_url)
     r = requests.get(entity_url, headers=headers)
     if r.status_code != 200:
         error("Failed to get entity from URL: " + entity_url +
               '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
 
-    return r.json()
+    data = r.json()
+    r.close()
+    return data
 
 
-def get_results_by_uri(data_url, first_page_only=False, authenticate=True):
+def get_results_by_uri(data_url, first_page_only=False, max_results=None, authenticate=True):
     """
     From a given URL, query nexus and retrieve all results and return them as a 'list of dict'
 
     :param str data_url: the URL from which to get data from nexus
     :param bool first_page_only: if set to True, data will not be loaded beyond the first page returned by nexus (default: False).
+    :param int max_results: if not None, constrains how many results are to be collected.
     :param bool authenticate: if set to False, no force no token to be passed along, even if the user is logged in (detault: True).
     :return the list of collected results
     :rtype: list
@@ -41,11 +60,10 @@ def get_results_by_uri(data_url, first_page_only=False, authenticate=True):
 
     headers = {}
     if authenticate:
-        access_token = config_utils.get_access_token()
-        if access_token is not None:
-            headers["Authorization"] = "Bearer " + access_token
+        add_authorization_to_headers(headers)
 
     total = 0
+    count = 0
     while data_url is not None:
         r = requests.get(data_url, headers=headers)
         if r.status_code != 200:
@@ -53,6 +71,7 @@ def get_results_by_uri(data_url, first_page_only=False, authenticate=True):
                   '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
 
         payload = r.json()
+        r.close()
         if 'results' not in payload:
             print(t.red(json.dumps(payload, indent=2)))
             error('\nUnexpected payload return from Nexus URL: ' + data_url +
@@ -61,6 +80,9 @@ def get_results_by_uri(data_url, first_page_only=False, authenticate=True):
         total = payload['total']
         for item in payload['results']:
             results.append(item)
+            count += 1
+            if max_results is not None and count >= int(max_results):
+                return results, total
 
         if not first_page_only:
             if 'links' in payload and 'next' in payload['links']:
@@ -71,4 +93,59 @@ def get_results_by_uri(data_url, first_page_only=False, authenticate=True):
             data_url = None  # exit loop
 
     return results, total
+
+
+def search(query, fetch_entities=True, max_results=None, authenticate=True, verbose=False):
+    """
+
+    :param pretty:
+    :param query: a dict
+    :param max_results:
+    :param authenticate:
+    :param verbose:
+    :return:
+    """
+
+    results = []
+
+    headers = {}
+    if authenticate:
+        add_authorization_to_headers(headers)
+    headers["Content-Type"] = "application/json"
+
+    search_url = config_utils.get_selected_deployment_config()[1]['url'] + "/v0/queries"
+
+    r = None
+    try:
+        if verbose:
+            print("Issuing POST: " + search_url)
+            print("Query:")
+            utils.print_json(query, colorize=True)
+        r = requests.post(search_url, data=json.dumps(query), headers=headers, allow_redirects=False)
+    except Exception as e:
+        utils.error("Failed: {0}".format(e))
+
+    # expecting a redirect
+    if 300 <= r.status_code < 400:
+        location = r.headers['Location']
+        if verbose:
+            print("HTTP " + str(r.status_code) + " ("+r.reason+")")
+            print("Following redirect: " + location)
+
+        # now get the results
+        entities, total = get_results_by_uri(location, max_results=max_results)
+        if verbose:
+            print("Total: " + format(total, ',d'))
+            print("Collected: " + format(len(entities), ',d'))
+
+        if fetch_entities:
+            for e in entities:
+                payload = get_by_id(e['resultId'], verbose=verbose)
+                results.append(payload)
+        else:
+            for e in entities:
+                results.append(e['resultId'])
+
+    return results
+
 
