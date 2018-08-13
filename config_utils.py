@@ -3,6 +3,8 @@ import os
 import json
 from pathlib import Path
 
+import utils
+
 
 def get_cli_config_dir():
     """Returns absolute path of CLI config directory, creates it if not found."""
@@ -40,6 +42,8 @@ def save_cli_config(dict_cfg):
 
 def get_access_token():
     name, cfg = get_selected_deployment_config()
+    if cfg is None:
+        utils.error("Failed to get selected config.")
     token = None
     if 'token' in cfg:
         token = cfg['token']['access_token']
@@ -56,4 +60,4 @@ def get_selected_deployment_config(config=None):
     for key in config.keys():
         if 'selected' in config[key] and config[key]['selected'] is True:
             return key, config[key]
-    return None
+    return None, None
