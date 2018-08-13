@@ -37,7 +37,7 @@ def get_by_id(entity_url, authenticate=True, verbose=False):
         print("Fetching: " + entity_url)
     r = requests.get(entity_url, headers=headers)
     if r.status_code != 200:
-        error("Failed to get entity from URL: " + entity_url +
+        utils.error("Failed to get entity from URL: " + entity_url +
               '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
 
     data = r.json()
@@ -67,14 +67,14 @@ def get_results_by_uri(data_url, first_page_only=False, max_results=None, authen
     while data_url is not None:
         r = requests.get(data_url, headers=headers)
         if r.status_code != 200:
-            error("Failed to list results from URL: " + data_url +
+            utils.error("Failed to list results from URL: " + data_url +
                   '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
 
         payload = r.json()
         r.close()
         if 'results' not in payload:
             print(t.red(json.dumps(payload, indent=2)))
-            error('\nUnexpected payload return from Nexus URL: ' + data_url +
+            utils.error('\nUnexpected payload return from Nexus URL: ' + data_url +
                   "\nCould not find attribute 'results'.")
 
         total = payload['total']
