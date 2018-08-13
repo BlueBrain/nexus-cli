@@ -5,18 +5,19 @@ A command line interface for Nexus
 
 As seen in http://click.pocoo.org/6/setuptools/#setuptools-integration
 ```
-   <install python3>
-   <install virtualenv>
-   <install pip3>
+   <install conda - https://conda.io/docs/user-guide/install/index.html>
 
-   virtualenv -p python3 venv
-   . venv/bin/activate
-   pip3 install --editable .
+   conda create -y --name nexus-cli python=3.7
+   conda activate nexus-cli
+   pip install git+https://bitbucket.org/agriness/python-keycloak
+   git clone https://github.com/samuel-kerrien/nexus-cli
+   cd nexus-cli
+   pip install --editable .
 ```
 
 start using the CLI:
 ```
-    nexus-cli --help
+    nexus --help
 ```
 
 # Currently supported features
@@ -107,4 +108,3 @@ All the above can use the following options:
 
 ## types
 * TODO list entity types supported in the selected nexus instance 
-
