@@ -4,16 +4,19 @@ import requests, json
 from pygments import highlight
 from pygments.lexers import JsonLdLexer
 from pygments.formatters import TerminalFormatter, TerminalTrueColorFormatter
+import time
+from datetime import datetime
+
+
+t = Terminal()
 
 
 def error(message):
-    t = Terminal()
     print(t.red(message))
     sys.exit(101)
 
 
 def success(message):
-    t = Terminal()
     print(t.green(message))
 
 
@@ -59,3 +62,25 @@ def get_results_by_uri(data_url, first_page_only=False, token=None):
         else:
             data_url = None  # exit loop
     return results, total
+
+
+def datetime_from_utc_to_local(utc_datetime):
+    now_timestamp = time.time()
+    offset = datetime.fromtimestamp(now_timestamp) - datetime.utcfromtimestamp(now_timestamp)
+    return utc_datetime + offset
+
+
+def print_time(seconds):
+    sign_string = '-' if seconds < 0 else ''
+    seconds = abs(int(seconds))
+    days, seconds = divmod(seconds, 86400)
+    hours, seconds = divmod(seconds, 3600)
+    minutes, seconds = divmod(seconds, 60)
+    if days > 0:
+        return '%s%dd %dh %dm %ds' % (sign_string, days, hours, minutes, seconds)
+    elif hours > 0:
+        return '%s%dh %dm %ds' % (sign_string, hours, minutes, seconds)
+    elif minutes > 0:
+        return '%s%dm %ds' % (sign_string, minutes, seconds)
+    else:
+        return '%s%ds' % (sign_string, seconds)

@@ -36,6 +36,10 @@ start using the CLI:
 * show user's groups from token
 * TODO show token status
 
+## tokens
+* print information (incl. user and groups) about local tokens (stored post login)
+    * ability to decode token (--decode)
+
 ## logout
 * revoke token from the oauth server and clear token stored locally
 
@@ -73,9 +77,6 @@ start using the CLI:
     * ability to limit acl listing to what is public (i.e. no auth, --public-only)
     * show raw ACLs as returned by the Nexus service (--show-raw)
 
-## types
-* TODO list entity types supported in the selected nexus instance 
-
 ## search (note that the context right now is hard coded)
 * search by entity types (--type) and/or by field/value (--field, --value) and list resulting entity IDs
     * override default context (--context)
@@ -103,4 +104,7 @@ All the above can use the following options:
 * TODO show entity by ID (latest or specific revision)
 * TODO show revisions list of an entity
 * TODO update an entity (download metadata, edit metadata, update entity) 
+
+## types
+* TODO list entity types supported in the selected nexus instance 
 
