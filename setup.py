@@ -7,7 +7,6 @@ setup(
     install_requires=[
         'click',
         'blessings',
-        'python-keycloak',
         'requests',
         'prettytable',
         'PyJWT',
@@ -15,6 +14,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        nexus-cli=cli:entry_point
+        nexus=cli:entry_point
     ''',
 )
