@@ -10,7 +10,7 @@ setup(
         'python-keycloak',
         'requests',
         'prettytable',
-        'jwt',
+        'PyJWT',
         'pygments'
     ],
     entry_points='''
