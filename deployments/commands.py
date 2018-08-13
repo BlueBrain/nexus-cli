@@ -20,7 +20,7 @@ def is_valid_deployment_name(name, reg=re.compile('^[a-zA-Z0-9\.\-_]+$')):
 @click.command()
 @click.option('--add', '-a', help='Name of the nexus deployment to be locally added')
 @click.option('--remove', '-r', help='Name of the nexus deployment to be locally removed')
-@click.option('--select', '-r', help='Name of the nexus deployment to be selected for subsequent CLI calls')
+@click.option('--select', '-s', help='Name of the nexus deployment to be selected for subsequent CLI calls')
 @click.option('--url', '-u', help='URL of a nexus deployment (for --add, --remove)')
 @click.option('--list', '-l', is_flag=True, help='List all nexus deployment locally registered')
 @click.option('--count', '-c', is_flag=True, default=False, help='Show count of entities when listing')
