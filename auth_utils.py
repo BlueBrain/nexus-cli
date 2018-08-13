@@ -1,5 +1,7 @@
 from keycloak import KeycloakOpenID
+import jwt
 
+import config_utils
 
 def get_auth_server():
     return KeycloakOpenID(server_url="https://bbpteam.epfl.ch/auth/",

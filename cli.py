@@ -11,6 +11,7 @@ from schemas import commands as schemas
 from search import commands as search
 from get import commands as get
 from acls import commands as acls
+from tokens import commands as tokens
 
 
 @click.group()
@@ -31,6 +32,7 @@ entry_point.add_command(schemas.schemas)
 entry_point.add_command(search.search)
 entry_point.add_command(get.get)
 entry_point.add_command(acls.acls)
+entry_point.add_command(tokens.tokens)
 
 
 if __name__ == "__main__":
