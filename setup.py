@@ -11,7 +11,8 @@ setup(
         'requests==2.18.4',
         'prettytable',
         'PyJWT',
-        'pygments'
+        'pygments',
+        'pytest'
     ],
     entry_points='''
         [console_scripts]
