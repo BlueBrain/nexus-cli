@@ -146,6 +146,8 @@ def search(query, fetch_entities=True, max_results=None, authenticate=True, verb
         else:
             for e in entities:
                 results.append(e['resultId'])
+    else:
+        utils.error("Unexpected HTTP code: %d (%s)\nContent:\n%s" % (r.status_code, r.reason, r.content))
 
     return results
 
