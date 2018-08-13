@@ -7,7 +7,8 @@ setup(
     install_requires=[
         'click',
         'blessings',
-        'requests',
+        'python-keycloak',
+        'requests==2.18.4',
         'prettytable',
         'PyJWT',
         'pygments'
