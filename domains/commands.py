@@ -11,12 +11,23 @@ t = Terminal()
 
 
 @click.command()
-@click.option('--list', '-l', is_flag=True, help='List all nexus organization registered')
+@click.option('_list', '--list', '-l', is_flag=True, default=False, help='List all (non deprecated) nexus domains registered')
+@click.option('--show-deprecated', '-s', is_flag=True, default=False, help='Show deprecated domains (default:False)')
+@click.option('--create', '-c', help='Create a new domain in a specific organization')
+@click.option('--deprecate', '-d', help='Deprecate domain')
 @click.option('--organization', '-o', help='The organisation for which to list domains')
 @click.option('--public-only', '-p', is_flag=True, default=False, help='List only public datasets (i.e. no authentication)')
-def domains(list, organization, public_only):
+@click.option('--verbose', '-v', is_flag=True, default=False, help='Prints additional information')
+def domains(_list, show_deprecated, create, deprecate, organization, public_only, verbose):
     """Manage Nexus domains."""
-    if list is not None:
+
+    if public_only:
+        print("Limiting results to publicly accessible records")
+        authenticate = False
+    else:
+        authenticate = True
+
+    if _list:
         if organization is None:
             utils.error("You must select an organisation using --organization")
 
@@ -25,12 +36,16 @@ def domains(list, organization, public_only):
             utils.error("You must select a deployment using `deployment --select` prior to running this command.")
         active_deployment_cfg = c[1]
 
+        print("show_deprecated=%s" % show_deprecated)
         url = active_deployment_cfg['url'] + "/v0/domains/" + organization
-        if public_only:
-            print("Limiting results to publicly accessible records")
-            authenticate = False
+        if show_deprecated:
+            url += "?deprecated=true"
         else:
-            authenticate = True
+            url += "?deprecated=false"
+
+        if verbose:
+            print("URL: " + url)
+
         data = nexus_utils.get_results_by_uri(url, authenticate=authenticate)
         total = data[1]
         results = data[0]
@@ -49,3 +64,14 @@ def domains(list, organization, public_only):
         else:
             print(t.green('Total: %d of %d' % (str(len(results)), str(total))))
 
+    elif create is not None:
+        nexus_utils.create_domain(domain_name=create,
+                                  organization_name=organization,
+                                  authenticate=authenticate,
+                                  verbose=verbose)
+
+    elif deprecate is not None:
+        nexus_utils.deprecate_domain(domain_name=deprecate,
+                                     organization_name=organization,
+                                     authenticate=authenticate,
+                                     verbose=verbose)

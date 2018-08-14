@@ -237,5 +237,79 @@ def create_organization(organization_name, authenticate=True, verbose=False):
     if r.status_code != 201:
         utils.error("Unexpected error occurred: HTTP %d (%s)\nDetails: %s" % (r.status_code, r.reason, r.content))
     else:
-        print(t.green("Organisation created"))
+        print(t.green("Organisation created."))
 
+
+def create_domain(domain_name, organization_name, authenticate=True, verbose=False):
+
+    if domain_name is None:
+        utils.error("You must give a non empty domain name")
+    domain_name = domain_name.strip()
+    if len(domain_name) == 0:
+        utils.error("You must give a non empty domain name")
+
+    headers = {}
+    if authenticate:
+        add_authorization_to_headers(headers)
+    headers['Content-Type'] = 'application/ld+json'
+
+    base_url = config_utils.get_selected_deployment_config()[1]['url']
+    url = base_url + "/v0/domains/" + organization_name + "/" + domain_name
+
+    payload = {
+        "@context": {
+            "schema": "http://schema.org/"
+        },
+        "schema:name": domain_name,
+        "description": ""
+    }
+
+    if verbose:
+        print("Creating new domain '%s' in organization '%s': %s" % (domain_name, organization_name, url))
+        utils.print_json(payload, colorize=True)
+
+    r = requests.put(url, data=json.dumps(payload), headers=headers)
+
+    if r.status_code != 201:
+        utils.error("Unexpected error occurred: HTTP %d (%s)\nDetails: %s" % (r.status_code, r.reason, r.content))
+    else:
+        print(t.green("Domain created."))
+
+
+def deprecate_domain(domain_name, organization_name, authenticate=True, verbose=False):
+
+    if domain_name is None:
+        utils.error("You must give a non empty domain name")
+    domain_name = domain_name.strip()
+    if len(domain_name) == 0:
+        utils.error("You must give a non empty domain name")
+
+    headers = {}
+    if authenticate:
+        add_authorization_to_headers(headers)
+    headers['Content-Type'] = 'application/ld+json'
+
+    base_url = config_utils.get_selected_deployment_config()[1]['url']
+    url = base_url + "/v0/domains/" + organization_name + "/" + domain_name
+
+    r = requests.get(url, headers=headers)
+    if r.status_code != 200:
+        print(t.red("Unexpected error occurred: HTTP %d (%s)" % (r.status_code, r.reason)))
+        print(t.red("URL: %s" % url))
+        utils.error("Details: %s" % r.content)
+
+    domain_json = r.json()
+    revision = domain_json['nxv:rev']
+    if verbose:
+        print("current revision: %s" % revision)
+
+    if verbose:
+        print("Deprecating domain '%s' in organization '%s': %s" % (domain_name, organization_name, url))
+
+    url = url + "?rev=" + str(revision)
+    r2 = requests.delete(url, headers=headers)
+
+    if r2.status_code != 200:
+        utils.error("Unexpected error occurred: HTTP %d (%s)\nDetails: %s" % (r2.status_code, r2.reason, r2.content))
+    else:
+        print(t.green("Domain deprecated."))

@@ -59,10 +59,11 @@ start using the CLI:
 * TODO update ACLs ? or should that be a separate command 'acls'
 
 ## domains
-* list domains of a given organization (--list)
+* list (non deprecated) domains of a given organization (--list)
     * list domains that are public only, i.e. no-authentication (--public-only)
-* TODO create a new domain in an organisation
-* TODO deprecate a domain
+    * show deprecated domains (--show-deprecated)
+* create a new domain in an organisation (--create)
+* deprecate a domain (--deprecate)
 
 ## schemas
 * list schemas of a given organization/domain (--list)
