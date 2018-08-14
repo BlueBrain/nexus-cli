@@ -53,8 +53,8 @@ start using the CLI:
 ## organisations
 * list organizations on the currently selected local deployment of nexus (--list)
     * list organizations that are public only, i.e. no-authentication (--public-only)
+* create a new organization (--create)
 * TODO deprecate an organization
-* TODO create a new organization
 * TODO list ACLs on an organization
 * TODO update ACLs ? or should that be a separate command 'acls'
 

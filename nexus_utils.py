@@ -204,3 +204,38 @@ def download_file(distribution, local_dir, authenticate=True, verbose=False):
         print("done")
 
     return local_file
+
+
+def create_organization(organization_name, authenticate=True, verbose=False):
+
+    if organization_name is None:
+        utils.error("You must give a non empty organization name")
+    organization_name = organization_name.strip()
+    if len(organization_name) == 0:
+        utils.error("You must give a non empty organization name")
+
+    headers = {}
+    if authenticate:
+        add_authorization_to_headers(headers)
+    headers['Content-Type'] = 'application/ld+json'
+
+    url = config_utils.get_selected_deployment_config()[1]['url'] + "/v0/organizations/" + organization_name
+
+    payload = {
+        "@context": {
+            "schema": "http://schema.org/"
+        },
+        "schema:name": organization_name
+    }
+
+    if verbose:
+        print("Creating new organization '%s': %s" % (organization_name, url))
+        utils.print_json(payload, colorize=True)
+
+    r = requests.put(url, data=json.dumps(payload), headers=headers)
+
+    if r.status_code != 201:
+        utils.error("Unexpected error occurred: HTTP %d (%s)\nDetails: %s" % (r.status_code, r.reason, r.content))
+    else:
+        print(t.green("Organisation created"))
+
