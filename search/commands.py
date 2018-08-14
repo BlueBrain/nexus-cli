@@ -24,7 +24,7 @@ t = Terminal()
 @click.option('--download', '-d', is_flag=True, help='Download metadata and data (if available)')
 @click.option('--download-directory', '-D', default='.', help='Where to download metadata and attachments (will create if not found)')
 @click.option('--include-deprecated', is_flag=True, default=False, help='include deprecated entities in search results')
-@click.option('--verbose', '-v', is_flag=True, help='Prints additional information')
+@click.option('--verbose', '-v', is_flag=True, default=False, help='Prints additional information')
 def search(organization,
            domain,
            entity_type,
