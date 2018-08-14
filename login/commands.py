@@ -1,7 +1,6 @@
 import click
 import getpass
 from blessings import Terminal
-import json
 from datetime import datetime
 
 import jwt
