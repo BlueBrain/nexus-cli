@@ -11,18 +11,18 @@ t = Terminal()
 
 
 @click.command()
-@click.option('--list', '-l', is_flag=True, help='List all nexus schemas registered')
+@click.option('_list', '--list', '-l', is_flag=True, help='List all nexus schemas registered')
 @click.option('--organization', '-o', help='The organisation for which to list schemas')
 @click.option('--domain', '-d', help='The domain for which to list schemas')
 @click.option('--public-only', '-p', is_flag=True, default=False, help='List only public datasets (i.e. no authentication)')
-@click.option('--download', '-d', help='List only public datasets (i.e. no authentication)')
-def schemas(list, organization, domain, public_only, download):
+def schemas(_list, organization, domain, public_only):
     """Manage Nexus schemas."""
-    if list is not None:
+    if _list is not None:
         if organization is None:
             utils.error("You must select an organisation using --organization")
+
         if domain is None:
-            utils.error("You must select an domain using --domain")
+            utils.error("You must select a domain using --domain")
 
         c = config_utils.get_selected_deployment_config()
         if c is None:
