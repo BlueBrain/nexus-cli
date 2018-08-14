@@ -95,11 +95,13 @@ def get_results_by_uri(data_url, first_page_only=False, max_results=None, authen
     return results, total
 
 
-def search(query, fetch_entities=True, max_results=None, authenticate=True, verbose=False):
+def search(query, organization=None, domain=None, fetch_entities=True, max_results=None, authenticate=True, verbose=False):
     """
     Execute provided search query and return resulting entities.
 
     :param query: a dict
+    :param organization: str
+    :param domain: str
     :param fetch_entities: bool
     :param max_results:
     :param authenticate:
@@ -114,7 +116,16 @@ def search(query, fetch_entities=True, max_results=None, authenticate=True, verb
         add_authorization_to_headers(headers)
     headers["Content-Type"] = "application/json"
 
-    search_url = config_utils.get_selected_deployment_config()[1]['url'] + "/v0/queries"
+    filter = ''
+    if organization is not None:
+        filter = '/' + organization
+        if domain is not None:
+            filter += '/' + domain
+    else:
+        if domain is not None:
+            utils.error("You cannot filter by domain without specifying an organization");
+
+    search_url = config_utils.get_selected_deployment_config()[1]['url'] + "/v0/queries" + filter
 
     r = None
     try:

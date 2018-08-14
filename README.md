@@ -81,8 +81,8 @@ start using the CLI:
 * search by entity types (--type) and/or by field/value (--field, --value) and list resulting entity IDs
     * override default context (--context)
 * search from a provided search query in a file (--query-file)
-
 All the above can use the following options:
+    * ability to filter by organization (--organization) and domain (--domain)
     * show the Nexus query generated (--show-query)
     * colorize json-ld output (--pretty)
     * print the resulting entity payloads (--show-entities)

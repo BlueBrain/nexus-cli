@@ -10,11 +10,13 @@ t = Terminal()
 
 
 @click.command()
+@click.option('--organization', '-o', help='The organization to search into.')
+@click.option('--domain', help='The domain to search into (you must also give an organization).')
 @click.option('entity_type', '--type', '-t', help='The entity type to search for.')
 @click.option('--context', '-c', help='Override default context.')
 @click.option('--field', '-f', help='The field to filter on.')
 @click.option('--value', '-v', help='The field value to filter on.')
-@click.option('--query-file', '-F', help='Provide the query from a file.')
+@click.option('--query-file', '-q', help='Provide the query from a file.')
 @click.option('--show-query', '-s', is_flag=True, help='print the generated search query')
 @click.option('--pretty', '-p', is_flag=True, help='colorize output')
 @click.option('--show-entities', '-e', is_flag=True, help='Fetch full payload for each entity, otherwise show only ID')
@@ -22,7 +24,7 @@ t = Terminal()
 @click.option('--download', '-d', is_flag=True, help='Download metadata and data (if available)')
 @click.option('--download-directory', '-D', default='.', help='Where to download metadata and attachments (will create if not found)')
 @click.option('--verbose', '-v', is_flag=True, help='Prints additional information')
-def search(entity_type, context, field, value, query_file, show_query, pretty, show_entities, max_entities, download, download_directory, verbose):
+def search(organization, domain, entity_type, context, field, value, query_file, show_query, pretty, show_entities, max_entities, download, download_directory, verbose):
     """Search Nexus."""
     if query_file is not None and (entity_type is not None or field is not None or value is not None):
         utils.error("You must either use --query-file or (--type, --field, --value)")
@@ -73,7 +75,7 @@ def search(entity_type, context, field, value, query_file, show_query, pretty, s
         utils.print_json(query, colorize=pretty)
 
     # execute query
-    results = nexus_utils.search(query, fetch_entities=True, max_results=max_entities, authenticate=True, verbose=verbose)
+    results = nexus_utils.search(query, organization, domain, fetch_entities=True, max_results=max_entities, authenticate=True, verbose=verbose)
     for item in results:
         if show_entities:
             utils.print_json(item, colorize=pretty)
