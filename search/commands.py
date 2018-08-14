@@ -23,9 +23,26 @@ t = Terminal()
 @click.option('--max-entities', '-m', type=int, help='Limits the number of results to show')
 @click.option('--download', '-d', is_flag=True, help='Download metadata and data (if available)')
 @click.option('--download-directory', '-D', default='.', help='Where to download metadata and attachments (will create if not found)')
+@click.option('--include-deprecated', is_flag=True, default=False, help='include deprecated entities in search results')
 @click.option('--verbose', '-v', is_flag=True, help='Prints additional information')
-def search(organization, domain, entity_type, context, field, value, query_file, show_query, pretty, show_entities, max_entities, download, download_directory, verbose):
+def search(organization,
+           domain,
+           entity_type,
+           context,
+           field,
+           value,
+           query_file,
+           show_query,
+           pretty,
+           show_entities,
+           max_entities,
+           download,
+           download_directory,
+           include_deprecated,
+           verbose):
+
     """Search Nexus."""
+
     if query_file is not None and (entity_type is not None or field is not None or value is not None):
         utils.error("You must either use --query-file or (--type, --field, --value)")
     elif query_file is None:
@@ -57,6 +74,14 @@ def search(organization, domain, entity_type, context, field, value, query_file,
                   }
                 }
 
+        print("deprecated:"+str(include_deprecated))
+        if not include_deprecated:
+            query['filter']['value'].append({
+                            "path": "nxv:deprecated",
+                            "op": "eq",
+                            "value": False
+                        })
+
         if entity_type is not None:
             query['filter']['value'].append({
                                                 "op": "eq",
@@ -75,7 +100,13 @@ def search(organization, domain, entity_type, context, field, value, query_file,
         utils.print_json(query, colorize=pretty)
 
     # execute query
-    results = nexus_utils.search(query, organization, domain, fetch_entities=True, max_results=max_entities, authenticate=True, verbose=verbose)
+    results = nexus_utils.search(query,
+                                 organization,
+                                 domain,
+                                 fetch_entities=True,
+                                 max_results=max_entities,
+                                 authenticate=True,
+                                 verbose=verbose)
     for item in results:
         if show_entities:
             utils.print_json(item, colorize=pretty)

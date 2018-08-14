@@ -88,6 +88,7 @@ All the above can use the following options:
     * print the resulting entity payloads (--show-entities)
     * limits the count of entities being retrieved (--max-entities)
     * download the metadata and, if any, the data attached to resulting entities (--download)
+    * Ability to include deprecated entities (--include-deprecated)
 
 ## get
 * retrieve entity payload (i.e. metadata) by its id with auth support (--url)
