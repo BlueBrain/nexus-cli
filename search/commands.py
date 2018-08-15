@@ -60,11 +60,10 @@ def search(organization,
         with open(query_file) as f:
             query = json.load(f)
     else:
-        default_context = "https://bbp.epfl.ch/nexus/v0/contexts/neurosciencegraph/core/data/v1.0.3"
         if context is not None:
             c = context
         else:
-            c = default_context
+            c = nexus_utils.find_latest_context(organization='neurosciencegraph', domain='core', context='data')
 
         query = {
                   "@context": c,
@@ -74,7 +73,6 @@ def search(organization,
                   }
                 }
 
-        print("deprecated:"+str(include_deprecated))
         if not include_deprecated:
             query['filter']['value'].append({
                             "path": "nxv:deprecated",
