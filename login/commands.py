@@ -2,11 +2,11 @@ import click
 import getpass
 from blessings import Terminal
 from datetime import datetime
+import requests
 
 import jwt
 
 import config_utils
-import auth_utils
 import utils
 
 
@@ -26,16 +26,20 @@ def login(user):
     if user is None or user == '':
         user = input("Username:")
 
-    auth_server = auth_utils.get_auth_server()
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    url = "https://bbpteam.epfl.ch/auth/realms/BBP/protocol/openid-connect/token"
     password = getpass.getpass('Password:')
-    try:
-        token = auth_server.token(username=user, password=password)
-    except Exception as e:
-        utils.error("Login failed: {0}".format(e))
-
-    userinfo = auth_server.userinfo(token['access_token'])
-
+    payload = "grant_type=password&username=%s&password=%s&client_id=bbp-nexus-public&scope=nexus" % (user, password)
+    r = requests.post(url, data=payload, headers=headers)
+    token = r.json()
+    access_token = token['access_token']
     print(t.green("Login successful"))
+
+    url = "https://bbpteam.epfl.ch/auth/realms/BBP/protocol/openid-connect/userinfo"
+    headers = {"Authorization": "Bearer " + access_token}
+    r = requests.get(url, headers=headers)
+    userinfo = r.json()
+
     if 'expires_in' in token:
         access_token = jwt.decode(token['access_token'], verify=False)
         expiry_utc = datetime.utcfromtimestamp(access_token['exp'])

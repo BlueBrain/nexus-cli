@@ -2,7 +2,6 @@ import click
 from blessings import Terminal
 
 import config_utils
-import auth_utils
 import utils
 
 
@@ -21,10 +20,7 @@ def logout():
     if 'token' not in selected_deployment_config:
         utils.error("You do not appear to have logged into " + deployment_name)
 
-    # invalidate token with auth server
-    auth_server = auth_utils.get_auth_server()
-    refresh_token = selected_deployment_config['token']['refresh_token']
-    auth_server.logout(refresh_token)
+    # TODO invalidate token with server (i.e. /logout(refresh_token))
 
     # clear local auth data
     del(selected_deployment_config['token'])

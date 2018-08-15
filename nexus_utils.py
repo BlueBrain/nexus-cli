@@ -2,6 +2,7 @@ import requests, json
 from blessings import Terminal
 from http.client import responses
 import os, sys
+from distutils.version import LooseVersion
 
 import config_utils
 import utils
@@ -19,12 +20,18 @@ def add_authorization_to_headers(headers):
     return headers
 
 
-def get_by_id(entity_url, authenticate=True, verbose=False):
+def get_selected_deployment_base_url():
+    return config_utils.get_selected_deployment_config()[1]['url'] + "/v0"
+
+
+def get_by_id(entity_url, authenticate=True, verbose=False, fail_if_not_found=True):
     """
     Retrieve an entity description from a given URL (ID).
 
     :param entity_url: the URL of the entity to retrieve
     :param authenticate: if True, attempts to use the token of the logged in user.
+    :param verbose: if True, prints extra information
+    :param fail_if_not_found: if True, calls sys.exit upon not finding entity, otherwise returns None.
     :return: the payload this URL points to
     :rtype: dict
     """
@@ -37,8 +44,11 @@ def get_by_id(entity_url, authenticate=True, verbose=False):
         print("Fetching: " + entity_url)
     r = requests.get(entity_url, headers=headers)
     if r.status_code != 200:
-        utils.error("Failed to get entity from URL: " + entity_url +
-              '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
+        if fail_if_not_found:
+            utils.error("Failed to get entity from URL: " + entity_url +
+                        '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
+        else:
+            return None
 
     data = r.json()
     r.close()
@@ -68,14 +78,14 @@ def get_results_by_uri(data_url, first_page_only=False, max_results=None, authen
         r = requests.get(data_url, headers=headers)
         if r.status_code != 200:
             utils.error("Failed to list results from URL: " + data_url +
-                  '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
+                        '\nRequest status: ' + str(r.status_code) + ' (' + responses[r.status_code] + ')')
 
         payload = r.json()
         r.close()
         if 'results' not in payload:
             print(t.red(json.dumps(payload, indent=2)))
             utils.error('\nUnexpected payload return from Nexus URL: ' + data_url +
-                  "\nCould not find attribute 'results'.")
+                        "\nCould not find attribute 'results'.")
 
         total = payload['total']
         for item in payload['results']:
@@ -206,6 +216,33 @@ def download_file(distribution, local_dir, authenticate=True, verbose=False):
     return local_file
 
 
+def upload_file(instance_id, file_to_upload, authenticate=True, verbose=False):
+    headers = {}
+    if authenticate:
+        add_authorization_to_headers(headers)
+
+    payload = get_by_id(instance_id, authenticate=authenticate)
+
+    if payload['nvx:deprecated']:
+        utils.error("You cannot upload a file on a deprecated entity: " + instance_id)
+
+    if 'distribution' in payload:
+        utils.error("attachment already present, you cannot upload more than one: " + instance_id)
+
+    revision = payload["nxv:rev"]
+
+    url = "{}/attachment?rev={}".format(instance_id, revision)
+    if verbose:
+        print("URL: " + url)
+    try:
+        file = {'file': open(file_to_upload, 'rb')}
+        r = requests.put(url, files=file, headers=headers)
+        if verbose:
+            print("%d (%s)\n%s" % (r.status_code, r.reason, r.content))
+    except Exception as error:
+        print(error)
+
+
 def create_organization(organization_name, authenticate=True, verbose=False):
 
     if organization_name is None:
@@ -289,8 +326,8 @@ def deprecate_domain(domain_name, organization_name, authenticate=True, verbose=
         add_authorization_to_headers(headers)
     headers['Content-Type'] = 'application/ld+json'
 
-    base_url = config_utils.get_selected_deployment_config()[1]['url']
-    url = base_url + "/v0/domains/" + organization_name + "/" + domain_name
+    base_url = get_selected_deployment_base_url()
+    url = base_url + "/domains/" + organization_name + "/" + domain_name
 
     r = requests.get(url, headers=headers)
     if r.status_code != 200:
@@ -313,3 +350,64 @@ def deprecate_domain(domain_name, organization_name, authenticate=True, verbose=
         utils.error("Unexpected error occurred: HTTP %d (%s)\nDetails: %s" % (r2.status_code, r2.reason, r2.content))
     else:
         print(t.green("Domain deprecated."))
+
+
+DEPRECATED_URI = 'https://bbp-nexus.epfl.ch/vocabs/nexus/core/terms/v0.1.0/deprecated'
+
+
+def is_deprecated(entity_id, authenticate=True, verbose=False):
+    payload = get_by_id(entity_id, authenticate=authenticate, verbose=verbose)
+    if DEPRECATED_URI in payload:
+        deprecated = payload[DEPRECATED_URI]
+        if type(deprecated) is bool:
+            return deprecated
+        elif type(deprecated) is list:
+            e = deprecated[0]
+            if type(e) is dict:
+                if '@value' in e:
+                    d = e['@value']
+                    if type(d) is bool:
+                        return d
+                    else:
+                        utils.print_json(deprecated, colorize=True)
+                        utils.error("Unexpected payload")
+                else:
+                    utils.print_json(deprecated, colorize=True)
+                    utils.error("Unexpected payload")
+            else:
+                utils.print_json(deprecated, colorize=True)
+                utils.error("Unexpected payload")
+        else:
+            utils.print_json(deprecated, colorize=True)
+            utils.error("Unexpected payload")
+
+
+def find_latest_context(organization, domain, context):
+    """
+    Given an organization, domain and context name, find the most recent version and return its id.
+    """
+    base_url = get_selected_deployment_base_url()
+    schemas_url = base_url + "/contexts"
+    _contexts, total = get_results_by_uri(schemas_url)
+
+    # look for instance schema and pick the highest version
+    id = None
+    current_version = None
+    for c in _contexts:
+        context_id = c['resultId']
+        values = context_id.split("/")[-4:] # org / domain / context / version
+        if organization != values[0] or domain != values[1] or context != values[2]:
+            continue
+
+        version = values[3]
+
+        if current_version is None:
+            current_version = LooseVersion(version[1:])
+            id = context_id
+        else:
+            tmp = LooseVersion(version[1:])
+            if tmp > current_version:
+                current_version = tmp
+                id = context_id
+
+    return id
