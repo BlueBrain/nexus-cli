@@ -223,7 +223,7 @@ def upload_file(instance_id, file_to_upload, authenticate=True, verbose=False):
 
     payload = get_by_id(instance_id, authenticate=authenticate)
 
-    if payload['nvx:deprecated']:
+    if payload['nxv:deprecated']:
         utils.error("You cannot upload a file on a deprecated entity: " + instance_id)
 
     if 'distribution' in payload:
@@ -237,8 +237,9 @@ def upload_file(instance_id, file_to_upload, authenticate=True, verbose=False):
     try:
         file = {'file': open(file_to_upload, 'rb')}
         r = requests.put(url, files=file, headers=headers)
-        if verbose:
-            print("%d (%s)\n%s" % (r.status_code, r.reason, r.content))
+        if r.status_code != 201:
+            print(t.red("%d (%s)\n%s" % (r.status_code, r.reason, r.content)))
+            utils.error("File upload failed")
     except Exception as error:
         print(error)
 
@@ -356,7 +357,7 @@ DEPRECATED_URI = 'https://bbp-nexus.epfl.ch/vocabs/nexus/core/terms/v0.1.0/depre
 
 
 def is_deprecated(entity_id, authenticate=True, verbose=False):
-    payload = get_by_id(entity_id, authenticate=authenticate, verbose=verbose)
+    payload = get_by_id(entity_id + "?format=expanded", authenticate=authenticate, verbose=verbose)
     if DEPRECATED_URI in payload:
         deprecated = payload[DEPRECATED_URI]
         if type(deprecated) is bool:
@@ -380,6 +381,28 @@ def is_deprecated(entity_id, authenticate=True, verbose=False):
         else:
             utils.print_json(deprecated, colorize=True)
             utils.error("Unexpected payload")
+
+
+def publish_schema(schema_id, authenticate=True, verbose=False):
+    payload = get_by_id(schema_id, authenticate=authenticate, verbose=verbose)
+    if "nxv:published" in payload:
+        if payload['nxv:published']:
+            if verbose:
+                print("Schema already published")
+        else:
+            headers = {'Content-Type': 'application/ld+json'}
+            if authenticate:
+                add_authorization_to_headers(headers)
+            revision = payload['nxv:rev']
+            url = schema_id + "/config?rev=" + str(revision)
+            cfg = {"published": True}
+            r = requests.patch(url, data=json.dumps(cfg), headers=headers)
+            if r.status_code == 200:
+                print(t.green("Schema published"))
+            else:
+                print(t.red("URL: %s\nHTTP %d (%s)\nDetails: %s" % (url, r.status_code, r.reason, r.content)))
+                utils.error("Failed to publish schema.")
+            r.close()
 
 
 def find_latest_context(organization, domain, context):

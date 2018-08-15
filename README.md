@@ -97,7 +97,7 @@ All the above can use the following options:
 * TODO download attached data if available (--data) 
 
 ## upload
-* TODO upload a file in a given organization/domain
+* upload a file in a given organization/domain in a generic schema
 
 ## download
 * TODO given a search query, download all datasets locally along with metadata
