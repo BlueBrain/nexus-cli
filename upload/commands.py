@@ -93,6 +93,7 @@ def upload(file, organization, domain, verbose):
         if r.status_code == 201:
             print(t.green("Schema 'instance' created"))
         r.close()
+        instance_schema_id = upload_url
 
     else:
         if verbose:
