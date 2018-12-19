@@ -9,7 +9,7 @@ As seen in http://click.pocoo.org/6/setuptools/#setuptools-integration
 
    conda create -y --name nexus-cli python=3.7
    conda activate nexus-cli
-   git clone https://github.com/samuel-kerrien/nexus-cli
+   git clone https://github.com/BlueBrain/nexus-cli
    cd nexus-cli
    pip install --editable .
 ```
