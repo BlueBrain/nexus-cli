@@ -29,7 +29,7 @@ def get_by_id(entity_url, authenticate=True, verbose=False, fail_if_not_found=Tr
     Retrieve an entity description from a given URL (ID).
 
     :param entity_url: the URL of the entity to retrieve
-    :param authenticate: if True, attempts to use the token of the logged in user.
+    :param authenticate: if True, attempts to use the tokens of the logged in user.
     :param verbose: if True, prints extra information
     :param fail_if_not_found: if True, calls sys.exit upon not finding entity, otherwise returns None.
     :return: the payload this URL points to
@@ -62,7 +62,7 @@ def get_results_by_uri(data_url, first_page_only=False, max_results=None, authen
     :param str data_url: the URL from which to get data from nexus
     :param bool first_page_only: if set to True, data will not be loaded beyond the first page returned by nexus (default: False).
     :param int max_results: if not None, constrains how many results are to be collected.
-    :param bool authenticate: if set to False, no force no token to be passed along, even if the user is logged in (detault: True).
+    :param bool authenticate: if set to False, no force no tokens to be passed along, even if the user is logged in (detault: True).
     :return the list of collected results
     :rtype: list
     """

@@ -45,8 +45,8 @@ def get_access_token():
     if cfg is None:
         utils.error("Failed to get selected config.")
     token = None
-    if 'token' in cfg:
-        token = cfg['token']['access_token']
+    if 'tokens' in cfg:
+        token = cfg['tokens']['access_token']
     return token
 
 
