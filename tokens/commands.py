@@ -24,7 +24,13 @@ def token():
                 print("\nDecoded token:")
                 utils.print_json(decoded, colorize=True)
                 expiry_utc = datetime.utcfromtimestamp(decoded['exp'])
-                print("\nExpiry: %s" % utils.datetime_from_utc_to_local(expiry_utc))
+                expires_in = expiry_utc.timestamp() - datetime.now().timestamp()
+                when = ""
+                if expires_in > 0:
+                    when = "in %s" % utils.print_time(expires_in)
+                else:
+                    when = "%s ago" % utils.print_time(abs(expires_in))
+                print("\nExpiry: %s (%s)" % (utils.datetime_from_utc_to_local(expiry_utc), when))
 
     if _token is None:
         if selected is None:
