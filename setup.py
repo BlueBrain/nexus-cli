@@ -11,8 +11,9 @@ setup(
         'prettytable',
         'PyJWT',
         'pygments',
-        'pytest'
-    ],
+        'pytest',
+		'nexus-sdk==0.1.0' 
+	],
     entry_points='''
         [console_scripts]
         nexus=cli:entry_point
