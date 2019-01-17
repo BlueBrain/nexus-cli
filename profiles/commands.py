@@ -25,10 +25,10 @@ def profiles(add, url, select, remove):
             if 'selected' in config[key] and config[key]['selected'] is True:
                 selected = "Yes"
             token = 'None'
-            if 'tokens' in config[key]:
-                decoded = jwt.decode(config[key]['tokens'], verify=False)
+            if 'token' in config[key]:
+                decoded = jwt.decode(config[key]['token'], verify=False)
                 expiry_utc = datetime.utcfromtimestamp(decoded['exp'])
-                token="Expiry: %s" % utils.datetime_from_utc_to_local(expiry_utc)
+                token = "Expiry: %s" % utils.datetime_from_utc_to_local(expiry_utc)
             table.add_row([key, selected, config[key]['url'], token])
         print(table)
 

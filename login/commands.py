@@ -7,22 +7,23 @@ import utils
 
 
 @click.command()
-@click.option('--profile', '-p', help='Named profile of this configuration')
-@click.option('--tokens', '-t', help='Authentication tokens')
-@click.option('--verbose', '-v', is_flag=True, default=False, help='enable verbose display')
-def login(profile, token, verbose):
+@click.option('--token', '-t', help='Authentication token')
+def login(token):
     """Log the user into a deployment of Nexus."""
     config = config_utils.get_cli_config()
-    if profile not in config:
-        utils.error("Profile '%s' does not exist." % profile)
+
+    selected_profile = None
+    for key in config.keys():
+        if 'selected' in config[key] and config[key]['selected'] is True:
+            selected_profile = key
+            break
+    if selected_profile is None:
+        utils.error("No profile selected, please use the profiles --select to do that.")
 
     try:
-        decoded = jwt.decode(token, verify=False)
-        if verbose:
-            print("Decoded tokens:")
-            utils.print_json(decoded, colorize=True)
+        jwt.decode(token, verify=False)
     except jwt.exceptions.DecodeError:
         utils.error("Provided tokens could not be decoded. Please provide a valid tokens.")
 
-    config[profile]['tokens'] = token
+    config[selected_profile]['token'] = token
     config_utils.save_cli_config(config)
