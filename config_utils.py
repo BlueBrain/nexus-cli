@@ -1,4 +1,3 @@
-from utils import error
 import os
 import json
 from pathlib import Path

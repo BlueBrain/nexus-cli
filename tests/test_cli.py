@@ -42,14 +42,14 @@ def test_nexus_contexts():
 def test_nexus_organizations():
     assert_command_returns_exist_code("nexus deployments --add foo --url https://bbp-nexus.epfl.ch/staging", 0)
     assert_command_returns_exist_code("nexus deployments --select foo", 0)
-    assert_command_returns_exist_code("nexus organizations --list", 0)
+    assert_command_returns_exist_code("nexus orgs --list", 0)
     assert_command_returns_exist_code("nexus deployments --remove foo", 0)
 
 
 def test_nexus_domains():
     assert_command_returns_exist_code("nexus deployments --add foo --url https://bbp-nexus.epfl.ch/staging", 0)
     assert_command_returns_exist_code("nexus deployments --select foo", 0)
-    org_output = assert_command_returns_exist_code("nexus organizations --list --no-format", 0)
+    org_output = assert_command_returns_exist_code("nexus orgs --list --no-format", 0)
     print(org_output)
     orgs = org_output.split("\n")
     print(orgs)

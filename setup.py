@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='nexus-cli',
-    version='0.1',
+    version='0.2',
     py_modules=['cli'],
     install_requires=[
         'click',
@@ -16,6 +16,6 @@ setup(
 	],
     entry_points='''
         [console_scripts]
-        nexus=cli:entry_point
+        nexus=cli:cli
     ''',
 )
