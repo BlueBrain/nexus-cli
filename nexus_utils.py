@@ -4,9 +4,8 @@ from http.client import responses
 import os, sys
 from distutils.version import LooseVersion
 
-import config_utils
 import utils
-
+import config_utils
 
 t = Terminal()
 
@@ -257,7 +256,7 @@ def create_organization(organization_name, authenticate=True, verbose=False):
         add_authorization_to_headers(headers)
     headers['Content-Type'] = 'application/ld+json'
 
-    url = config_utils.get_selected_deployment_config()[1]['url'] + "/v0/organizations/" + organization_name
+    url = config_utils.get_selected_deployment_config()[1]['url'] + "/v0/orgs/" + organization_name
 
     payload = {
         "@context": {

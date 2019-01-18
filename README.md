@@ -7,9 +7,9 @@ As seen in http://click.pocoo.org/6/setuptools/#setuptools-integration
 ```
    <install conda - https://conda.io/docs/user-guide/install/index.html>
 
-   conda create -y --name nexus-cli python=3.7
-   conda activate nexus-cli-v1
-   git clone https://github.com/samuel-kerrien/nexus-cli
+   conda create -y --name nexus-cli python=3.5
+   conda activate nexus-cli
+   git clone https://github.com/BlueBrain/nexus-cli
    cd nexus-cli
    git checkout nexus_v1
    pip install --editable .
@@ -23,16 +23,15 @@ start using the CLI:
 # Currently supported features
 
 ## profiles
-* adding a new profile (--add <name> --url <URL>)
-* removing a locally registered deployment (--remove <name>)
-* list locally registered deployment (no param), 
+* adding a new profile (--create <name> --url <URL>)
+* Deleting a locally registered deployment (--delete <name>)
+* list locally registered deployment (--list), 
 * select a locally registered deployment (--select <name>)
 
 ## login
 * log into the currently selected local deployment of nexus
-* show token upon login
-* show user's groups from token
-* TODO show token status
+* show token upon login with expiry status
 
-## token
-* print information about local tokens (stored post login)
+## token (stored in ${HOME}/.nexus-cli/config.json)
+* print encoded token
+* print decoded token and expiry information
