@@ -4,7 +4,7 @@ import webbrowser
 from datetime import datetime
 
 from nexuscli.cli import cli
-from nexuscli import config_utils, utils
+from nexuscli import utils
 
 
 @cli.group()
@@ -14,7 +14,7 @@ def auth():
 
 @auth.command('login')
 def open_nexus_web():
-    base_url = config_utils.get_selected_deployment_config()[1]['url']
+    base_url = utils.get_selected_deployment_config()[1]['url']
     print("A browser window will now open, please login, copy your token and use the auth --token command "
           "to store it in the CLI")
     input("Press ENTER to continue...")
@@ -25,7 +25,7 @@ def open_nexus_web():
 @click.argument('token')
 def set_token(token):
     """Registers the user token in the current profile."""
-    config = config_utils.get_cli_config()
+    config = utils.get_cli_config()
 
     selected_profile = None
     for key in config.keys():
@@ -41,13 +41,13 @@ def set_token(token):
         utils.error("Provided tokens could not be decoded. Please provide a valid tokens.")
 
     config[selected_profile]['token'] = token
-    config_utils.save_cli_config(config)
+    utils.save_cli_config(config)
 
 
 @auth.command('view-token', help='View token')
 def view_token():
     """Show token for current profile."""
-    config = config_utils.get_cli_config()
+    config = utils.get_cli_config()
 
     _token = None
     selected = None

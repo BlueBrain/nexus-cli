@@ -1,7 +1,7 @@
 import click
 
 from nexuscli import utils
-from nexuscli.nexus_utils import get_nexus_client
+
 
 from nexuscli.cli import cli
 
@@ -26,11 +26,12 @@ def update(id, data):
 
 @realms.command(name='list', help='List all realms')
 def _list():
-    nxs = get_nexus_client()
+    nxs = utils.get_nexus_client()
     try:
         response = nxs.realms.list()
-        for r in response["results"]:
-            print(r["name"], r["deprecated"])
+        utils.print_json(response, colorize=True)
+        for r in response["_results"]:
+            print(r["name"], r["_deprecated"])
     except nxs.HTTPError as e:
         print(e.response.json())
         utils.error(str(e))
