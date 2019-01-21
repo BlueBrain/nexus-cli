@@ -3,8 +3,8 @@ from prettytable import PrettyTable
 import jwt
 from datetime import datetime
 
-from cli import cli
-import utils, config_utils
+from nexuscli.cli import cli
+from nexuscli import utils
 
 
 @cli.group()
@@ -14,7 +14,7 @@ def profiles():
 
 @profiles.command(name='list', help='List all profiles')
 def list_profiles():
-    config = config_utils.get_cli_config()
+    config = utils.get_cli_config()
     table = PrettyTable(['Profile', 'Selected', 'URL', 'Token'])
     table.align["Profile"] = "l"
     table.align["URL"] = "l"
@@ -35,7 +35,7 @@ def list_profiles():
 @click.argument('profile')
 @click.argument('url')
 def create(profile, url):
-    config = config_utils.get_cli_config()
+    config = utils.get_cli_config()
     if profile in config and 'url' in config[profile]:
         utils.error("This deployment already exist (%s) with url: %s" % (create, config[create]))
     # TODO Validate URL
@@ -45,13 +45,13 @@ def create(profile, url):
     #     utils.error("Failed to get entity count from URL: " + data_url +
     #                 '\nRequest status: ' + str(r.status_code))
     config[profile] = {'url': url.rstrip("/")}
-    config_utils.save_cli_config(config)
+    utils.save_cli_config(config)
 
 
 @profiles.command(name='select', help='Select a profile for subsequent CLI calls')
 @click.argument('profile')
 def select(profile):
-    config = config_utils.get_cli_config()
+    config = utils.get_cli_config()
 
     if profile not in config:
         utils.error("Could not find profile '%s' in CLI config" % delete)
@@ -65,8 +65,8 @@ def select(profile):
 @profiles.command(name='delete', help='Delete a profile')
 @click.argument('profile')
 def delete(profile):
-    config = config_utils.get_cli_config()
+    config = utils.get_cli_config()
     if profile not in config:
         utils.error("Could not find profile '%s' in CLI config" % profile)
     config.pop(profile, None)
-    config_utils.save_cli_config(config)
+    utils.save_cli_config(config)
