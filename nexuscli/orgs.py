@@ -1,7 +1,9 @@
 import click
 
-import utils
-from cli import cli
+from nexuscli import utils
+from nexuscli.nexus_utils import get_nexus_client
+
+from nexuscli.cli import cli
 
 
 @cli.group()
@@ -24,7 +26,8 @@ def update(id, data):
 
 @orgs.command(name='list', help='List all organizations')
 def _list():
-    utils.error("Not implemented yet")
+    nxs = get_nexus_client()
+
 
 
 @orgs.command(name='deprecate', help='Deprecate an organization')

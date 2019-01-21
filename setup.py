@@ -4,10 +4,10 @@ setup(
     name='nexus-cli',
     version='0.2',
     py_modules=['cli'],
+    packages=["nexuscli"],
     install_requires=[
         'click',
         'blessings',
-        'requests',
         'prettytable',
         'PyJWT',
         'pygments',
@@ -16,6 +16,6 @@ setup(
 	],
     entry_points='''
         [console_scripts]
-        nexus=cli:cli
+        nexus=nexuscli.cli:cli
     ''',
 )

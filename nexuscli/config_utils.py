@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 
-import utils
+from nexuscli import utils
 
 
 def get_cli_config_dir():

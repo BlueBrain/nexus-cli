@@ -23,15 +23,15 @@ start using the CLI:
 # Currently supported features
 
 ## profiles
-* adding a new profile (--create <name> --url <URL>)
-* Deleting a locally registered deployment (--delete <name>)
-* list locally registered deployment (--list), 
-* select a locally registered deployment (--select <name>)
+* Adding a new profile (create <name> <URL>)
+* Deleting a locally registered profile (delete <name>)
+* List locally registered profiles (list), 
+* Select a locally registered profile (select <name>)
 
-## login
-* log into the currently selected local deployment of nexus
-* show token upon login with expiry status
+## auth
+* Log into the currently selected deployment of Blue Brain Nexus
+* Show token upon login with expiry status
 
 ## token (stored in ${HOME}/.nexus-cli/config.json)
-* print encoded token
-* print decoded token and expiry information
+* Print encoded token
+* Print decoded token and expiry information

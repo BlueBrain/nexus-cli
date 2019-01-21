@@ -4,10 +4,20 @@ from http.client import responses
 import os, sys
 from distutils.version import LooseVersion
 
-import utils
-import config_utils
+from nexuscli import config_utils, utils
+
+import nexussdk as nxs
 
 t = Terminal()
+
+
+def get_nexus_client():
+    key, cfg = config_utils.get_selected_deployment_config()
+    if cfg is None:
+        utils.error("You must select a profile.")
+    nxs.config.set_environment(cfg["url"])
+    nxs.config.set_token(cfg["token"])
+    return nxs
 
 
 def add_authorization_to_headers(headers):

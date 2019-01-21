@@ -3,8 +3,8 @@ from prettytable import PrettyTable
 import jwt
 from datetime import datetime
 
-from cli import cli
-import utils, config_utils
+from nexuscli.cli import cli
+from nexuscli import config_utils, utils
 
 
 @cli.group()

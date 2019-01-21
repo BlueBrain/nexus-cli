@@ -1,7 +1,7 @@
 import click
-import utils
+from nexuscli import utils
 
-from cli import cli
+from nexuscli.cli import cli
 
 
 @cli.group()
