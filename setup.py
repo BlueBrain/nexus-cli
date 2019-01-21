@@ -2,12 +2,12 @@ from setuptools import setup
 
 setup(
     name='nexus-cli',
-    version='0.1',
+    version='0.2',
     py_modules=['cli'],
+    packages=["nexuscli"],
     install_requires=[
         'click',
         'blessings',
-        'requests',
         'prettytable',
         'PyJWT',
         'pygments',
@@ -16,6 +16,6 @@ setup(
 	],
     entry_points='''
         [console_scripts]
-        nexus=cli:entry_point
+        nexus=nexuscli.cli:cli
     ''',
 )
