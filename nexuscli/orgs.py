@@ -1,9 +1,9 @@
 import click
-
 from prettytable import PrettyTable
 import os, tempfile
 import json
-
+import hashlib
+from collections import OrderedDict
 
 from nexuscli import utils
 from nexuscli.cli import cli
@@ -14,7 +14,7 @@ def orgs():
     """Organizations operations"""
 
 
-@orgs.command(name='fetch', help='Create a new organization')
+@orgs.command(name='fetch', help='Fetch an organization')
 @click.argument('label')
 @click.option('--revision', '-r', default=None, type=int, help='Fetch the organization at a specific revision')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
@@ -58,9 +58,10 @@ def update(label, _payload, name, description):
     try:
         data = nxs.organizations.fetch(org_label=label)
         current_revision = data["_rev"]
+        data_ordered = OrderedDict(sorted(data.items()))
+        data_md5_before = hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
 
         if _payload is None and (name is not None or description is not None):
-
             if name is not None:
                 data["name"] = name
             if description is not None:
@@ -80,8 +81,13 @@ def update(label, _payload, name, description):
             f.close()
             os.remove(filename)
 
-        nxs.organizations.update(org=data, previous_rev=current_revision)
-        print("Organization updated.")
+        data_ordered = OrderedDict(sorted(data.items()))
+        data_md5_after = hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+        if data_md5_before == data_md5_after:
+            print("No change in organization, aborting update.")
+        else:
+            nxs.organizations.update(org=data, previous_rev=current_revision)
+            print("Organization updated.")
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
@@ -132,9 +138,6 @@ def deprecate(label, _json, pretty):
         utils.error(str(e))
 
 
-_DEFAULT_ORGANISATION_KEY_ = "default_organization"
-
-
 @orgs.command(name='select', help='Select an organization')
 @click.argument('label')
 def select(label):
@@ -149,12 +152,7 @@ def select(label):
             utils.print_json(e.response.json(), colorize=True)
             utils.error(str(e))
 
-    config = utils.get_cli_config()
-    profile, selected_config = utils.get_selected_deployment_config(config)
-    if selected_config is None:
-        utils.error("You must first select a profile using the 'profiles' command")
-    config[profile][_DEFAULT_ORGANISATION_KEY_] = label
-    utils.save_cli_config(config)
+    utils.set_default_organization(label)
     print("organization selected.")
 
 
@@ -164,7 +162,9 @@ def current():
     profile, selected_config = utils.get_selected_deployment_config(config)
     if selected_config is None:
         utils.error("You must first select a profile using the 'profiles' command")
-    if _DEFAULT_ORGANISATION_KEY_ in selected_config:
-        print(selected_config[_DEFAULT_ORGANISATION_KEY_])
+
+    default_org = utils.get_default_organization()
+    if default_org is not None:
+        print(default_org)
     else:
         utils.error("No default organization selected in profile '%s'" % profile)
