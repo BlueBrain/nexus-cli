@@ -52,14 +52,26 @@ def create(profile, url):
 @click.argument('profile')
 def select(profile):
     config = utils.get_cli_config()
-
     if profile not in config:
         utils.error("Could not find profile '%s' in CLI config" % delete)
     for key in config.keys():
         if 'selected' in config[key] and key != select:
             config[key].pop('selected', None)
-            print("deployment '%s' was unselected" % key)
     config[profile]['selected'] = True
+    utils.save_cli_config(config)
+    print("Selected profile: %s" % profile)
+
+
+@profiles.command(name='current', help='Show current selected profile')
+def current():
+    config = utils.get_cli_config()
+    found = False
+    for key in config.keys():
+        if 'selected' in config[key] and key != select:
+            print(key)
+            found = True
+    if not found:
+        print("No profile selected.")
 
 
 @profiles.command(name='delete', help='Delete a profile')

@@ -12,15 +12,14 @@ from pathlib import Path
 import nexussdk as nxs
 
 
-t = Terminal()
-
-
 def error(message):
+    t = Terminal()
     print(t.red(message))
     sys.exit(101)
 
 
 def success(message):
+    t = Terminal()
     print(t.green(message))
 
 
@@ -139,3 +138,42 @@ def get_selected_deployment_config(config=None):
         if 'selected' in config[key] and config[key]['selected'] is True:
             return key, config[key]
     return None, None
+
+
+_DEFAULT_ORGANISATION_KEY_ = "default_organization"
+_DEFAULT_PROJECT_KEY_ = "default_project"
+
+
+def get_default_organization():
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    return selected_config[_DEFAULT_ORGANISATION_KEY_]
+
+
+def set_default_organization(org_label):
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    config[profile][_DEFAULT_ORGANISATION_KEY_] = org_label
+    save_cli_config(config)
+
+
+def get_default_project():
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    return selected_config[_DEFAULT_PROJECT_KEY_]
+
+
+def set_default_project(project_label):
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    config[profile][_DEFAULT_PROJECT_KEY_] = project_label
+    save_cli_config(config)
+
