@@ -5,6 +5,7 @@ from datetime import datetime
 
 from nexuscli.cli import cli
 from nexuscli import utils
+from nexuscli.config import _SELECTED_KEY_, _URL_KEY_
 
 
 @cli.group()
@@ -38,14 +39,23 @@ def create(profile, url):
     config = utils.get_cli_config()
     if profile in config and 'url' in config[profile]:
         utils.error("This deployment already exist (%s) with url: %s" % (create, config[create]))
-    # TODO Validate URL
-    # data_url = url.rstrip("/") + '/v1'
-    # r = requests.get(data_url)
-    # if r.status_code != 200:
-    #     utils.error("Failed to get entity count from URL: " + data_url +
-    #                 '\nRequest status: ' + str(r.status_code))
-    config[profile] = {'url': url.rstrip("/")}
+    url = validate_nexus_url(url)
+    config[profile] = {_URL_KEY_: url}
+    if len(config) == 1:
+        config[profile][_SELECTED_KEY_] = True
     utils.save_cli_config(config)
+    print("Profile created.")
+
+
+def validate_nexus_url(url):
+    try:
+        import nexussdk as nxs
+        url = url.rstrip("/")
+        nxs.config.set_environment(url)
+        nxs.organizations.list()
+    except nxs.HTTPError as e:
+        utils.error("Provided URL isn't valid or the service isn't responding: %s" % url)
+    return url
 
 
 @profiles.command(name='select', help='Select a profile for subsequent CLI calls')
@@ -55,9 +65,9 @@ def select(profile):
     if profile not in config:
         utils.error("Could not find profile '%s' in CLI config" % delete)
     for key in config.keys():
-        if 'selected' in config[key] and key != select:
-            config[key].pop('selected', None)
-    config[profile]['selected'] = True
+        if _SELECTED_KEY_ in config[key] and key != select:
+            config[key].pop(_SELECTED_KEY_, None)
+    config[profile][_SELECTED_KEY_] = True
     utils.save_cli_config(config)
     print("Selected profile: %s" % profile)
 
@@ -67,7 +77,7 @@ def current():
     config = utils.get_cli_config()
     found = False
     for key in config.keys():
-        if 'selected' in config[key] and key != select:
+        if _SELECTED_KEY_ in config[key] and key != select:
             print(key)
             found = True
     if not found:
@@ -82,3 +92,4 @@ def delete(profile):
         utils.error("Could not find profile '%s' in CLI config" % profile)
     config.pop(profile, None)
     utils.save_cli_config(config)
+    print("Profile deleted.")

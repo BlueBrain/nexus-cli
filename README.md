@@ -50,7 +50,7 @@ Start using the CLI:
 * select: select the organization to use in subsequent calls of the CLI (local to the currently selected profile)
 * current: shows the currently selected organization
 
-## projects
+## projects (local to a specific organization)
 * list: list all projects
 * create: create a new project
 * fetch: shows the json payload of an project
@@ -58,3 +58,10 @@ Start using the CLI:
 * deprecate: deprecate an project
 * select: select the project to use in subsequent calls of the CLI (local to the currently selected profile)
 * current: shows the currently selected project
+
+## resources (local to a specific organization and project)
+* list: list all resources
+* create: create a new resource
+* fetch: shows the json payload of a resource
+* update: update an resource
+* deprecate: deprecate a resource
