@@ -14,11 +14,13 @@ def auth():
 
 @auth.command('login')
 def open_nexus_web():
+    # TODO investigate more user friendly ways to login
+    # TODO e.g. https://github.com/burnash/gspread/wiki/How-to-get-OAuth-access-token-in-console%3F
     base_url = utils.get_selected_deployment_config()[1]['url']
     print("A browser window will now open, please login, copy your token and use the auth --token command "
           "to store it in the CLI")
     input("Press ENTER to continue...")
-    webbrowser.open_new(base_url + "/web")
+    webbrowser.open_new(base_url.strip("/v1") + "/web")
 
 
 @auth.command('set-token', help='Registers the user token in the current profile')
@@ -63,12 +65,14 @@ def view_token():
                 utils.print_json(decoded, colorize=True)
                 expiry_utc = datetime.utcfromtimestamp(decoded['exp'])
                 expires_in = expiry_utc.timestamp() - datetime.now().timestamp()
-                when = ""
                 if expires_in > 0:
                     when = "in %s" % utils.print_time(expires_in)
+                    message_color = 'green'
                 else:
                     when = "%s ago" % utils.print_time(abs(expires_in))
-                print("\nExpiry: %s (%s)" % (utils.datetime_from_utc_to_local(expiry_utc), when))
+                    message_color = 'red'
+                msg = "\nExpiry: %s (%s)" % (utils.datetime_from_utc_to_local(expiry_utc), when)
+                click.echo(click.style(msg, fg=message_color))
 
     if _token is None:
         if selected is None:
