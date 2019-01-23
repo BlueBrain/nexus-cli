@@ -5,9 +5,7 @@ from datetime import datetime
 
 from nexuscli.cli import cli
 from nexuscli import utils
-
-
-__SELECTED_KEY__ = "selected"
+from nexuscli.config import _SELECTED_KEY_, _URL_KEY_
 
 
 @cli.group()
@@ -42,9 +40,9 @@ def create(profile, url):
     if profile in config and 'url' in config[profile]:
         utils.error("This deployment already exist (%s) with url: %s" % (create, config[create]))
     url = validate_nexus_url(url)
-    config[profile] = {'url': url}
+    config[profile] = {_URL_KEY_: url}
     if len(config) == 1:
-        config[profile][__SELECTED_KEY__] = True
+        config[profile][_SELECTED_KEY_] = True
     utils.save_cli_config(config)
     print("Profile created.")
 
@@ -67,9 +65,9 @@ def select(profile):
     if profile not in config:
         utils.error("Could not find profile '%s' in CLI config" % delete)
     for key in config.keys():
-        if __SELECTED_KEY__ in config[key] and key != select:
-            config[key].pop(__SELECTED_KEY__, None)
-    config[profile][__SELECTED_KEY__] = True
+        if _SELECTED_KEY_ in config[key] and key != select:
+            config[key].pop(_SELECTED_KEY_, None)
+    config[profile][_SELECTED_KEY_] = True
     utils.save_cli_config(config)
     print("Selected profile: %s" % profile)
 
@@ -79,7 +77,7 @@ def current():
     config = utils.get_cli_config()
     found = False
     for key in config.keys():
-        if 'selected' in config[key] and key != select:
+        if _SELECTED_KEY_ in config[key] and key != select:
             print(key)
             found = True
     if not found:

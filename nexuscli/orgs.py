@@ -2,8 +2,6 @@ import click
 from prettytable import PrettyTable
 import os, tempfile
 import json
-import hashlib
-from collections import OrderedDict
 
 from nexuscli import utils
 from nexuscli.cli import cli
@@ -34,7 +32,7 @@ def fetch(label, revision, pretty):
 @click.argument('label')
 @click.option('--name', '-n', help='Name of the organization (if you want it different from its label)')
 @click.option('--description', '-d', help='Description of the organization')
-@click.option('_json', '--json-only', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 def create(label, name, description, _json, pretty):
     nxs = utils.get_nexus_client()
@@ -58,8 +56,7 @@ def update(label, _payload, name, description):
     try:
         data = nxs.organizations.fetch(org_label=label)
         current_revision = data["_rev"]
-        data_ordered = OrderedDict(sorted(data.items()))
-        data_md5_before = hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+        data_md5_before = utils.generate_nexus_payload_checksum(data)
 
         if _payload is None and (name is not None or description is not None):
             if name is not None:
@@ -81,8 +78,7 @@ def update(label, _payload, name, description):
             f.close()
             os.remove(filename)
 
-        data_ordered = OrderedDict(sorted(data.items()))
-        data_md5_after = hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+        data_md5_after = utils.generate_nexus_payload_checksum(data)
         if data_md5_before == data_md5_after:
             print("No change in organization, aborting update.")
         else:
@@ -94,7 +90,7 @@ def update(label, _payload, name, description):
 
 
 @orgs.command(name='list', help='List all organizations')
-@click.option('_json', '--json-only', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 def _list(_json, pretty):
     nxs = utils.get_nexus_client()
@@ -103,8 +99,8 @@ def _list(_json, pretty):
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
-            table = PrettyTable(['Name', 'Description', 'Id', 'Deprecated'])
-            table.align["Name"] = "l"
+            table = PrettyTable(['Label', 'Description', 'Id', 'Deprecated'])
+            table.align["Label"] = "l"
             table.align["Description"] = "l"
             table.align["Id"] = "l"
             table.align["Deprecated"] = "l"
@@ -120,7 +116,7 @@ def _list(_json, pretty):
 
 
 @orgs.command(name='deprecate', help='Deprecate an organization')
-@click.option('_json', '--json-only', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 @click.argument('label')
 def deprecate(label, _json, pretty):

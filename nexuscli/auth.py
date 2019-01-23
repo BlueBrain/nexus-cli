@@ -3,8 +3,10 @@ import jwt
 import webbrowser
 from datetime import datetime
 
+import nexuscli.config
 from nexuscli.cli import cli
 from nexuscli import utils
+from nexuscli.config import _TOKEN_KEY_, _URL_KEY_
 
 
 @cli.group()
@@ -16,8 +18,8 @@ def auth():
 def open_nexus_web():
     # TODO investigate more user friendly ways to login
     # TODO e.g. https://github.com/burnash/gspread/wiki/How-to-get-OAuth-access-token-in-console%3F
-    base_url = utils.get_selected_deployment_config()[1]['url']
-    print("A browser window will now open, please login, copy your token and use the auth --token command "
+    base_url = utils.get_selected_deployment_config()[1][_URL_KEY_]
+    print("A browser window will now open, please login, copy your token and use the auth set-token command "
           "to store it in the CLI")
     input("Press ENTER to continue...")
     webbrowser.open_new(base_url.strip("/v1") + "/web")
@@ -31,18 +33,18 @@ def set_token(token):
 
     selected_profile = None
     for key in config.keys():
-        if 'selected' in config[key] and config[key]['selected'] is True:
+        if nexuscli.config._SELECTED_KEY_ in config[key] and config[key][nexuscli.config._SELECTED_KEY_] is True:
             selected_profile = key
             break
     if selected_profile is None:
-        utils.error("No profile selected, please use the profiles --select to do that.")
+        utils.error("No profile selected, please use the profiles select to do that.")
 
     try:
         jwt.decode(token, verify=False)
     except jwt.exceptions.DecodeError:
         utils.error("Provided tokens could not be decoded. Please provide a valid tokens.")
 
-    config[selected_profile]['token'] = token
+    config[selected_profile][_TOKEN_KEY_] = token
     utils.save_cli_config(config)
 
 
@@ -54,10 +56,10 @@ def view_token():
     _token = None
     selected = None
     for key in config.keys():
-        if 'selected' in config[key] and config[key]['selected'] is True:
+        if nexuscli.config._SELECTED_KEY_ in config[key] and config[key][nexuscli.config._SELECTED_KEY_] is True:
             selected = key
-            if 'token' in config[key]:
-                _token = config[key]['token']
+            if _TOKEN_KEY_ in config[key]:
+                _token = config[key][_TOKEN_KEY_]
                 print(_token)
 
                 decoded = jwt.decode(_token, verify=False)

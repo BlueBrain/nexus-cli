@@ -2,8 +2,6 @@ import click
 from prettytable import PrettyTable
 import os, tempfile
 import json
-from collections import OrderedDict
-import hashlib
 
 from nexuscli import utils
 from nexuscli.cli import cli
@@ -14,22 +12,13 @@ def projects():
     """Projects operations"""
 
 
-def get_organization_label(given_org_label):
-    if given_org_label is None:
-        given_org_label = utils.get_default_organization()
-        if given_org_label is None:
-            utils.error("No organization specified, either set default using the 'orgs' command or pass it as a "
-                        "parameter using --org")
-    return given_org_label
-
-
 @projects.command(name='fetch', help='Fetch a project')
 @click.argument('label')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('--revision', '-r', default=None, type=int, help='Fetch the project at a specific revision')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 def fetch(label, _org_label, revision, pretty):
-    _org_label = get_organization_label(_org_label)
+    _org_label = utils.get_organization_label(_org_label)
     try:
         nxs = utils.get_nexus_client()
         response = nxs.projects.fetch(org_label=_org_label, project_label=label, rev=revision)
@@ -49,11 +38,10 @@ def fetch(label, _org_label, revision, pretty):
 @click.option('--vocab', '-v', help='The vocab of this project')
 @click.option('--prefix', '-p', multiple=True, help='Prefix mapping, can be used multiple times '
                                                     '(format: <prefix>=<namespace>)')
-@click.option('_json', '--json-only', '-j', is_flag=True, default=False, help='Print JSON payload returned by the '
-                                                                              'nexus API')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 def create(label, _org_label, name, base, vocab, prefix, _json, pretty):
-    _org_label = get_organization_label(_org_label)
+    _org_label = utils.get_organization_label(_org_label)
     try:
         config = {}
         if name is not None:
@@ -92,7 +80,7 @@ def create(label, _org_label, name, base, vocab, prefix, _json, pretty):
 @click.option('--revision', '-r', default=None, type=int, help='Fetch the project at a specific revision')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 def fetch(label, _org_label, revision, pretty):
-    _org_label = get_organization_label(_org_label)
+    _org_label = utils.get_organization_label(_org_label)
     try:
         nxs = utils.get_nexus_client()
         response = nxs.projects.fetch(org_label=_org_label, project_label=label, rev=revision)
@@ -109,12 +97,11 @@ def fetch(label, _org_label, revision, pretty):
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_payload', '--data', '-d', help='Payload to replace it with')
 def update(label, _org_label, _payload):
-    _org_label = get_organization_label(_org_label)
+    _org_label = utils.get_organization_label(_org_label)
     try:
         nxs = utils.get_nexus_client()
         data = nxs.projects.fetch(org_label=_org_label, project_label=label)
-        data_ordered = OrderedDict(sorted(data.items()))
-        data_md5_before = hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+        data_md5_before = utils.generate_nexus_payload_checksum(data)
         current_revision = data["_rev"]
 
         if _payload is not None:
@@ -132,8 +119,7 @@ def update(label, _org_label, _payload):
             f.close()
             os.remove(filename)
 
-        data_ordered = OrderedDict(sorted(data.items()))
-        data_md5_after = hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+        data_md5_after = utils.generate_nexus_payload_checksum(data)
         if data_md5_before == data_md5_after:
             print("No change in project, aborting update.")
         else:
@@ -146,18 +132,18 @@ def update(label, _org_label, _payload):
 
 @projects.command(name='list', help='List all projects')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_json', '--json-only', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 def _list(_org_label, _json, pretty):
-    _org_label = get_organization_label(_org_label)
+    _org_label = utils.get_organization_label(_org_label)
     try:
         nxs = utils.get_nexus_client()
         response = nxs.projects.list(org_label=_org_label)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
-            table = PrettyTable(['Name', 'Description', 'Id', 'Deprecated'])
-            table.align["Name"] = "l"
+            table = PrettyTable(['Label', 'Description', 'Id', 'Deprecated'])
+            table.align["Label"] = "l"
             table.align["Description"] = "l"
             table.align["Id"] = "l"
             table.align["Deprecated"] = "l"
@@ -175,10 +161,10 @@ def _list(_org_label, _json, pretty):
 @projects.command(name='deprecate', help='Deprecate an project')
 @click.argument('label')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_json', '--json-only', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 def deprecate(label, _org_label, _json, pretty):
-    _org_label = get_organization_label(_org_label)
+    _org_label = utils.get_organization_label(_org_label)
     try:
         nxs = utils.get_nexus_client()
         response = nxs.projects.fetch(org_label=_org_label, project_label=label)
@@ -197,7 +183,7 @@ def deprecate(label, _org_label, _json, pretty):
 @click.argument('label')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 def select(label, _org_label):
-    _org_label = get_organization_label(_org_label)
+    _org_label = utils.get_organization_label(_org_label)
     try:
         nxs = utils.get_nexus_client()
         nxs.projects.fetch(org_label=_org_label, project_label=label)
