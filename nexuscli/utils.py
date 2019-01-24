@@ -9,6 +9,7 @@ from pathlib import Path
 import hashlib
 import os
 import sys
+import collections
 from collections import OrderedDict
 
 import nexussdk as nxs
@@ -102,6 +103,21 @@ def generate_nexus_payload_checksum(payload: dict):
     filtered = remove_nexus_metadata(payload)
     data_ordered = OrderedDict(sorted(filtered.items()))
     return hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+
+
+def format_json_field(payload: dict, field: str):
+    formatted = ""
+    if field in payload:
+        if type(payload[field]) is str:
+            formatted = payload[field]
+        elif isinstance(payload[field], collections.Sequence):
+            for t in payload[field]:
+                formatted += t + "\n"
+            formatted = formatted.strip("\n")
+        else:
+            warn("Unsupported type: " + type(payload[field]))
+            formatted = payload[field]
+    return formatted
 
 
 #######################

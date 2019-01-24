@@ -33,39 +33,32 @@ def fetch(label, _org_label, revision, pretty):
 @projects.command(name='create', help='Create a new project')
 @click.argument('label')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('--name', '-n', help='The name of this project')
-@click.option('--base', '-b', help='The base of this project')
-@click.option('--vocab', '-v', help='The vocab of this project')
-@click.option('--prefix', '-p', multiple=True, help='Prefix mapping, can be used multiple times '
-                                                    '(format: <prefix>=<namespace>)')
+@click.option('--description', '-d', default=None, help='The description of this project')
+@click.option('--base', '-b', default=None, help='The base of this project')
+@click.option('--vocab', '-v', default=None, help='The vocab of this project')
+@click.option('_api_mapping', '--api-mapping', '-am', multiple=True,
+              help='API Mapping, can be used multiple times (format: <prefix>=<namespace>)')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
-def create(label, _org_label, name, base, vocab, prefix, _json, pretty):
+def create(label, _org_label, description, base, vocab, _api_mapping, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
-        config = {}
-        if name is not None:
-            config["name"] = name
-
-        if base is not None:
-            config["base"] = base
-
-        if vocab is not None:
-            config["vocab"] = vocab
-
-        if prefix is not None:
-            config["apiMappings"] = []
-            for p in prefix:
-                if "=" not in p:
-                    utils.error("Invalid prefix mapping, it should be in the format <prefix>=<URL>: %s" % p)
-                key, value = p.split("=", 1)
+        mappings = None
+        if _api_mapping is not None:
+            mappings = []
+            for am in _api_mapping:
+                if "=" not in am:
+                    utils.error("Invalid API Mapping, it should be in the format <prefix>=<URL>: %s" % am)
+                key, value = am.split("=", 1)
                 entry = {
                     "prefix": key,
                     "namespace": value
                 }
-                config["apiMappings"].append(entry)
+                mappings.append(entry)
+
         nxs = utils.get_nexus_client()
-        response = nxs.projects.create(org_label=_org_label, project_label=label, config=config)
+        response = nxs.projects.create(org_label=_org_label, project_label=label, description=description,
+                                       api_mappings=mappings, base=base, vocab=vocab)
         print("Project created (id: %s)" % response["@id"])
         if _json:
             utils.print_json(response, colorize=pretty)
@@ -123,7 +116,7 @@ def update(label, _org_label, _payload):
         if data_md5_before == data_md5_after:
             print("No change in project, aborting update.")
         else:
-            nxs.projects.update(project=data, previous_rev=current_revision)
+            nxs.projects.update(project=data, rev=current_revision)
             print("Project updated.")
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
@@ -170,7 +163,7 @@ def deprecate(label, _org_label, _json, pretty):
         response = nxs.projects.fetch(org_label=_org_label, project_label=label)
         if _json:
             utils.print_json(response, colorize=pretty)
-        response = nxs.projects.deprecate(org_label=_org_label, project_label=label, previous_rev=response["_rev"])
+        response = nxs.projects.deprecate(project=response, rev=response["_rev"])
         if _json:
             utils.print_json(response, colorize=pretty)
         print("Project '%s' under organization '%s' was deprecated." % (label, _org_label))

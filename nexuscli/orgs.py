@@ -82,7 +82,7 @@ def update(label, _payload, name, description):
         if data_md5_before == data_md5_after:
             print("No change in organization, aborting update.")
         else:
-            nxs.organizations.update(org=data, previous_rev=current_revision)
+            nxs.organizations.update(org=data, rev=current_revision)
             print("Organization updated.")
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
@@ -125,7 +125,7 @@ def deprecate(label, _json, pretty):
         response = nxs.organizations.fetch(label)
         if _json:
             utils.print_json(response, colorize=pretty)
-        response = nxs.organizations.deprecate(org_label=label, previous_rev=response["_rev"])
+        response = nxs.organizations.deprecate(org_label=label, rev=response["_rev"])
         if _json:
             utils.print_json(response, colorize=pretty)
         print("Organization '%s' was deprecated." % label)
