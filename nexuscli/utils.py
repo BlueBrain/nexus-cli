@@ -9,6 +9,7 @@ from pathlib import Path
 import hashlib
 import os
 import sys
+import collections
 from collections import OrderedDict
 
 import nexussdk as nxs
@@ -97,11 +98,50 @@ def remove_nexus_metadata(d: dict):
     return x
 
 
-def generate_nexus_payload_checksum(payload: dict):
+def sort_dictionary(od):
+    res = OrderedDict()
+    for k, v in sorted(od.items()):
+        if isinstance(v, dict):
+            res[k] = sort_dictionary(v)
+        elif isinstance(v, list):
+            sorted_list = []
+            for x in v:
+                if isinstance(x, dict):
+                    sorted_list.append(sort_dictionary(x))
+                else:
+                    sorted_list.append(x)
+            res[k] = sorted_list
+        else:
+            res[k] = v
+    return res
+
+
+def generate_nexus_payload_checksum(payload: dict, debug: bool=False):
     """ Given a nexus payload, remove nexus metadata, order the keys and generate a MD5. """
     filtered = remove_nexus_metadata(payload)
-    data_ordered = OrderedDict(sorted(filtered.items()))
-    return hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+    data_ordered = sort_dictionary(filtered)
+    if debug:
+        print("JSON to checksum:")
+        print_json(data_ordered, colorize=True)
+    checksum = hashlib.md5(json.dumps(data_ordered, indent=2).encode('utf-8')).hexdigest()
+    if debug:
+        print("Checksum: %s" % checksum)
+    return checksum
+
+
+def format_json_field(payload: dict, field: str):
+    formatted = ""
+    if field in payload:
+        if type(payload[field]) is str:
+            formatted = payload[field]
+        elif isinstance(payload[field], collections.Sequence):
+            for t in payload[field]:
+                formatted += t + "\n"
+            formatted = formatted.strip("\n")
+        else:
+            warn("Unsupported type: " + type(payload[field]))
+            formatted = payload[field]
+    return formatted
 
 
 #######################
