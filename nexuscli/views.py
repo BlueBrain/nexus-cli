@@ -35,8 +35,8 @@ def create(_org_label, _prj_label, id, _payload, _json, pretty):
         if _json:
             utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
 
 
 @views.command(name='fetch', help='Fetch a view')
@@ -55,11 +55,11 @@ def fetch(id, _org_label, _prj_label, revision, tag, pretty):
         response = nxs.views.fetch(org_label=_org_label, project_label=_prj_label, view_id=id, rev=revision, tag=tag)
         utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
 
 
-@views.command(name='update', help='Update an ElasticView')
+@views.command(name='update', help='Update a view')
 @click.argument('id')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
@@ -70,7 +70,7 @@ def update(id, _org_label, _prj_label, _payload):
     nxs = utils.get_nexus_client()
     try:
         view = nxs.views.fetch(org_label=_org_label, project_label=_prj_label, view_id=id)
-        view_md5_before = utils.generate_nexus_payload_checksum(view)
+        view_md5_before = utils.generate_nexus_payload_checksum(view, debug=True)
         current_revision = view["_rev"]
 
         if _payload is not None:
@@ -88,15 +88,15 @@ def update(id, _org_label, _prj_label, _payload):
             f.close()
             os.remove(filename)
 
-        view_md5_after = utils.generate_nexus_payload_checksum(view)
+        view_md5_after = utils.generate_nexus_payload_checksum(view, debug=True)
         if view_md5_before == view_md5_after:
             print("No change in view, aborting update.")
         else:
             nxs.views.update_es(esview=view, rev=current_revision)
             print("View updated.")
     except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
 
 
 @views.command(name='list', help='List all views')
@@ -105,18 +105,18 @@ def update(id, _org_label, _prj_label, _payload):
 @click.option('--deprecated', '-d', is_flag=True, default=False, help='Show only deprecated views')
 @click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
 @click.option('--size', '-s', default=20, help='How many views to list')
-@click.option('--view_type', '-t', default=None, help='Filter views by type')
+@click.option('_type', '--type', '-t', default=None, help='Filter views by type')
 @click.option('--search', default=None, help='Full text search on the views')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def _list(_org_label, _prj_label, deprecated, _from, size, view_type,search, _json, pretty):
+def _list(_org_label, _prj_label, deprecated, _from, size, _type, search, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
         response = nxs.views.list(org_label=_org_label, project_label=_prj_label,
                                   pagination_from=_from, pagination_size=size,
-                                  deprecated = deprecated, view_type=view_type, full_text_search_query=search)
+                                  deprecated=deprecated, view_type=_type, full_text_search_query=search)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
@@ -126,24 +126,12 @@ def _list(_org_label, _prj_label, deprecated, _from, size, view_type,search, _js
             table.align["Revision"] = "l"
             table.align["Deprecated"] = "l"
             for r in response["_results"]:
-                types = ""
-                if "@type" in r:
-                    if type(r["@type"]) is str:
-                        types = r["@type"]
-                    elif isinstance(r["@type"], collections.Sequence):
-                        for t in r["@type"]:
-                            types += t + "\n"
-                    else:
-                        utils.warn("Unsupported type: " + type(r["@type"]))
-                        types = r["@type"]
-                else:
-                    types = '-'
-
+                types = utils.format_json_field(r, "@type")
                 table.add_row([r["@id"], types, r["_rev"], r["_deprecated"]])
             print(table)
     except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
 
 
 @views.command(name='deprecate', help='Deprecate an ElasticView')
@@ -163,25 +151,71 @@ def deprecate(id, _org_label, _prj_label, _json, pretty):
         response = nxs.views.deprecate_es(esview=response, rev=response["_rev"])
         if _json:
             utils.print_json(response, colorize=pretty)
-        print("View '%s' was deprecated." % (id))
+        print("View '%s' was deprecated." % id)
     except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
 
 
-@views.command(name='esquery', help='Query an ElasticView')
+def get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query, file_prefix):
+    """ If a payload or a file is provided, use it. Otherwise, propose the user an editor with a default query.
+        :param _payload: the query as a dict or str
+        :param file: the filename from which to load the query
+        :param default_query: the query to load in the editor
+        :param file_prefix: the prefix of the editor file to save in the current dir
+        :return: the query as text.
+    """
+
+    if _payload is not None and file is not None:
+        utils.error("--data and --file are mutually exclusive.")
+
+    if _payload is not None:
+        if isinstance(_payload, dict):
+            data = json.dumps(_payload, indent=2)
+        else:
+            data = _payload
+    elif file is not None:
+        f = open(file, "r")
+        data = f.read()
+        f.close()
+    else:
+        new_file, filename = tempfile.mkstemp(dir=".", prefix=file_prefix+"-")
+        print("Opening an editor: %s" % filename)
+        f = open(filename, "w")
+        q = default_query
+        if isinstance(default_query, dict):
+            q = json.dumps(default_query, indent=2)
+        f.write(q)
+        f.close()
+        click.edit(filename=filename)
+        f = open(filename, "r")
+        data = f.read()
+        f.close()
+    return data
+
+
+@views.command(name='query-es', help='Query an ElasticView')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
-@click.option('--id', '-i', default="documents", help='Id of the view')
-@click.option('_payload', '--data', '-d',required=True, help='Query payload')
+@click.option('--id', '-i', default="documents", help='Id of the ElasticView')
+@click.option('_payload', '--data', '-d', help='Query payload')
+@click.option('--file', '-f', help='Query from file')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def esquery(_org_label, _prj_label, id, _payload, _json, pretty):
+def query_es(_org_label, _prj_label, id, _payload, file, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
-        response = nxs.views.query_es(org_label=_org_label, project_label=_prj_label, query=_payload, id=id)
+        default_query = {
+            "query": {
+                "query_string": {
+                    "query": "*"
+                }
+            }
+        }
+        data = get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query, file_prefix="query-es")
+        response = nxs.views.query_es(org_label=_org_label, project_label=_prj_label, view_id=id, query=data)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
@@ -207,23 +241,26 @@ def esquery(_org_label, _prj_label, id, _payload, _json, pretty):
                 table.add_row([r["_source"]["@id"], types, r["_source"]["_rev"], r["_source"]["_deprecated"]])
             print(table)
     except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
 
 
-@views.command(name='sparqlquery', help='Query a SparqlView')
+@views.command(name='query-sparql', help='Query a SparqlView')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
-@click.option('_payload', '--data', '-d',required=True, help='Query payload')
-@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('_payload', '--data', '-d', help='Query payload')
+@click.option('--file', '-f', help='Query from file')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def sparqlquery(_org_label, _prj_label, _payload, _json, pretty):
+def query_sparql(_org_label, _prj_label, _payload, file, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
-        response = nxs.views.query_sparql(org_label=_org_label, project_label=_prj_label, query=_payload)
+
+        default_query = "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
+        data = get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query, file_prefix="query-sparql")
+        response = nxs.views.query_sparql(org_label=_org_label, project_label=_prj_label, query=data)
         utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
