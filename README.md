@@ -19,7 +19,7 @@ or with straight from github:
 ```
     conda create -n nexus-cli python=3.5
     conda activate nexus-cli
-    pip install git+https://github.com/BlueBrain/nexus-cli@nexus_v1
+    pip install git+https://github.com/BlueBrain/nexus-cli
 ```
 
 Start using the CLI:
@@ -63,5 +63,22 @@ Start using the CLI:
 * list: list all resources
 * create: create a new resource
 * fetch: shows the json payload of a resource
-* update: update an resource
+* update: update a resource
 * deprecate: deprecate a resource
+
+## schemas (local to a specific organization and project)
+* list: list all schemas
+* create: create a new schema
+* fetch: shows the json payload of a schema
+* update: update a schema
+* deprecate: deprecate a schema
+
+## views (local to a specific organization and project)
+* list: list all views
+* create: create a new ElasticSearchView
+* fetch: shows the json payload of a view
+* update: update a view configuration
+* deprecate: deprecate a view
+* query-es: run a query against a specific ElasticSearch view
+* query-sparql: run a query against the default SPARQL view
+
