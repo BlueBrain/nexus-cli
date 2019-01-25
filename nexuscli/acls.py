@@ -170,4 +170,3 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
-
