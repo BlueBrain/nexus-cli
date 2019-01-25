@@ -84,12 +84,44 @@ def show_permissions(_json, pretty):
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
-            columns = ['Permissions']
+            table = PrettyTable(['Permissions'])
+            table.align['Permissions'] = "l"
+            for p in response["permissions"]:
+                table.add_row([p])
+            print(table)
+    except nxs.HTTPError as e:
+        utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
+
+
+@acls.command(name='show-identities', help='Show identities supported')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+def show_identities(_json, pretty):
+    nxs = utils.get_nexus_client()
+    try:
+        response = nxs.identities.fetch()
+        if _json:
+            utils.print_json(response, colorize=pretty)
+        else:
+            columns = ["Id", "Type", "Realm", "User", "Group"]
             table = PrettyTable(columns)
             for c in columns:
                 table.align[c] = "l"
-            for p in response["permissions"]:
-                table.add_row([p])
+            for i in response["identities"]:
+                realm = ""
+                if "realm" in i:
+                    realm = i["realm"]
+
+                user = ""
+                if "subject" in i:
+                    user = i["subject"]
+
+                group = ""
+                if "group" in i:
+                    realm = i["group"]
+
+                table.add_row([i["@id"], i["@type"], realm, user, group])
             print(table)
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
@@ -118,7 +150,7 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
         if count > 1:
             utils.error("More than one ACL matching: %d" % count)
         elif count == 0:
-            utils.warn("No ACL matching")
+            utils.warn("No ACL found specifically for this organization '%s' and project '%s'." % (_org_label, _prj_label))
             current_rev = 0
         else:
             current_rev = response["_results"][0]['_rev']
@@ -126,11 +158,11 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
         _identities = [_ANONYMOUS_]
         _permissions = [_PROJECTS_READ_]
         if _replace:
-            print("Replacing existing ACLs on %s" % path)
+            print("Replacing existing ACLs on project '%s' in organization '%s'" % (_prj_label, _org_label))
             response = nxs.acls.replace(subpath=path, identities=_identities, permissions=[_permissions],
                                         rev=current_rev)
         else:
-            print("Adding existing ACLs on %s" % path)
+            print("Adding to existing ACLs on project '%s' in organization '%s'" % (_prj_label, _org_label))
             response = nxs.acls.append(subpath=path, identities=_identities, permissions=[_permissions],
                                        rev=current_rev)
         if _json:
@@ -138,4 +170,3 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
-

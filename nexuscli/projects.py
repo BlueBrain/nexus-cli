@@ -125,13 +125,15 @@ def update(label, _org_label, _payload):
 
 @projects.command(name='list', help='List all projects')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
+@click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
+@click.option('--size', '-s', default=20, help='How many resource to list')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
-def _list(_org_label, _json, pretty):
+def _list(_org_label, _from, size, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
         nxs = utils.get_nexus_client()
-        response = nxs.projects.list(org_label=_org_label)
+        response = nxs.projects.list(org_label=_org_label, pagination_from=_from, pagination_size=size)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:

@@ -36,7 +36,7 @@ def create(_org_label, _prj_label, id, _payload, file, _json, pretty):
         if file is not None:
             with open(file) as f:
                 data = json.load(f)
-        response = nxs.schemas.create(org_label=_org_label, project_label=_prj_label, schema_obj=data, id=id)
+        response = nxs.schemas.create(org_label=_org_label, project_label=_prj_label, schema_obj=data, schema_id=id)
         print("Schema created (id: %s)" % response["@id"])
         if _json:
             utils.print_json(response, colorize=pretty)
@@ -98,7 +98,7 @@ def update(id, _org_label, _prj_label, _payload):
         if data_md5_before == data_md5_after:
             print("No change in resource, aborting update.")
         else:
-            nxs.schemas.update(resource=data, previous_rev=current_revision)
+            nxs.schemas.update(schema=data, previous_rev=current_revision)
             print("Schema updated.")
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
@@ -183,7 +183,7 @@ def deprecate(id, _org_label, _prj_label, _json, pretty):
         response = nxs.schemas.fetch(org_label=_org_label, project_label=_prj_label, schema_id=id)
         if _json:
             utils.print_json(response, colorize=pretty)
-        response = nxs.schemas.deprecate(resource=response, rev=response["_rev"])
+        response = nxs.schemas.deprecate(schema=response, rev=response["_rev"])
         if _json:
             utils.print_json(response, colorize=pretty)
         print("Schema '%s' was deprecated." % (id))

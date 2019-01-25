@@ -84,5 +84,6 @@ Start using the CLI:
 
 ## acls
 * list: list acls
+* show-identities: show identities that can be added in ACLs
 * show-permissions: show permissions that can be added in ACLs
 * make-public: make a project public to the world
