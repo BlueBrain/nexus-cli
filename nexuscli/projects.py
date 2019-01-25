@@ -58,7 +58,7 @@ def create(label, _org_label, description, base, vocab, _api_mapping, _json, pre
 
         nxs = utils.get_nexus_client()
         response = nxs.projects.create(org_label=_org_label, project_label=label, description=description,
-                                       api_mappings=mappings, base=base, vocab=vocab)
+                                       api_mappings=mappings, vocab=vocab, base=base)
         print("Project created (id: %s)" % response["@id"])
         if _json:
             utils.print_json(response, colorize=pretty)
