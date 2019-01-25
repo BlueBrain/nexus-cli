@@ -37,6 +37,8 @@ def create(_org_label, _prj_label, id, file, _payload, schema, _json, pretty):
         if file is not None:
             with open(file) as f:
                 data = json.load(f)
+        if len(data) == 0:
+            utils.error("You must give a non empty payload")
         response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
                                         schema_id=schema, resource_id=id)
         print("Resource created (id: %s)" % response["@id"])
@@ -114,18 +116,17 @@ def update(id, _org_label, _prj_label, _payload):
 @click.option('--deprecated', '-d', is_flag=True, default=False, help='Show only deprecated resources')
 @click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
 @click.option('--size', '-s', default=20, help='How many resource to list')
-@click.option('--search', default=None, help='Full text search on the resources')
 @click.option('_type', '--type', '-t', default=None, help='Filter by type')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def _list(_org_label, _prj_label, deprecated, _from, size, search, _type, _json, pretty):
+def _list(_org_label, _prj_label, deprecated, _from, size, _type, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
         response = nxs.resources.list(org_label=_org_label, project_label=_prj_label,
-                                      pagination_from=_from, pagination_size=size, resource_type=_type,
-                                      deprecated=deprecated, full_text_search_query=search)
+                                      pagination_from=_from, pagination_size=size, type=_type,
+                                      deprecated=deprecated)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:

@@ -30,14 +30,13 @@ def fetch(label, revision, pretty):
 
 @orgs.command(name='create', help='Create a new organization')
 @click.argument('label')
-@click.option('--name', '-n', help='Name of the organization (if you want it different from its label)')
 @click.option('--description', '-d', help='Description of the organization')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
-def create(label, name, description, _json, pretty):
+def create(label, description, _json, pretty):
     nxs = utils.get_nexus_client()
     try:
-        response = nxs.organizations.create(org_label=label, name=name, description=description)
+        response = nxs.organizations.create(org_label=label, description=description)
         print("Organization created (id: %s)" % response["@id"])
         if _json:
             utils.print_json(response, colorize=pretty)
@@ -90,12 +89,14 @@ def update(label, _payload, name, description):
 
 
 @orgs.command(name='list', help='List all organizations')
+@click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
+@click.option('--size', '-s', default=20, help='How many resource to list')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
-def _list(_json, pretty):
+def _list(_from, size, _json, pretty):
     nxs = utils.get_nexus_client()
     try:
-        response = nxs.organizations.list()
+        response = nxs.organizations.list(pagination_from=_from, pagination_size=size)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:

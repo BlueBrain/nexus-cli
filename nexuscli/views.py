@@ -30,7 +30,7 @@ def create(_org_label, _prj_label, id, _payload, _json, pretty):
         data = {}
         if _payload is not None:
             data = json.loads(_payload)
-        response = nxs.views.create_es(org_label=_org_label, project_label=_prj_label, view_data=data, id=id)
+        response = nxs.views.create_es(org_label=_org_label, project_label=_prj_label, view_data=data, view_id=id)
         print("View created (id: %s)" % response["@id"])
         if _json:
             utils.print_json(response, colorize=pretty)
@@ -106,17 +106,16 @@ def update(id, _org_label, _prj_label, _payload):
 @click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
 @click.option('--size', '-s', default=20, help='How many views to list')
 @click.option('_type', '--type', '-t', default=None, help='Filter views by type')
-@click.option('--search', default=None, help='Full text search on the views')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def _list(_org_label, _prj_label, deprecated, _from, size, _type, search, _json, pretty):
+def _list(_org_label, _prj_label, deprecated, _from, size, _type, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
         response = nxs.views.list(org_label=_org_label, project_label=_prj_label,
                                   pagination_from=_from, pagination_size=size,
-                                  deprecated=deprecated, view_type=_type, full_text_search_query=search)
+                                  deprecated=deprecated, type=_type)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
@@ -250,17 +249,29 @@ def query_es(_org_label, _prj_label, id, _payload, file, _json, pretty):
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
 @click.option('_payload', '--data', '-d', help='Query payload')
 @click.option('--file', '-f', help='Query from file')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def query_sparql(_org_label, _prj_label, _payload, file, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
-
         default_query = "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
         data = get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query, file_prefix="query-sparql")
         response = nxs.views.query_sparql(org_label=_org_label, project_label=_prj_label, query=data)
-        utils.print_json(response, colorize=pretty)
+        if _json:
+            utils.print_json(response, colorize=pretty)
+        else:
+            vars = response["head"]["vars"]
+            table = PrettyTable(vars)
+            for v in vars:
+                table.align[v] = "l"
+            for b in response["results"]["bindings"]:
+                cells = []
+                for v in vars:
+                    cells.append(b[v]["value"])
+                table.add_row(cells)
+            print(table)
     except nxs.HTTPError as e:
         utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
