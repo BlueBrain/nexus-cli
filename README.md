@@ -82,3 +82,7 @@ Start using the CLI:
 * query-es: run a query against a specific ElasticSearch view
 * query-sparql: run a query against the default SPARQL view
 
+## acls
+* list: list acls
+* show-permissions: show permissions that can be added in ACLs
+* make-public: make a project public to the world
