@@ -19,12 +19,18 @@ def resources():
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
 @click.option('--id', '-i', help='Id of the resource')
+@click.option('--file', '-f', help='Source file to create new resource')
+@click.option('_type', '--type', '-t', default=None, help='Type of resource to load')
 @click.option('_payload', '--data', '-d', help='source payload to create new resource')
-@click.option('--file', '-f', help='source file to create new resource')
-@click.option('--schema', '-s', default=None, help='Schema to validate this resource against')
+@click.option('--format', default="json", help='Source file extension [json,csv]')
+@click.option('--idcolumn', default=None, help='The column containing row identifiers')
+@click.option('--mergewith', '-m', default=None, help='Source file to merge with')
+@click.option('--mergeon', default=None, help='Column name to merge on')
+@click.option('--thread', default=1, help='Number of thread to use to load csv data')
+@click.option('--schema', '-s', default='_', help='Schema to validate this resource against')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def create(_org_label, _prj_label, id, file, _payload, schema, _json, pretty):
+def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, mergewith, mergeon, thread, schema, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
@@ -35,18 +41,25 @@ def create(_org_label, _prj_label, id, file, _payload, schema, _json, pretty):
         if _payload is not None:
             data = json.loads(_payload)
         if file is not None:
-            with open(file) as f:
-                data = json.load(f)
-        if len(data) == 0:
-            utils.error("You must give a non empty payload")
-        response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
-                                        schema_id=schema, resource_id=id)
-        print("Resource created (id: %s)" % response["@id"])
-        if _json:
-            utils.print_json(response, colorize=pretty)
+            if format == "json":
+                with open(file) as f:
+                    data = json.load(f)
+                if len(data) == 0:
+                    utils.error("You must give a non empty payload")
+                response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
+                                                schema_id=schema, resource_id=id)
+                print("Resource created (id: %s)" % response["@id"])
+                if _json:
+                    utils.print_json(response, colorize=pretty)
+            elif format == "csv":
+               utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, nbr_thread=thread)
+               print("Finished loading.")
+
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+
+
 
 
 @resources.command(name='fetch', help='Fetch a resource')
@@ -110,6 +123,7 @@ def update(id, _org_label, _prj_label, _payload):
         utils.error(str(e))
 
 
+
 @resources.command(name='list', help='List all resources')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
@@ -165,3 +179,8 @@ def deprecate(id, _org_label, _prj_label, _json, pretty):
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
+
+
+
+
+

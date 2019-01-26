@@ -18,6 +18,7 @@ setup(
         'prettytable',
         'PyJWT',
         'pygments',
+        'pandas',
         'pytest',
         'nexus-sdk'
     ],

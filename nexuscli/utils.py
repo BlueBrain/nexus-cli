@@ -11,6 +11,12 @@ import os
 import sys
 import collections
 from collections import OrderedDict
+import pandas as pd
+import concurrent.futures
+from functools import reduce
+import requests
+from urllib.parse import urlencode, quote_plus
+
 
 import nexussdk as nxs
 
@@ -250,3 +256,79 @@ def get_project_label(given_project_label: str):
             error("No project specified, either set default using the 'projects' command or pass it as a "
                   "parameter using --project")
     return given_project_label
+
+
+def create_in_nexus(data_model, row):
+
+    nxs = get_nexus_client()
+
+    try:
+        key, cfg = get_selected_deployment_config()
+        env = cfg[_URL_KEY_]
+
+
+        if "rdf_type" in data_model:
+            row["@type"] = data_model["rdf_type"]
+        if "id" in data_model:
+            row["@id"] = data_model["rdf_type"] + "_" + str(row[data_model["id"]])
+
+
+        # This direct call to Nexus is because the sdk is injecting a context with example.com instead of relaying on the backend generated one. To be fixed.
+
+        headers = {}
+        if _TOKEN_KEY_ in cfg:
+            headers["Authorization"] = "Bearer {}".format(cfg[_TOKEN_KEY_])
+        headers["Content-Type"] = "application/json"
+
+        org = quote_plus(data_model["_org_label"])
+        project = quote_plus(data_model["_prj_label"])
+        schema = quote_plus(data_model["schema"])
+        path = "resources/"+org+"/"+project+"/"+schema
+        url = env +"/"+ path
+        requests.post(url, headers=headers, data=json.dumps(row))
+    except nxs.HTTPError as e:
+        raise Exception("Failed to load:"+json.dumps(row)) from e
+
+
+def merge_csv(file_paths, on):
+    dfs = [pd.read_csv(file_path, keep_default_na=False) for file_path in file_paths]
+    df = reduce(lambda x, y: pd.merge(x, y, on = on), dfs)
+    return df
+
+from multiprocessing.dummy import Pool as ThreadPool
+from itertools import repeat
+
+def load_csv(_org_label, _prj_label, schema, file_path, merge_with = None, merge_on = None, _type= None, id_colum=None, nbr_thread=1):
+
+    try:
+        if merge_with:
+            if type(merge_with) == str:
+                merge_with = [merge_with]
+            merge_with.append(file_path)
+            reader = merge_csv(merge_with, merge_on)
+            reader.fillna('')
+        else:
+            reader = pd.read_csv(file_path, keep_default_na=False)
+            reader.fillna('')
+
+        reader = reader.transpose().to_dict().values()
+        print("""Loading %s resources.""" % (len(reader)) )
+
+        pool = ThreadPool(nbr_thread)
+
+        data_model = dict()
+        if id_colum:
+            data_model["id"] = id_colum
+        if _type:
+            data_model["rdf_type"] = _type
+        data_model["_org_label"] = _org_label
+        data_model["_prj_label"] = _prj_label
+        data_model["schema"] = schema
+        pool.starmap(create_in_nexus, zip(repeat(data_model), reader))
+
+        pool.close()
+        pool.join()
+
+
+    except Exception as e:
+        raise Exception from e
