@@ -13,6 +13,8 @@ _ANONYMOUS_ = {
           }
 
 _PROJECTS_READ_ = "projects/read"
+_RESOURCES_READ_ = "resources/read"
+_VIEWS_QUERY_ = "views/query"
 
 
 @cli.group()
@@ -156,7 +158,7 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
             current_rev = response["_results"][0]['_rev']
 
         _identities = [_ANONYMOUS_]
-        _permissions = [_PROJECTS_READ_]
+        _permissions = [_PROJECTS_READ_, _RESOURCES_READ_, _VIEWS_QUERY_]
         if _replace:
             print("Replacing existing ACLs on project '%s' in organization '%s'" % (_prj_label, _org_label))
             response = nxs.acls.replace(subpath=path, identities=_identities, permissions=[_permissions],
