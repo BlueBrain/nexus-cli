@@ -13,6 +13,9 @@ _ANONYMOUS_ = {
           }
 
 _PROJECTS_READ_ = "projects/read"
+_SCHEMAS_READ_ = "schemas/read"
+_RESOURCES_READ_ = "resources/read"
+_VIEWS_READ_ = "views/read"
 
 
 @cli.group()
@@ -124,7 +127,7 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
             current_rev = response["_results"][0]['_rev']
 
         _identities = [_ANONYMOUS_]
-        _permissions = [_PROJECTS_READ_]
+        _permissions = [_PROJECTS_READ_, _SCHEMAS_READ_, _RESOURCES_READ_, _VIEWS_READ_]
         if _replace:
             print("Replacing existing ACLs on %s" % path)
             response = nxs.acls.replace(subpath=path, identities=_identities, permissions=[_permissions],
@@ -138,4 +141,3 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
-
