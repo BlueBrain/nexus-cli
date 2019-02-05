@@ -1,4 +1,4 @@
-from colorama import init, Fore, Style
+from colorama import init, Fore
 import json
 from pygments import highlight
 from pygments.lexers import JsonLdLexer
