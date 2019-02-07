@@ -5,3 +5,4 @@ test.sh
 *.pyc
 venv
 notebook
+.vscode

@@ -14,7 +14,7 @@ setup(
     packages=["nexuscli"],
     install_requires=[
         'click',
-        'blessings',
+        'colorama',
         'prettytable',
         'PyJWT',
         'pygments',

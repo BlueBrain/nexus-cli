@@ -1,4 +1,4 @@
-from blessings import Terminal
+from colorama import init, Fore
 import json
 from pygments import highlight
 from pygments.lexers import JsonLdLexer
@@ -24,19 +24,16 @@ from nexuscli.config import _DEFAULT_ORGANISATION_KEY_, _DEFAULT_PROJECT_KEY_, _
 
 
 def error(message: str):
-    t = Terminal()
-    print(t.red(message))
+    print(Fore.RED + message)
     sys.exit(101)
 
 
 def warn(message: str):
-    t = Terminal()
-    print(t.yellow(message))
+    print(Fore.YELLOW + message)
 
 
 def success(message: str):
-    t = Terminal()
-    print(t.green(message))
+    print(Fore.GREEN + message)
 
 
 def print_json(data: dict, colorize: bool=False):
