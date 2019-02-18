@@ -1,24 +1,24 @@
-from colorama import init, Fore
-import json
-from pygments import highlight
-from pygments.lexers import JsonLdLexer
-from pygments.formatters import TerminalFormatter
-import time
-from datetime import datetime
-from pathlib import Path
+import asyncio
+import collections
 import hashlib
+import json
 import os
 import sys
-import collections
+import time
 from collections import OrderedDict
-import pandas as pd
-import concurrent.futures
+from datetime import datetime
 from functools import reduce
-import requests
-from urllib.parse import urlencode, quote_plus
+from pathlib import Path
+from urllib.parse import quote_plus
 
-
+import aiohttp
 import nexussdk as nxs
+import pandas as pd
+import progressbar
+from colorama import Fore
+from pygments import highlight
+from pygments.formatters import TerminalFormatter
+from pygments.lexers import JsonLdLexer
 
 from nexuscli.config import _DEFAULT_ORGANISATION_KEY_, _DEFAULT_PROJECT_KEY_, _URL_KEY_, _TOKEN_KEY_, _SELECTED_KEY_
 
@@ -255,48 +255,67 @@ def get_project_label(given_project_label: str):
     return given_project_label
 
 
-def create_in_nexus(data_model, row):
+def create_in_nexus(data_model, reader, max_connections):
+    key, cfg = get_selected_deployment_config()
+    env = cfg[_URL_KEY_]
+    headers = {}
+    if _TOKEN_KEY_ in cfg:
+        headers["Authorization"] = "Bearer {}".format(cfg[_TOKEN_KEY_])
+    headers["Content-Type"] = "application/json"
 
-    nxs = get_nexus_client()
+    org = quote_plus(data_model["_org_label"])
+    project = quote_plus(data_model["_prj_label"])
+    schema = quote_plus(data_model["schema"])
+    path = "resources/" + org + "/" + project + "/" + schema
+    url = env + "/" + path
+    counter = 0
+    failures = []
+    loop = asyncio.get_event_loop()
+    bar = progressbar.ProgressBar(max_value=len(reader))
 
-    try:
-        key, cfg = get_selected_deployment_config()
-        env = cfg[_URL_KEY_]
+    async def post(session, url, row):
+        async with session.post(url, data=json.dumps(row)) as response:
+            if response.status == 201:
+                nonlocal counter
+                counter += 1
+                bar.update(counter)
+            else:
+                failures.append((response.status, row))
 
+    async def bound_post(semaphore, session, url, row):
+        async with semaphore:
+            await post(session, url, row)
 
-        if "rdf_type" in data_model:
-            row["@type"] = data_model["rdf_type"]
-        if "id" in data_model:
-            row["@id"] = data_model["rdf_type"] + "_" + str(row[data_model["id"]])
+    async def send():
+        futures = []
+        semaphore = asyncio.Semaphore(max_connections)
+        async with aiohttp.ClientSession(headers=headers) as session:
+            for row in reader:
+                if "rdf_type" in data_model:
+                    row["@type"] = data_model["rdf_type"]
+                if "id" in data_model:
+                    row["@id"] = data_model["rdf_type"] + "_" + str(row[data_model["id"]])
+                request = asyncio.ensure_future(bound_post(semaphore, session, url, row))
+                futures.append(request)
 
+            await asyncio.gather(*futures)
 
-        # This direct call to Nexus is because the sdk is injecting a context with example.com instead of relaying on the backend generated one. To be fixed.
+    loop.run_until_complete(send())
 
-        headers = {}
-        if _TOKEN_KEY_ in cfg:
-            headers["Authorization"] = "Bearer {}".format(cfg[_TOKEN_KEY_])
-        headers["Content-Type"] = "application/json"
-
-        org = quote_plus(data_model["_org_label"])
-        project = quote_plus(data_model["_prj_label"])
-        schema = quote_plus(data_model["schema"])
-        path = "resources/"+org+"/"+project+"/"+schema
-        url = env +"/"+ path
-        requests.post(url, headers=headers, data=json.dumps(row))
-    except nxs.HTTPError as e:
-        raise Exception("Failed to load:"+json.dumps(row)) from e
+    if len(failures) > 0:
+        with open("errors.log", "w") as file:
+            for (status_code, row) in failures:
+                file.write("code={} body={}\n".format(status_code, row))
+        error("\nFailed to ingest {} documents. See 'errors.log' for details.".format(len(failures)))
 
 
 def merge_csv(file_paths, on):
     dfs = [pd.read_csv(file_path, keep_default_na=False) for file_path in file_paths]
-    df = reduce(lambda x, y: pd.merge(x, y, on = on), dfs)
+    df = reduce(lambda x, y: pd.merge(x, y, on=on), dfs)
     return df
 
-from multiprocessing.dummy import Pool as ThreadPool
-from itertools import repeat
 
-def load_csv(_org_label, _prj_label, schema, file_path, merge_with = None, merge_on = None, _type= None, id_colum=None, nbr_thread=1):
-
+def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_colum=None, max_connections=50):
     try:
         if merge_with:
             if type(merge_with) == str:
@@ -309,9 +328,7 @@ def load_csv(_org_label, _prj_label, schema, file_path, merge_with = None, merge
             reader.fillna('')
 
         reader = reader.transpose().to_dict().values()
-        print("""Loading %s resources.""" % (len(reader)) )
-
-        pool = ThreadPool(nbr_thread)
+        print("Loading {} resources...".format(len(reader)))
 
         data_model = dict()
         if id_colum:
@@ -321,11 +338,7 @@ def load_csv(_org_label, _prj_label, schema, file_path, merge_with = None, merge
         data_model["_org_label"] = _org_label
         data_model["_prj_label"] = _prj_label
         data_model["schema"] = schema
-        pool.starmap(create_in_nexus, zip(repeat(data_model), reader))
-
-        pool.close()
-        pool.join()
-
+        create_in_nexus(data_model, reader, max_connections)
 
     except Exception as e:
         raise Exception from e

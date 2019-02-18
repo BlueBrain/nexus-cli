@@ -1,13 +1,12 @@
-import collections
-
-import click
-from prettytable import PrettyTable
 import json
 import os
 import tempfile
 
-from nexuscli.cli import cli
+import click
+from prettytable import PrettyTable
+
 from nexuscli import utils
+from nexuscli.cli import cli
 
 
 @cli.group()
@@ -26,11 +25,11 @@ def resources():
 @click.option('--idcolumn', default=None, help='The column containing row identifiers')
 @click.option('--mergewith', '-m', default=None, help='Source file to merge with')
 @click.option('--mergeon', default=None, help='Column name to merge on')
-@click.option('--thread', default=1, help='Number of thread to use to load csv data')
+@click.option('--max-connections', '-c', default=50, help='Maximum number of concurrent connections to load CSV data')
 @click.option('--schema', '-s', default='_', help='Schema to validate this resource against')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, mergewith, mergeon, thread, schema, _json, pretty):
+def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, mergewith, mergeon, max_connections, schema, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
@@ -52,7 +51,7 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
                 if _json:
                     utils.print_json(response, colorize=pretty)
             elif format == "csv":
-               utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, nbr_thread=thread)
+               utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, max_connections=max_connections)
                print("Finished loading.")
 
     except nxs.HTTPError as e:
@@ -179,8 +178,3 @@ def deprecate(id, _org_label, _prj_label, _json, pretty):
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
-
-
-
-
-
