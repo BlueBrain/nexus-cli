@@ -5,10 +5,11 @@ from prettytable import PrettyTable
 import json
 import os
 import tempfile
+import locale
 
 from nexuscli.cli import cli
 from nexuscli import utils
-
+from nexuscli.helpers import schemahelper
 
 @cli.group()
 def schemas():
@@ -21,9 +22,13 @@ def schemas():
 @click.option('--id', '-i', help='Id of the resource')
 @click.option('_payload', '--data', '-d', help='source payload to create new resource')
 @click.option('--file', '-f', help='source payload to create new resource')
+@click.option('--dir', help='Directory containing schemas to load')
+@click.option('_schemas_base_dir','--schemas-base-dir', '-b', help='Schema namespace to location dictionary')
+@click.option('_schemas_ns','--schemas-ns', '-n', help='Schemas namespace')
+@click.option('_strategy','--strategy', default=schemahelper.UPDATE_IF_DIFFERENT, help='Schemas import strategy:UPDATE_IF_DIFFERENT, UPDATE_IF_EXISTS')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def create(_org_label, _prj_label, id, _payload, file, _json, pretty):
+def create(_org_label, _prj_label, id, _payload, file, dir,_schemas_base_dir,_schemas_ns,_strategy,_json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
@@ -36,10 +41,24 @@ def create(_org_label, _prj_label, id, _payload, file, _json, pretty):
         if file is not None:
             with open(file) as f:
                 data = json.load(f)
-        response = nxs.schemas.create(org_label=_org_label, project_label=_prj_label, schema_obj=data, schema_id=id)
-        print("Schema created (id: %s)" % response["@id"])
-        if _json:
-            utils.print_json(response, colorize=pretty)
+        if dir is not None:
+            if _schemas_base_dir:
+                print(_schemas_base_dir)
+                _schemas_base_dir = json.loads(_schemas_base_dir)
+            imported, not_imported = schemahelper.import_schemas(dir, _org_label, _prj_label, _schemas_base_dir, _schemas_ns, _strategy)
+
+            if len(not_imported) > 0:
+                with open("schema-import-errors.log", "w") as file:
+                    for (schema_file_path,exception_name, error_message) in not_imported:
+                        file.write("schema={} exception_name={} message={}\n".format(schema_file_path, exception_name,error_message ))
+                utils.error("\nFailed to import {} schemas. See 'schema-import-errors.log' for details.".format(len(not_imported)))
+
+
+        if data:
+            response = nxs.schemas.create(org_label=_org_label, project_label=_prj_label, schema_obj=data, schema_id=id)
+            print("Schema created (id: %s)" % response["@id"])
+            if _json:
+                utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
@@ -167,7 +186,6 @@ def get_shapes_id_by_node_kind(payload: dict, node_kinds):
                     # literal
                     shape_ids.append(shape["@id"])
     return shape_ids
-
 
 @schemas.command(name='deprecate', help='Deprecate an schemas')
 @click.argument('id')

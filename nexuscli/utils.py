@@ -100,6 +100,18 @@ def remove_nexus_metadata(d: dict):
             x[k] = d[k]
     return x
 
+def remove_nexus_added_context(d:dict):
+    """ Returns a copy of the provided dictionary without nexus metadata (i.e. root keys starting with '_'). """
+    if "@context" in d:
+        context = d["@context"]
+        context = context if isinstance(context, list) else [context]
+        if 'https://bluebrain.github.io/nexus/contexts/shacl-20170720.json' in context:
+            context.remove('https://bluebrain.github.io/nexus/contexts/shacl-20170720.json')
+        if 'https://bluebrain.github.io/nexus/contexts/resource.json' in context:
+            context.remove('https://bluebrain.github.io/nexus/contexts/resource.json')
+
+        d["@context"] = context
+    return d
 
 def sort_dictionary(od):
     res = OrderedDict()
@@ -122,6 +134,7 @@ def sort_dictionary(od):
 def generate_nexus_payload_checksum(payload: dict, debug: bool=False):
     """ Given a nexus payload, remove nexus metadata, order the keys and generate a MD5. """
     filtered = remove_nexus_metadata(payload)
+    filtered = remove_nexus_added_context(filtered)
     data_ordered = sort_dictionary(filtered)
     if debug:
         print("JSON to checksum:")
@@ -342,3 +355,5 @@ def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_o
 
     except Exception as e:
         raise Exception from e
+
+
