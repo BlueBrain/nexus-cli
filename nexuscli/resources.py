@@ -29,7 +29,8 @@ def resources():
 @click.option('--schema', '-s', default='_', help='Schema to validate this resource against')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, mergewith, mergeon, max_connections, schema, _json, pretty):
+def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, mergewith, mergeon, max_connections,
+           schema, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
@@ -39,26 +40,30 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
             utils.error("--data and --file are mutually exclusive.")
         if _payload is not None:
             data = json.loads(_payload)
+            create_resource(_json, _org_label, _prj_label, data, id, nxs, pretty, schema)
         if file is not None:
             if format == "json":
                 with open(file) as f:
                     data = json.load(f)
                 if len(data) == 0:
                     utils.error("You must give a non empty payload")
-                response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
-                                                schema_id=schema, resource_id=id)
-                print("Resource created (id: %s)" % response["@id"])
-                if _json:
-                    utils.print_json(response, colorize=pretty)
+                create_resource(_json, _org_label, _prj_label, data, id, nxs, pretty, schema)
             elif format == "csv":
-               utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, max_connections=max_connections)
-               print("Finished loading.")
+                utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon,
+                               _type=_type, id_column=idcolumn, max_connections=max_connections)
+                print("Finished loading.")
 
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
 
 
+def create_resource(_json, _org_label, _prj_label, data, id, nxs, pretty, schema):
+    response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
+                                    schema_id=schema, resource_id=id)
+    print("Resource created (id: %s)" % response["@id"])
+    if _json:
+        utils.print_json(response, colorize=pretty)
 
 
 @resources.command(name='fetch', help='Fetch a resource')

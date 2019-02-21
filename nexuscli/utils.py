@@ -328,7 +328,8 @@ def merge_csv(file_paths, on):
     return df
 
 
-def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_colum=None, max_connections=50):
+def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_column=None,
+             max_connections=50):
     try:
         if merge_with:
             if type(merge_with) == str:
@@ -344,8 +345,8 @@ def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_o
         print("Loading {} resources...".format(len(reader)))
 
         data_model = dict()
-        if id_colum:
-            data_model["id"] = id_colum
+        if id_column:
+            data_model["id"] = id_column
         if _type:
             data_model["rdf_type"] = _type
         data_model["_org_label"] = _org_label
@@ -355,5 +356,3 @@ def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_o
 
     except Exception as e:
         raise Exception from e
-
-

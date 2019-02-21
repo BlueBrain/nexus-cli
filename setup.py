@@ -2,17 +2,19 @@ from setuptools import setup
 
 setup(
     name='nexus-cli',
-    version='0.2.0',
+    version='0.2.1',
     description='A Command Line Interface (CLI) for Blue Brain Nexus.',
     keywords='nexus cli',
     url="https://github.com/BlueBrain/nexus-cli",
-    author="Samuel Kerrien, Mohameth Francois Sy",
-    author_email="samuel.kerrien@epfl.ch, mohameth.sy@epfl.ch",
+    author="Samuel Kerrien, Mohameth Francois Sy, Henry Genet",
+    author_email="samuel.kerrien@epfl.ch, mohameth.sy@epfl.ch, henry.genet@epfl.ch",
     license="Apache License, Version 2.0",
     python_requires=">=3.5.3",
     py_modules=['cli'],
     packages=["nexuscli"],
     install_requires=[
+        'rdflib',
+        'rdflib-jsonld',
         'aiohttp',
         'click',
         'colorama',

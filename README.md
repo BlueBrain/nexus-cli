@@ -25,6 +25,7 @@ or with straight from github:
 Start using the CLI:
 ```
     nexus --help
+    nexus --version
 ```
 
 # Currently supported features
@@ -87,3 +88,4 @@ Start using the CLI:
 * show-identities: show identities that can be added in ACLs
 * show-permissions: show permissions that can be added in ACLs
 * make-public: make a project public to the world
+* append: add permission to a given identity (group, user, authenticated, anonymous)
