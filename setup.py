@@ -20,6 +20,7 @@ setup(
         'prettytable',
         'PyJWT',
         'pygments',
+        'rdflib_jsonld',
         'pandas',
         'pytest',
         'nexus-sdk'
