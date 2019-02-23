@@ -11,7 +11,7 @@ setup(
     license="Apache License, Version 2.0",
     python_requires=">=3.5.3",
     py_modules=['cli'],
-    packages=["nexuscli"],
+    packages=["nexuscli","nexuscli.helpers"],
     install_requires=[
         'aiohttp',
         'click',

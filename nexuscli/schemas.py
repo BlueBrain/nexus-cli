@@ -1,11 +1,8 @@
-import collections
-
 import click
 from prettytable import PrettyTable
 import json
 import os
 import tempfile
-import locale
 
 from nexuscli.cli import cli
 from nexuscli import utils
