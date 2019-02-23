@@ -97,8 +97,8 @@ def _get_resource_by_adress(source_url):
     else:
         # The resource is taken from Nexus
         nxs = utils.get_nexus_client()
-        _org_label = utils.get_organization_label()
-        _prj_label = utils.get_project_label()
+        _org_label = utils.get_organization_label(None)
+        _prj_label = utils.get_project_label(None)
         source = nxs.schemas.fetch(org_label=_org_label, project_label=_prj_label, schema_id=source_url)
 
     if source is None:
