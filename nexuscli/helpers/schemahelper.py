@@ -158,14 +158,14 @@ def import_schemas( path, org, domain, schemas_lookup_base, _schemas_ns, _strate
 
             if schema_file_uri not in _already_imported_schemas:
                 try:
-                    json_data = helpers.filehelper.open_as_json(schema_file_uri)
+                    json_data = filehelper.open_as_json(schema_file_uri)
                     if DEPRECATED not in json_data:
                         if 'imports' in json_data:
                             imports_closure= get_schema_transitive_import_closure(json_data,schemas_lookup_base,_schemas_ns)
 
                             for source_url, source in imports_closure:
                                 if source_url and source_url not in _already_imported_schemas:
-                                    schema_json = helpers.filehelper.open_as_json(source_url)
+                                    schema_json = filehelper.open_as_json(source_url)
 
                                     if DEPRECATED in schema_json: #and source_url != resources_lookup_base+"/schemas/neurosciencegraph/commons/entity/v0.1.0.json":
                                         message = """Unable to import the schema: it imported a deprecated schema %s""" % (schema_file_uri,source_url)
