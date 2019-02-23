@@ -68,7 +68,7 @@ Start using the CLI:
 
 ## schemas (local to a specific organization and project)
 * list: list all schemas
-* create: create a new schema
+* create: create a new schema or import a collection of schemas stored in a directory
 * fetch: shows the json payload of a schema
 * update: update a schema
 * deprecate: deprecate a schema
