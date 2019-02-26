@@ -10,6 +10,7 @@ from rdflib_jsonld.keys import (BASE, CONTAINER, CONTEXT, GRAPH, ID, INDEX, LANG
                                 REV, SET, TYPE, VALUE, VOCAB)
 import json
 from nexuscli.helpers import filehelper
+import progressbar
 
 import nexussdk as nxs
 
@@ -38,7 +39,12 @@ def _remove_version(self, source_uri):
     return source_uri
 
 
+def find_dir_location (source,schemas_lookup_base):
+    k,v= next((k,v) for k,v in schemas_lookup_base.items() if str(source).startswith(k))
+    original_source = source
+    source = __fill_placeholders(source, k,v)
 
+    return (k,v,source,original_source)
 
 
 def _prep_schemas_sources(inputs, sources, schemas_lookup_base,_schemas_ns,referenced_contexts=None, in_source_url=None):
@@ -48,39 +54,42 @@ def _prep_schemas_sources(inputs, sources, schemas_lookup_base,_schemas_ns,refer
         if isinstance(source, str):
 
             source_uri = source
-
-            k,v= next((k,v) for k,v in schemas_lookup_base.items() if str(source).startswith(k) )
-            source = __fill_placeholders(source, k,v)
+            k,v,source,original_source = find_dir_location(source, schemas_lookup_base)
+            #source = __fill_placeholders(source, k,v)
 
             source_file_path = source + "/schema.json"
             if filehelper.is_file(source_file_path) == False:
                 source_parts = source_uri.split("/")
 
+
                 results = filehelper.find_all(source_parts[-1], v)
+                if  results:
+                    source =__fill_placeholders(source_uri, placeholder=_schemas_ns ,base=results[0].rstrip('\/'))
+                    source_file_path = source + "/schema.json"
 
-
-                source =__fill_placeholders(source_uri, placeholder=_schemas_ns ,base=results[0].rstrip('\/'))
-
-                source_file_path = source + "/schema.json"
             # source = self._remove_version(source)
 
             source = source_file_path if filehelper.is_file(source_file_path) else source
 
 
-            source_url = urljoin(v, source)
 
+            #source_url = urljoin(v, source)
+            source_url = source
             if source_url not in referenced_contexts:
                 referenced_contexts.add(source_url)
                 try:
-                    source = _get_resource_by_adress(source_url)
+                    source = _get_resource_from_nexus(source_url)
 
-                except ResourceNotFoundException as rnfe:
-                    message = """Failed to build the transitive import closure of the schema %s.""" % (source_url)
-                    raise OWLImportException(message) from rnfe
-                if '@type' in source:
-                    source["@id"] = source_uri
-                if 'imports' in source:
-                    _prep_schemas_sources(source['imports'], sources, schemas_lookup_base,_schemas_ns,referenced_contexts, source_url)
+                except nxs.HTTPError as hte:
+                    #The schema is not in Nexus. Let search it in the file system
+                    try:
+                        source = _get_resource_by_adress(source_url)
+                    except ResourceNotFoundException as rnfe:
+                        raise OWLImportException(str(rnfe)) from rnfe
+                    if '@type' in source:
+                        source["@id"] = source_uri
+                    if 'imports' in source:
+                        _prep_schemas_sources(source['imports'], sources, schemas_lookup_base,_schemas_ns,referenced_contexts, source_url)
 
         else:
             source_url = in_source_url
@@ -89,31 +98,42 @@ def _prep_schemas_sources(inputs, sources, schemas_lookup_base,_schemas_ns,refer
         else:
             sources.append((source_url, source))
 
+def _get_resource_from_nexus(source_url):
+    # The resource is taken from Nexus
+    nxs = utils.get_nexus_client()
+    _org_label = utils.get_organization_label(None)
+    _prj_label = utils.get_project_label(None)
+    source = nxs.schemas.fetch(org_label=_org_label, project_label=_prj_label, schema_id=source_url)
 
-def _get_resource_by_adress(source_url):
-    if filehelper.is_file(source_url):
-        source = filehelper.open_as_json(source_url)
-
-    else:
-        # The resource is taken from Nexus
-        nxs = utils.get_nexus_client()
-        _org_label = utils.get_organization_label(None)
-        _prj_label = utils.get_project_label(None)
-        source = nxs.schemas.fetch(org_label=_org_label, project_label=_prj_label, schema_id=source_url)
-
-    if source is None:
-        message = """Failed to find the resource %s.""" % source_url
-        raise ResourceNotFoundException(message)
     return source
 
 
-def get_schema_transitive_import_closure(schema_json,schemas_lookup_base,_schemas_ns):
-    imported_schemas = schema_json["imports"]
-    sources = []
-    imported_schemas = imported_schemas if isinstance(imported_schemas, list) else [imported_schemas]
+def _get_resource_by_adress(source_url):
 
-    _prep_schemas_sources(imported_schemas, sources,schemas_lookup_base,_schemas_ns)
-    return sources
+    source = None
+    if filehelper.is_file(source_url):
+        source = filehelper.open_as_json(source_url)
+    if source is None:
+        message = """Failed to find the schema %s.""" % source_url
+        raise ResourceNotFoundException(message)
+    return source
+
+def get_schema_transitive_import_closure(schema_json,schemas_lookup_base,_schemas_ns,_already_imported_schemas):
+    try:
+        imported_schemas = schema_json["imports"]
+        sources = []
+        imported_schemas = imported_schemas if isinstance(imported_schemas, list) else [imported_schemas]
+
+
+
+        imported_schemas_dirs = [find_dir_location(schema, schemas_lookup_base) for schema in imported_schemas]
+        imported_schemas = [original_source for k,v,source,original_source in imported_schemas_dirs if source + "/schema.json" not in _already_imported_schemas]
+
+
+        _prep_schemas_sources(imported_schemas, sources,schemas_lookup_base,_schemas_ns)
+        return sources
+    except Exception as e:
+        raise OWLImportException("""Failed to build the transitive import closure: %s""" % (str(e))) from e
 
 def _import_schema(url, schema, _org_label, _prj_label,_strategy ):
     nxs = utils.get_nexus_client()
@@ -130,7 +150,7 @@ def _import_schema(url, schema, _org_label, _prj_label,_strategy ):
             if "_self" in schema_in_nexus:
                 schema["_self"] =schema_in_nexus["_self"]
             else:
-                raise SchemaBadFrameException("The schema {} as retrieved from Nexus is not correctly shapes: missing the _self key".format(schema_uri))
+                raise SchemaBadFrameException("The schema {} as retrieved from Nexus is not correctly shaped: missing the _self key".format(schema_uri))
             if _strategy == UPDATE_IF_DIFFERENT:
                 schema_md5_before = utils.generate_nexus_payload_checksum(schema_in_nexus)
                 schema_md5_after = utils.generate_nexus_payload_checksum(schema)
@@ -151,7 +171,10 @@ def import_schemas( path, org, domain, schemas_lookup_base, _schemas_ns, _strate
         _already_imported_schemas=[]
 
         schema_file_uris=filehelper.get_files_by_extensions(path, ".json")
-        print("""Importing %s schemas from %s""" % (len(schema_file_uris), path))
+        nbr_schemas = len(schema_file_uris)
+        print("""Importing %s schemas from %s""" % (nbr_schemas, path))
+        counter = 0
+        bar = progressbar.ProgressBar(max_value=nbr_schemas)
         imported = []
         not_imported = []
         for schema_file_uri in schema_file_uris:
@@ -161,13 +184,13 @@ def import_schemas( path, org, domain, schemas_lookup_base, _schemas_ns, _strate
                     json_data = filehelper.open_as_json(schema_file_uri)
                     if DEPRECATED not in json_data:
                         if 'imports' in json_data:
-                            imports_closure= get_schema_transitive_import_closure(json_data,schemas_lookup_base,_schemas_ns)
+                            imports_closure= get_schema_transitive_import_closure(json_data,schemas_lookup_base,_schemas_ns,_already_imported_schemas)
 
                             for source_url, source in imports_closure:
                                 if source_url and source_url not in _already_imported_schemas:
                                     schema_json = filehelper.open_as_json(source_url)
 
-                                    if DEPRECATED in schema_json: #and source_url != resources_lookup_base+"/schemas/neurosciencegraph/commons/entity/v0.1.0.json":
+                                    if DEPRECATED in schema_json:
                                         message = """Unable to import the schema: it imported a deprecated schema %s""" % (schema_file_uri,source_url)
                                         raise DeprecatedSchemaImportException(message)
 
@@ -177,6 +200,8 @@ def import_schemas( path, org, domain, schemas_lookup_base, _schemas_ns, _strate
                         _import_schema(schema_file_uri,json_data,org,domain,_strategy)
                         _already_imported_schemas.append(schema_file_uri)
                         imported.append(schema_file_uri)
+                        counter += 1
+                        bar.update(counter)
                 except FileNotFoundError as e:
                     message = """Unable to import the schema %s: %s""" % (schema_file_uri,str(e))
                     not_imported.append((schema_file_uri,FileNotFoundError.__name__,message))
