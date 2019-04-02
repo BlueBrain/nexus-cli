@@ -12,38 +12,22 @@ def projects():
     """Projects operations"""
 
 
-@projects.command(name='fetch', help='Fetch a project')
-@click.argument('label')
-@click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('--revision', '-r', default=None, type=int, help='Fetch the project at a specific revision')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
-def fetch(label, _org_label, revision, pretty):
-    _org_label = utils.get_organization_label(_org_label)
-    try:
-        nxs = utils.get_nexus_client()
-        response = nxs.projects.fetch(org_label=_org_label, project_label=label, rev=revision)
-        if revision is not None and response["_rev"] != revision:
-            utils.error("Revision '%s' does not exist" % revision)
-        utils.print_json(response, colorize=pretty)
-    except nxs.HTTPError as e:
-        utils.print_json(e.response.json(), colorize=True)
-        utils.error(str(e))
-
-
 @projects.command(name='create', help='Create a new project')
 @click.argument('label')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('--description', '-d', default=None, help='The description of this project')
 @click.option('--base', '-b', default=None, help='The base of this project')
 @click.option('--vocab', '-v', default=None, help='The vocab of this project')
-@click.option('_api_mapping', '--api-mapping', '-am', multiple=True,
-              help='API Mapping, can be used multiple times (format: <prefix>=<namespace>)')
+@click.option('_api_mapping', '--api-mapping', '-am', multiple=True, help='API Mapping, can be used multiple times (format: <prefix>=<namespace>)')
+@click.option('_resolver_payload', '--resolver-payload', help='Payload of a resolver to initialize the project with')
+@click.option('_resolver_id', '--resolver-id', help='Identifier of the resolver to initialize the project with')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
-def create(label, _org_label, description, base, vocab, _api_mapping, _json, pretty):
+def create(label, _org_label, description, base, vocab, _api_mapping, _resolver_payload, _resolver_id, _resolve_to_project, priority, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
         mappings = None
+
         if _api_mapping is not None:
             mappings = []
             for am in _api_mapping:
@@ -60,12 +44,18 @@ def create(label, _org_label, description, base, vocab, _api_mapping, _json, pre
         response = nxs.projects.create(org_label=_org_label, project_label=label, description=description,
                                        api_mappings=mappings, vocab=vocab, base=base)
         print("Project created (id: %s)" % response["@id"])
+
+        if _resolver_payload is not None:
+            print("Initializing a resolver within the project (id: %s)" % response["@id"])
+            resolver_data = {}
+            resolver_data = json.loads(_resolver_payload)
+            resolver_response = nxs.resolvers.create(org_label=_org_label, project_label=label, resolver_data=resolver_data, resolver_id=_resolver_id)
+            print("Resolver created (id: %s)" % resolver_response["@id"])
         if _json:
             utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
-
 
 @projects.command(name='fetch', help='Fetch a project')
 @click.argument('label')
