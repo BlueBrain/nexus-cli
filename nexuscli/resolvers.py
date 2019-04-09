@@ -1,7 +1,5 @@
-import collections
 
 import click
-from IPython.utils import path
 from prettytable import PrettyTable
 import json
 import os
@@ -10,7 +8,7 @@ import tempfile
 from nexuscli.cli import cli
 from nexuscli import utils
 from nexussdk.utils import http as nexussdk_http
-
+from urllib.parse import quote_plus as encode_url
 
 @cli.group()
 def resolvers():
@@ -83,11 +81,8 @@ def create(_org_label, _prj_label, id, _projects, _identities, _priority, _resou
                 f.close()
                 os.remove(filename)
             if data:
-                if id is not None:
-                    utils.error("The resolver id should be provided in the json-ld payload as @id.")
-                else:
-                    full_url = nexussdk_http._full_url(path=[nxs.resolvers.SEGMENT, _org_label, _prj_label], use_base=False)
-                    response = nxs.resolvers.create_(path=full_url, payload=data)
+                full_url = nexussdk_http._full_url(path=[nxs.resolvers.SEGMENT, _org_label, _prj_label], use_base=False)
+                response = nxs.resolvers.create_(path=full_url, payload=data, id=id)
             else:
                 utils.error("--data, --file or (--priority, --identities, --projects) are required for creating a resolver.")
 
@@ -140,7 +135,8 @@ def update(id, _org_label, _prj_label, _projects, _identities, _priority, _resou
             if data_md5_before == data_md5_after:
                 print("No change in resolver, aborting update.")
             else:
-                nxs.resolvers.update_(path=[nxs.resolvers.SEGMENT, _org_label, _prj_label, id], payload= data, rev=current_revision)
+                encoded_id = encode_url(id)
+                nxs.resolvers.update_(path=[nxs.resolvers.SEGMENT, _org_label, _prj_label, encoded_id], payload= data, rev=current_revision)
                 print("Resolver updated.")
 
     except nxs.HTTPError as e:
@@ -194,15 +190,21 @@ def deprecate(id, _org_label, _prj_label, revision, _json, pretty):
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
-        if revision is not None:
-           response = nxs.resolvers.deprecate(org_label=_org_label, project_label=_prj_label, _id=id, rev=revision)
-        else:
-            response = nxs.resolvers.fetch(org_label=_org_label, project_label=_prj_label, _id=id)
+        if revision is  None:
+            revision = get_current_rev(org_label=_org_label, project_label=_prj_label, id=id, nxs=nxs)
 
-            response = nxs.resolvers._deprecate(resolver_Data=response, rev=response["_rev"])
+        response = nxs.resolvers.deprecate(org_label=_org_label, project_label=_prj_label, id=id, rev=revision)
         if _json:
             utils.print_json(response, colorize=pretty)
         print("Resolver '%s' was deprecated." % id)
     except nxs.HTTPError as e:
         utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+
+# Internal helpers
+
+def get_current_rev(org_label, project_label, id, nxs):
+    data = nxs.resolvers.fetch(org_label=org_label, project_label=project_label, id=id)
+    if "_rev" not in data:
+        utils.error("No _rev present in %s payload" % id)
+    return data["_rev"]
