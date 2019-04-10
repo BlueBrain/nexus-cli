@@ -176,7 +176,10 @@ def get_shapes_id_by_node_kind(payload: dict, node_kinds):
     if "shapes" in payload:
         for shape in payload["shapes"]:
             for kind in node_kinds:
-                if type(shape["@type"]) is list and kind in shape["@type"]:
+                if type(shape) is str:
+                    # URI
+                    shape_ids.append(shape)
+                elif type(shape["@type"]) is list and kind in shape["@type"]:
                     # array
                     shape_ids.append(shape["@id"])
                 elif kind == shape["@type"]:
