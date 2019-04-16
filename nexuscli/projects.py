@@ -5,6 +5,7 @@ import json
 
 from nexuscli import utils
 from nexuscli.cli import cli
+from nexussdk.utils import http as nexussdk_http
 
 
 @cli.group()
@@ -19,11 +20,13 @@ def projects():
 @click.option('--base', '-b', default=None, help='The base of this project')
 @click.option('--vocab', '-v', default=None, help='The vocab of this project')
 @click.option('_api_mapping', '--api-mapping', '-am', multiple=True, help='API Mapping, can be used multiple times (format: <prefix>=<namespace>)')
+@click.option('_data_context_payload', '--data-context-payload','-c', help='Data context to initialise the project with. If --vocab and --base are provided then they will be used in the context as value of @vocab, @base respectively')
+@click.option('_data_context_id', '--data-context-id',default=None, help='Data context identifier')
 @click.option('_resolver_payload', '--resolver-payload', help='Payload of a resolver to initialize the project with')
-@click.option('_resolver_id', '--resolver-id', help='Identifier of the resolver to initialize the project with')
+@click.option('_resolver_id', '--resolver-id',default=None, help='Identifier of the resolver to initialize the project with')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
-def create(label, _org_label, description, base, vocab, _api_mapping, _resolver_payload, _resolver_id, _resolve_to_project, priority, _json, pretty):
+def create(label, _org_label, description, base, vocab, _api_mapping, _data_context_payload, _data_context_id, _resolver_payload, _resolver_id, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
         mappings = None
@@ -46,11 +49,50 @@ def create(label, _org_label, description, base, vocab, _api_mapping, _resolver_
         print("Project created (id: %s)" % response["@id"])
 
         if _resolver_payload is not None:
+            print(_resolver_payload)
             print("Initializing a resolver within the project (id: %s)" % response["@id"])
-            resolver_data = {}
             resolver_data = json.loads(_resolver_payload)
-            resolver_response = nxs.resolvers.create(org_label=_org_label, project_label=label, resolver_data=resolver_data, resolver_id=_resolver_id)
-            print("Resolver created (id: %s)" % resolver_response["@id"])
+            full_url = nexussdk_http._full_url(path=[nxs.resolvers.SEGMENT, _org_label, label], use_base=False)
+            resolver_response = nxs.resolvers.create_(path=full_url, payload=resolver_data, id=_resolver_id)
+            print("Resolver created (id: %s) in %s project" % (resolver_response["@id"], label))
+
+        if _data_context_payload is not None:
+            print("Initializing a context within the project (id: %s)" % response["@id"])
+            context = {}
+            context_obj = {}
+            if vocab:
+                context_obj["@vocab"] = vocab
+            if base:
+                context_obj["@base"] = base
+
+            try:
+                data_context = json.loads(_data_context_payload)
+                if data_context is list:
+                    # _data_context_payload = ["http://schema.org",{"prefix_name":"prefix_mapping"}]
+                    if not context_obj:
+                        context["@context"] = data_context
+                    else:
+                        context["@context"] = data_context.append(context_obj)
+                else:
+                    # _data_context_payload = {"prefix_name":"prefix_mapping"}
+                    if not context_obj:
+                        context["@context"] = data_context
+                    else:
+                        context["@context"] = [data_context, context_obj]
+            except Exception as e:
+                if isinstance(_data_context_payload, str):
+                    # _data_context_payload = "http://schema.org"
+                    if not context_obj:
+                        context["@context"] = _data_context_payload
+                    else:
+                        context["@context"] = [_data_context_payload, context_obj]
+                else:
+                    utils.error(str(e))
+
+            context_response = nxs.resources.create(org_label=_org_label, project_label=label, data=context,schema_id="_",resource_id=_data_context_id)
+            print("Context created (id: %s) in %s project" % (context_response["@id"], label))
+
+
         if _json:
             utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
