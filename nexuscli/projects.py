@@ -49,7 +49,6 @@ def create(label, _org_label, description, base, vocab, _api_mapping, _data_cont
         print("Project created (id: %s)" % response["@id"])
 
         if _resolver_payload is not None:
-            print(_resolver_payload)
             print("Initializing a resolver within the project (id: %s)" % response["@id"])
             resolver_data = json.loads(_resolver_payload)
             full_url = nexussdk_http._full_url(path=[nxs.resolvers.SEGMENT, _org_label, label], use_base=False)
