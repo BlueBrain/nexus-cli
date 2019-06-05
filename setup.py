@@ -23,7 +23,10 @@ setup(
         'rdflib_jsonld',
         'pandas',
         'pytest',
-        'nexus-sdk'
+        'nexus-sdk',
+        'rdflib',
+        'rdflib-jsonld',
+        'SPARQLWrapper'
     ],
     entry_points='''
         [console_scripts]
