@@ -53,8 +53,9 @@ def validate_nexus_url(url):
         url = url.rstrip("/")
         nxs.config.set_environment(url)
         nxs.identities.fetch()
-    except nxs.HTTPError as e:
+    except Exception as e:
         utils.error("Provided URL isn't valid or the service isn't responding: %s" % url)
+
     return url
 
 

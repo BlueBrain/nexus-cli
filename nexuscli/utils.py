@@ -71,7 +71,6 @@ def print_time(seconds: int):
     else:
         return '%s%ds' % (sign_string, seconds)
 
-
 def get_nexus_client():
     key, cfg = get_selected_deployment_config()
     if cfg is None:
@@ -306,8 +305,15 @@ def create_in_nexus(data_model, reader, max_connections):
             for row in reader:
                 if "rdf_type" in data_model:
                     row["@type"] = data_model["rdf_type"]
+                id_namespace = ""
+                if "id_namespace" in data_model:
+                    id_namespace = data_model["id_namespace"]
+                elif "rdf_type" in data_model:
+                    id_namespace = "".join([data_model["rdf_type"],"_"])
+
                 if "id" in data_model:
-                    row["@id"] = data_model["rdf_type"] + "_" + str(row[data_model["id"]])
+                    row["@id"] = "".join([id_namespace,str(row[data_model["id"]])])
+
                 request = asyncio.ensure_future(bound_post(semaphore, session, url, row))
                 futures.append(request)
 
@@ -324,28 +330,38 @@ def create_in_nexus(data_model, reader, max_connections):
 
 def merge_csv(file_paths, on):
     dfs = [pd.read_csv(file_path, keep_default_na=False) for file_path in file_paths]
-    df = reduce(lambda x, y: pd.merge(x, y, on=on), dfs)
+    df = reduce(lambda x, y: pd.merge(x, y, on=on, how = 'outer'), dfs)
     return df
 
 
-def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_colum=None, max_connections=50):
+def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_colum=None, id_namespace=None, max_connections=50):
     try:
         if merge_with:
-            if type(merge_with) == str:
-                merge_with = [merge_with]
+            merge_with = list(merge_with)
+
             merge_with.append(file_path)
+
+            #print(merge_with)
             reader = merge_csv(merge_with, merge_on)
-            reader.fillna('')
+
+            #reader.fillna('')
         else:
             reader = pd.read_csv(file_path, keep_default_na=False)
-            reader.fillna('')
+            #reader.fillna('')
 
-        reader = reader.transpose().to_dict().values()
+        reader.drop_duplicates()
+        reader.fillna('')
+        #reader = reader.transpose().to_dict().values()
+        reader = (reader.apply(lambda x: x.dropna(), 1).to_json(orient='records'))
+        reader = json.loads(reader)
+        #print(reader)
         print("Loading {} resources...".format(len(reader)))
 
         data_model = dict()
         if id_colum:
             data_model["id"] = id_colum
+        if id_namespace:
+            data_model["id_namespace"] = id_namespace
         if _type:
             data_model["rdf_type"] = _type
         data_model["_org_label"] = _org_label
