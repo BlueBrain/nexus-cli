@@ -254,11 +254,12 @@ def query_es(_org_label, _prj_label, id, _payload, file, _json, pretty):
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p',
               help='Project to work on (overrides selection made via projects command)')
+@click.option('--id', '-i', default="nxv:defaultSparqlIndex", help='Id of the SparqlView')
 @click.option('_payload', '--data', '-d', help='Query payload')
 @click.option('--file', '-f', help='Query from file')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def query_sparql(_org_label, _prj_label, _payload, file, _json, pretty):
+def query_sparql(_org_label, _prj_label, id, _payload, file, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
@@ -266,7 +267,7 @@ def query_sparql(_org_label, _prj_label, _payload, file, _json, pretty):
         default_query = "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
         data = get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query,
                                                                 file_prefix="query-sparql")
-        response = nxs.views.query_sparql(org_label=_org_label, project_label=_prj_label, query=data)
+        response = nxs.views.query_sparql(org_label=_org_label, project_label=_prj_label, query=data, view_id=id)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
