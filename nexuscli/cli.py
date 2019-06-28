@@ -10,5 +10,5 @@ def cli():
     pass
 
 
-from nexuscli import profiles, auth, orgs, projects, resources, views, schemas, acls, helpers, resolvers
+from nexuscli import profiles, auth, orgs, projects, resources, views, schemas, acls, helpers, resolvers, storages
 
