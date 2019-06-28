@@ -33,7 +33,6 @@ def resources():
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, idnamespace, mergewith, aggreg_column, mergeon, max_connections, schema, _json, pretty):
 
-
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
@@ -69,7 +68,6 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
         if file is not None and format == "csv":
            utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, id_namespace=idnamespace, aggreg_column=aggreg_column,max_connections=max_connections)
            print("Finished loading.")
-
 
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
