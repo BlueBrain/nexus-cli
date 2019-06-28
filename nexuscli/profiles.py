@@ -38,7 +38,7 @@ def list_profiles():
 def create(profile, url):
     config = utils.get_cli_config()
     if profile in config and 'url' in config[profile]:
-        utils.error("This deployment already exist (%s) with url: %s" % (create, config[create]))
+        utils.error("This deployment already exist (%s) with url: %s" % (profile, config[profile]["url"]))
     url = validate_nexus_url(url)
     config[profile] = {_URL_KEY_: url}
     if len(config) == 1:

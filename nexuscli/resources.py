@@ -25,12 +25,13 @@ def resources():
 @click.option('--idcolumn', default=None, help='The column name containing csv row identifier')
 @click.option('--idnamespace', default=None, help='The namespace of the csv entity identifiers: e.g https:doi.org/')
 @click.option('--mergewith', '-m', default=None, multiple=True, help='CSV source file to merge with. Multiple files can be provided')
+@click.option('--aggreg-column', '-a', default=None, multiple=True, help='The columns to aggregate per entity. Multiple columns can be provided')
 @click.option('--mergeon', default=None, help='CSV column name to merge on')
 @click.option('--max-connections', '-c', default=50, help='Maximum number of concurrent connections when loading CSV data')
 @click.option('--schema', '-s', default='_', help='Schema to validate this resource against')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
-def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, idnamespace, mergewith, mergeon, max_connections, schema, _json, pretty):
+def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, idnamespace, mergewith, aggreg_column, mergeon, max_connections, schema, _json, pretty):
 
 
     _org_label = utils.get_organization_label(_org_label)
@@ -42,22 +43,32 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
             utils.error("--data and --file are mutually exclusive.")
         if _payload is not None:
             data = json.loads(_payload)
-        if file is not None:
+
+        if file is not None and format == "json":
             if format == "json":
                 with open(file) as f:
                     data = json.load(f)
                 if len(data) == 0:
                     utils.error("You must give a non empty payload")
+        if data:
 
-                response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
-                                                schema_id=schema, resource_id=id)
-                print("Resource created (id: %s)" % response["@id"])
-                if _json:
-                    utils.print_json(response, colorize=pretty)
-            elif format == "csv":
+            if _type:
+                types = [] if "@type" not in data else data["@type"]
+                if type(types) is not list:
+                    types = [types]
+                types.append(_type)
 
-               utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, id_namespace=idnamespace, max_connections=max_connections)
-               print("Finished loading.")
+                data["@type"] = types
+            response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
+                                            schema_id=schema, resource_id=id)
+            print("Resource created (id: %s)" % response["@id"])
+            if _json:
+                utils.print_json(response, colorize=pretty)
+
+
+        if file is not None and format == "csv":
+           utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, id_namespace=idnamespace, aggreg_column=aggreg_column,max_connections=max_connections)
+           print("Finished loading.")
 
 
     except nxs.HTTPError as e:

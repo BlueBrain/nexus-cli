@@ -19,6 +19,7 @@ from colorama import Fore
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexers import JsonLdLexer
+import numpy as np
 
 from nexuscli.config import _DEFAULT_ORGANISATION_KEY_, _DEFAULT_PROJECT_KEY_, _URL_KEY_, _TOKEN_KEY_, _SELECTED_KEY_
 
@@ -330,31 +331,35 @@ def create_in_nexus(data_model, reader, max_connections):
 
 def merge_csv(file_paths, on):
     dfs = [pd.read_csv(file_path, keep_default_na=False) for file_path in file_paths]
-    df = reduce(lambda x, y: pd.merge(x, y, on=on, how = 'outer'), dfs)
+    df = reduce(lambda x, y: pd.merge(x, y, on=on, how='outer'), dfs)
     return df
 
 
-def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_colum=None, id_namespace=None, max_connections=50):
+def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_colum=None, id_namespace=None, aggreg_column=None, max_connections=50):
     try:
         if merge_with:
             merge_with = list(merge_with)
-
             merge_with.append(file_path)
-
-            #print(merge_with)
             reader = merge_csv(merge_with, merge_on)
-
-            #reader.fillna('')
         else:
             reader = pd.read_csv(file_path, keep_default_na=False)
-            #reader.fillna('')
 
-        reader.drop_duplicates()
+        reader.drop_duplicates(inplace=True)
         reader.fillna('')
-        #reader = reader.transpose().to_dict().values()
-        reader = (reader.apply(lambda x: x.dropna(), 1).to_json(orient='records'))
+
+        if aggreg_column:
+            aggreg_column = list(aggreg_column)
+            grouby_columns = [column for column in reader.columns if column not in aggreg_column]
+            reader.fillna("nan",inplace=True)
+            reader_unique = reader.groupby(by=grouby_columns).agg(lambda x: list(x))
+            reader = reader_unique.reset_index()
+
+            for column in reader.columns:
+                m = [v == ['nan'] or v=="nan" for v in reader[column]]
+                reader.loc[m, column] = np.nan
+
+        reader = (reader.apply(lambda x: x.dropna(), axis=1).to_json(orient='records'))
         reader = json.loads(reader)
-        #print(reader)
         print("Loading {} resources...".format(len(reader)))
 
         data_model = dict()
