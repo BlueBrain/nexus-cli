@@ -15,7 +15,7 @@ def views():
     """Views operations"""
 
 
-@views.command(name='create', help='Create a new ElasticView')
+@views.command(name='create', help='Create a new view')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
 @click.option('--id', '-i', help='Id of the ElasticView')
@@ -30,7 +30,7 @@ def create(_org_label, _prj_label, id, _payload, _json, pretty):
         data = {}
         if _payload is not None:
             data = json.loads(_payload)
-        response = nxs.views.create_es(org_label=_org_label, project_label=_prj_label, view_data=data, view_id=id)
+        response = nxs.views.create_(org_label=_org_label, project_label=_prj_label, payload=data, view_id=id)
         print("View created (id: %s)" % response["@id"])
         if _json:
             utils.print_json(response, colorize=pretty)
@@ -133,7 +133,7 @@ def _list(_org_label, _prj_label, deprecated, _from, size, _type, _json, pretty)
         utils.print_json(e.response.json(), colorize=True)
 
 
-@views.command(name='deprecate', help='Deprecate an ElasticView')
+@views.command(name='deprecate', help='Deprecate a view')
 @click.argument('id')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
