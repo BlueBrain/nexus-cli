@@ -17,7 +17,8 @@ def views():
 
 @views.command(name='create', help='Create a new view')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
 @click.option('--id', '-i', help='Id of the ElasticView')
 @click.option('_payload', '--data', '-d', help='Payload to create a new ElasticView')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
@@ -42,7 +43,8 @@ def create(_org_label, _prj_label, id, _payload, _json, pretty):
 @views.command(name='fetch', help='Fetch a view')
 @click.argument('id')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
 @click.option('--revision', '-r', default=None, type=int, help='Fetch the view at a specific revision')
 @click.option('--tag', '-t', default=None, help='Fetch the view at a specific tag')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
@@ -62,7 +64,8 @@ def fetch(id, _org_label, _prj_label, revision, tag, pretty):
 @views.command(name='update', help='Update a view')
 @click.argument('id')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
 @click.option('_payload', '--data', '-d', help='Payload to replace it with')
 def update(id, _org_label, _prj_label, _payload):
     _org_label = utils.get_organization_label(_org_label)
@@ -101,7 +104,8 @@ def update(id, _org_label, _prj_label, _payload):
 
 @views.command(name='list', help='List all views')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
 @click.option('--deprecated', '-d', is_flag=True, default=False, help='Show only deprecated views')
 @click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
 @click.option('--size', '-s', default=20, help='How many views to list')
@@ -136,7 +140,8 @@ def _list(_org_label, _prj_label, deprecated, _from, size, _type, _json, pretty)
 @views.command(name='deprecate', help='Deprecate a view')
 @click.argument('id')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def deprecate(id, _org_label, _prj_label, _json, pretty):
@@ -178,7 +183,7 @@ def get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_que
         data = f.read()
         f.close()
     else:
-        new_file, filename = tempfile.mkstemp(dir=".", prefix=file_prefix+"-")
+        new_file, filename = tempfile.mkstemp(dir=".", prefix=file_prefix + "-")
         print("Opening an editor: %s" % filename)
         f = open(filename, "w")
         q = default_query
@@ -195,7 +200,8 @@ def get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_que
 
 @views.command(name='query-es', help='Query an ElasticView')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
 @click.option('--id', '-i', default="documents", help='Id of the ElasticView')
 @click.option('_payload', '--data', '-d', help='Query payload')
 @click.option('--file', '-f', help='Query from file')
@@ -246,7 +252,8 @@ def query_es(_org_label, _prj_label, id, _payload, file, _json, pretty):
 
 @views.command(name='query-sparql', help='Query a SparqlView')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
-@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
 @click.option('_payload', '--data', '-d', help='Query payload')
 @click.option('--file', '-f', help='Query from file')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
@@ -257,7 +264,8 @@ def query_sparql(_org_label, _prj_label, _payload, file, _json, pretty):
     nxs = utils.get_nexus_client()
     try:
         default_query = "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
-        data = get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query, file_prefix="query-sparql")
+        data = get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query,
+                                                                file_prefix="query-sparql")
         response = nxs.views.query_sparql(org_label=_org_label, project_label=_prj_label, query=data)
         if _json:
             utils.print_json(response, colorize=pretty)
@@ -272,6 +280,24 @@ def query_sparql(_org_label, _prj_label, _payload, file, _json, pretty):
                     cells.append(b[v]["value"])
                 table.add_row(cells)
             print(table)
+    except nxs.HTTPError as e:
+        utils.error(str(e))
+        utils.print_json(e.response.json(), colorize=True)
+
+
+@views.command(name='statistics', help='Fetch view statistics')
+@click.argument('id')
+@click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
+@click.option('_prj_label', '--project', '-p',
+              help='Project to work on (overrides selection made via projects command)')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
+def statistics(_org_label, _prj_label, id, pretty):
+    _org_label = utils.get_organization_label(_org_label)
+    _prj_label = utils.get_project_label(_prj_label)
+    nxs = utils.get_nexus_client()
+    try:
+        response = nxs.views.stats(org_label=_org_label, project_label=_prj_label, view_id=id)
+        utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
         utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
