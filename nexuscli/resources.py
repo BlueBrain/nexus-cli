@@ -35,6 +35,11 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
 
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)
+    data_model = dict()
+    data_model["_org_label"] = _org_label
+    data_model["_prj_label"] = _prj_label
+    data_model["schema"] = schema
+
     nxs = utils.get_nexus_client()
     try:
         data = {}
@@ -60,12 +65,7 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
                 data["@type"] = types
             
             if isinstance(data,list):
-                for index,obj in enumerate(data):
-                    response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=obj,
-                                            schema_id=schema, resource_id=None)
-                    print("Resource created (id: %s)" % response["@id"])
-                    if _json:
-                        utils.print_json(response, colorize=pretty)
+                utils.create_in_nexus(data_model,data,max_connections)
             else:
                 response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
                                             schema_id=schema, resource_id=id)
