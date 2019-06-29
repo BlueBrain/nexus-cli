@@ -58,9 +58,18 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
                 types.append(_type)
 
                 data["@type"] = types
-            response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
+            
+            if isinstance(data,list):
+                for index,obj in enumerate(data):
+                    response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=obj,
+                                            schema_id=schema, resource_id=None)
+                    print("Resource created (id: %s)" % response["@id"])
+                    if _json:
+                        utils.print_json(response, colorize=pretty)
+            else:
+                response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, data=data,
                                             schema_id=schema, resource_id=id)
-            print("Resource created (id: %s)" % response["@id"])
+                print("Resource created (id: %s)" % response["@id"])
             if _json:
                 utils.print_json(response, colorize=pretty)
 
