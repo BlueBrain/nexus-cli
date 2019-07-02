@@ -15,7 +15,7 @@ def storages():
     """Storages operations"""
 
 
-@storages.command(name='fetch', help='Fetch a storags')
+@storages.command(name='fetch', help='Fetch a storage')
 @click.argument('id')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p',
@@ -106,7 +106,7 @@ def update(id, _org_label, _prj_label, _payload):
     _prj_label = utils.get_project_label(_prj_label)
     nxs = utils.get_nexus_client()
     try:
-        storage = nxs.storages.fetch(org_label=_org_label, project_label=_prj_label, storage=id)
+        storage = nxs.storages.fetch(org_label=_org_label, project_label=_prj_label, storage_id=id)
         storage_md5_before = utils.generate_nexus_payload_checksum(storage, debug=True)
         current_revision = storage["_rev"]
 
