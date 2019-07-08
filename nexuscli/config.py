@@ -1,7 +1,9 @@
 
 # Nexus CLI configuration keys
-_URL_KEY_ = "url"
-_TOKEN_KEY_ = 'token'
-_SELECTED_KEY_ = "selected"
-_DEFAULT_ORGANISATION_KEY_ = "default_organization"
-_DEFAULT_PROJECT_KEY_ = "default_project"
+URL_KEY = "url"
+TOKEN_KEY = 'token'
+SELECTED_KEY = "selected"
+DEFAULT_ORGANISATION_KEY = "default_organization"
+DEFAULT_PROJECT_KEY = "default_project"
+DEFAULT_REALM_KEY = "default_realm"
+DEFAULT_CLIENT_ID_KEY = "default_client_id"
