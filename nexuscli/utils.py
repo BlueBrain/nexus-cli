@@ -21,7 +21,7 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers import JsonLdLexer
 import numpy as np
 
-from nexuscli.config import _DEFAULT_ORGANISATION_KEY_, _DEFAULT_PROJECT_KEY_, _URL_KEY_, _TOKEN_KEY_, _SELECTED_KEY_
+from nexuscli.config import *
 
 
 def error(message: str):
@@ -76,9 +76,9 @@ def get_nexus_client():
     key, cfg = get_selected_deployment_config()
     if cfg is None:
         error("You must select a profile.")
-    nxs.config.set_environment(cfg[_URL_KEY_])
-    if _TOKEN_KEY_ in cfg:
-        nxs.config.set_token(cfg[_TOKEN_KEY_])
+    nxs.config.set_environment(cfg[URL_KEY])
+    if TOKEN_KEY in cfg:
+        nxs.config.set_token(cfg[TOKEN_KEY])
     else:
         warn("WARNING - you haven not set a token in your profile, use the 'auth set-token' command to do it.")
     return nxs
@@ -205,7 +205,7 @@ def get_selected_deployment_config(config: dict=None):
         # load from disk if not given
         config = get_cli_config()
     for key in config.keys():
-        if _SELECTED_KEY_ in config[key] and config[key][_SELECTED_KEY_] is True:
+        if SELECTED_KEY in config[key] and config[key][SELECTED_KEY] is True:
             return key, config[key]
     return None, None
 
@@ -215,8 +215,8 @@ def get_default_organization():
     profile, selected_config = get_selected_deployment_config(config)
     if selected_config is None:
         error("You must first select a profile using the 'profiles' command")
-    if _DEFAULT_ORGANISATION_KEY_ in selected_config:
-        return selected_config[_DEFAULT_ORGANISATION_KEY_]
+    if DEFAULT_ORGANISATION_KEY in selected_config:
+        return selected_config[DEFAULT_ORGANISATION_KEY]
     else:
         return None
 
@@ -226,7 +226,7 @@ def set_default_organization(org_label: str):
     profile, selected_config = get_selected_deployment_config(config)
     if selected_config is None:
         error("You must first select a profile using the 'profiles' command")
-    config[profile][_DEFAULT_ORGANISATION_KEY_] = org_label
+    config[profile][DEFAULT_ORGANISATION_KEY] = org_label
     save_cli_config(config)
 
 
@@ -244,8 +244,8 @@ def get_default_project():
     profile, selected_config = get_selected_deployment_config(config)
     if selected_config is None:
         error("You must first select a profile using the 'profiles' command")
-    if _DEFAULT_PROJECT_KEY_ in selected_config:
-        return selected_config[_DEFAULT_PROJECT_KEY_]
+    if DEFAULT_PROJECT_KEY in selected_config:
+        return selected_config[DEFAULT_PROJECT_KEY]
     else:
         return None
 
@@ -255,7 +255,7 @@ def set_default_project(project_label: str):
     profile, selected_config = get_selected_deployment_config(config)
     if selected_config is None:
         error("You must first select a profile using the 'profiles' command")
-    config[profile][_DEFAULT_PROJECT_KEY_] = project_label
+    config[profile][DEFAULT_PROJECT_KEY] = project_label
     save_cli_config(config)
 
 
@@ -268,12 +268,52 @@ def get_project_label(given_project_label: str):
     return given_project_label
 
 
+def get_default_realm():
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    if DEFAULT_REALM_KEY in selected_config:
+        return selected_config[DEFAULT_REALM_KEY]
+    else:
+        return None
+
+
+def set_default_realm(label: str, issuer: str):
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    config[profile][DEFAULT_REALM_KEY] = {'_issuer': issuer, '_label': label}
+    save_cli_config(config)
+
+
+def get_default_client_id():
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    if DEFAULT_CLIENT_ID_KEY in selected_config:
+        return selected_config[DEFAULT_CLIENT_ID_KEY]
+    else:
+        return "nexus-cli"
+
+
+def set_default_client_id(client_id: str):
+    config = get_cli_config()
+    profile, selected_config = get_selected_deployment_config(config)
+    if selected_config is None:
+        error("You must first select a profile using the 'profiles' command")
+    config[profile][DEFAULT_CLIENT_ID_KEY] = client_id
+    save_cli_config(config)
+
+
 def create_in_nexus(data_model, reader, max_connections):
     key, cfg = get_selected_deployment_config()
-    env = cfg[_URL_KEY_]
+    env = cfg[URL_KEY]
     headers = {}
-    if _TOKEN_KEY_ in cfg:
-        headers["Authorization"] = "Bearer {}".format(cfg[_TOKEN_KEY_])
+    if TOKEN_KEY in cfg:
+        headers["Authorization"] = "Bearer {}".format(cfg[TOKEN_KEY])
     headers["Content-Type"] = "application/json"
 
     org = quote_plus(data_model["_org_label"])
