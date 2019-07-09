@@ -27,7 +27,7 @@ def acls():
 @click.option('_ancestor', '--include-ancestor', is_flag=True, default=False, help='Include ancestor paths')
 @click.option('_non_self', '--non-self', is_flag=True, default=True, help='Show also non self ACLs')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 @click.option('--verbose', '-v', is_flag=True, default=False, help='Show debug info')
 def _list(_org_label, _prj_label, _ancestor, _non_self, _json, pretty, verbose):
     if _org_label != '*':
@@ -72,7 +72,7 @@ def _list(_org_label, _prj_label, _ancestor, _non_self, _json, pretty, verbose):
 
 @acls.command(name='show-permissions', help='Show permissions supported')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def show_permissions(_json, pretty):
     nxs = utils.get_nexus_client()
     try:
@@ -92,7 +92,7 @@ def show_permissions(_json, pretty):
 
 @acls.command(name='show-identities', help='Show identities supported')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def show_identities(_json, pretty):
     nxs = utils.get_nexus_client()
     try:
@@ -130,7 +130,7 @@ def show_identities(_json, pretty):
 @click.option('_replace', '--replace-existing', is_flag=True, default=False,
               help='If set, remove existing ACLs on this project and ')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def make_public(_org_label, _prj_label, _replace, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     _prj_label = utils.get_project_label(_prj_label)

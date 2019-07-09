@@ -25,7 +25,7 @@ def projects():
 @click.option('_resolver_payload', '--resolver-payload', help='Payload of a resolver to initialize the project with')
 @click.option('_resolver_id', '--resolver-id',default=None, help='Identifier of the resolver to initialize the project with')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def create(label, _org_label, description, base, vocab, _api_mapping, _data_context_payload, _data_context_id, _resolver_payload, _resolver_id, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
@@ -102,7 +102,7 @@ def create(label, _org_label, description, base, vocab, _api_mapping, _data_cont
 @click.argument('label')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('--revision', '-r', default=None, type=int, help='Fetch the project at a specific revision')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def fetch(label, _org_label, revision, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
@@ -159,7 +159,7 @@ def update(label, _org_label, _payload):
 @click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
 @click.option('--size', '-s', default=20, help='How many resource to list')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def _list(_org_label, _from, size, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
@@ -188,7 +188,7 @@ def _list(_org_label, _from, size, _json, pretty):
 @click.argument('label')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def deprecate(label, _org_label, _json, pretty):
     _org_label = utils.get_organization_label(_org_label)
     try:
