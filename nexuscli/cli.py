@@ -6,6 +6,7 @@ init(autoreset=True)
 atexit.register(deinit)
 
 @click.group()
+@click.version_option()
 def cli():
     pass
 

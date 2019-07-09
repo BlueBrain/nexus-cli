@@ -25,6 +25,7 @@ or with straight from github:
 Start using the CLI:
 ```
     nexus --help
+    nexus --version
 ```
 
 # Currently supported features
@@ -37,46 +38,46 @@ Start using the CLI:
 * current: show currently selected profile
 
 ## auth
-* login: opens Nexus Web in your browser so that the user can login and get his/her token
+* login: initiates an interactive login, prompting the user's name, password and client ID for the selected realm
 * set-token: saves a token in the currently selected profile
 * view-token: prints token from the currently selected profile (encoded, decoded, expiry time)
 
 ## orgs
 * list: list all organizations
 * create: create a new organization
-* fetch: shows the json payload of an organization
+* fetch: show the json payload of an organization
 * update: update an organization (name and description only!)
 * deprecate: deprecate an organization
 * select: select the organization to use in subsequent calls of the CLI (local to the currently selected profile)
-* current: shows the currently selected organization
+* current: show the currently selected organization
 
 ## projects (local to a specific organization)
 * list: list all projects
 * create: create a new project
-* fetch: shows the json payload of an project
+* fetch: show the json payload of an project
 * update: update an project (name and description only!)
 * deprecate: deprecate an project
 * select: select the project to use in subsequent calls of the CLI (local to the currently selected profile)
-* current: shows the currently selected project
+* current: show the currently selected project
 
 ## resources (local to a specific organization and project)
 * list: list all resources
 * create: create a new resource
-* fetch: shows the json payload of a resource
+* fetch: show the json payload of a resource
 * update: update a resource
 * deprecate: deprecate a resource
 
 ## schemas (local to a specific organization and project)
 * list: list all schemas
 * create: create a new schema or import a collection of schemas stored in a directory
-* fetch: shows the json payload of a schema
+* fetch: show the json payload of a schema
 * update: update a schema
 * deprecate: deprecate a schema
 
 ## views (local to a specific organization and project)
 * list: list all views
 * create: create a new ElasticSearchView
-* fetch: shows the json payload of a view
+* fetch: show the json payload of a view
 * update: update a view configuration
 * deprecate: deprecate a view
 * query-es: run a query against a specific ElasticSearch view
@@ -87,3 +88,14 @@ Start using the CLI:
 * show-identities: show identities that can be added in ACLs
 * show-permissions: show permissions that can be added in ACLs
 * make-public: make a project public to the world
+* append: add permission to a given identity (group, user, authenticated, anonymous)
+* subtract: remove permission from a given identity (group, user, authenticated, anonymous)
+
+## realms
+* list: list all realms
+* create: create a new realm
+* fetch: show the json payload of a realm
+* update: update a realm configuration
+* deprecate: deprecate a realm
+* select: select the default realm
+* current: show the selected realm

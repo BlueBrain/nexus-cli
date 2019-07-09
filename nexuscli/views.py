@@ -19,8 +19,8 @@ def views():
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p',
               help='Project to work on (overrides selection made via projects command)')
-@click.option('--id', '-i', help='Id of the ElasticView')
-@click.option('_payload', '--data', '-d', help='Payload to create a new ElasticView')
+@click.option('--id', '-i', help='Id of the view')
+@click.option('_payload', '--data', '-d', help='Payload to create a new view')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def create(_org_label, _prj_label, id, _payload, _json, pretty):
@@ -198,11 +198,11 @@ def get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_que
     return data
 
 
-@views.command(name='query-es', help='Query an ElasticView')
+@views.command(name='query-es', help='Query an ElasticsearchView')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p',
               help='Project to work on (overrides selection made via projects command)')
-@click.option('--id', '-i', default="documents", help='Id of the ElasticView')
+@click.option('--id', '-i', default="documents", help='Id of the ElasticsearchView')
 @click.option('_payload', '--data', '-d', help='Query payload')
 @click.option('--file', '-f', help='Query from file')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
