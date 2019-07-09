@@ -46,6 +46,7 @@ def interactive_login(realm_label):
             print("Saving realm '%s' in your profile" % realm['_label'])
             utils.set_default_realm(label, issuer)
         else:
+            issuer = realm['_issuer']
             print("Using default realm '%s' set in your profile. Use --realm to override." % realm['_label'])
 
     default_client_id = utils.get_default_client_id()

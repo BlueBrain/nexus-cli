@@ -7,10 +7,7 @@ from nexuscli.cli import cli
 from nexuscli import utils
 
 
-_ANONYMOUS_ = {
-            "@id": "http://dev.nexus.ocp.bbp.epfl.ch/v1/anonymous",
-            "@type": "Anonymous"
-          }
+_ANONYMOUS_ = {"@type": "Anonymous"}
 
 _PROJECTS_READ_ = "projects/read"
 _RESOURCES_READ_ = "resources/read"
@@ -24,16 +21,15 @@ def acls():
 
 @acls.command(name='list', help='List ACLs for the given <org>/<project>/<subpath>')
 @click.option('_org_label', '--org', '-o', default=None,
-              help='Organization to work on, use ''*'' for Any, otherwise overrides selection made via orgs command.')
+              help='Organization to work on, use "*" for Any, otherwise overrides selection made via orgs command.')
 @click.option('_prj_label', '--project', '-p', default=None,
-              help='Project to work on, use ''*'' for Any, overrides selection made via projects command')
-@click.option('--subpath', default=None, help='subpath inside an org/project')
+              help='Project to work on, use "*" for Any, overrides selection made via projects command')
 @click.option('_ancestor', '--include-ancestor', is_flag=True, default=False, help='Include ancestor paths')
-@click.option('_self', '--exclude-self', is_flag=True, default=True, help='Exclude self')
+@click.option('_non_self', '--non-self', is_flag=True, default=True, help='Show also non self ACLs')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
 @click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
 @click.option('--verbose', '-v', is_flag=True, default=False, help='Show debug info')
-def _list(_org_label, _prj_label, subpath, _ancestor, _self, _json, pretty, verbose):
+def _list(_org_label, _prj_label, _ancestor, _non_self, _json, pretty, verbose):
     if _org_label != '*':
         _org_label = utils.get_organization_label(_org_label)
     if _prj_label != '*':
@@ -42,13 +38,11 @@ def _list(_org_label, _prj_label, subpath, _ancestor, _self, _json, pretty, verb
     nxs = utils.get_nexus_client()
     try:
         path = _org_label + '/' + _prj_label
-        if subpath is not None:
-            path += '/' + subpath
         if verbose:
             print("subpath: %s" % path)
-            print("self: %s" % _self)
+            print("non-self: %s" % _non_self)
             print("ancestors: %s" % _ancestor)
-        response = nxs.acls.list(subpath=path, ancestors=_ancestor, self=_self)
+        response = nxs.acls.list(subpath=path, ancestors=_ancestor, self=_non_self)
         if _json:
             utils.print_json(response, colorize=pretty)
         else:
@@ -130,7 +124,7 @@ def show_identities(_json, pretty):
         utils.error(str(e))
 
 
-@acls.command(name='make-public', help='Make current project public (i.e. Add permission ''projects/read'' to ''Anonymous'')')
+@acls.command(name='make-public', help='Make current project public (i.e. add permission "projects/read" to "Anonymous")')
 @click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
 @click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
 @click.option('_replace', '--replace-existing', is_flag=True, default=False,
@@ -167,6 +161,150 @@ def make_public(_org_label, _prj_label, _replace, _json, pretty):
             print("Adding to existing ACLs on project '%s' in organization '%s'" % (_prj_label, _org_label))
             response = nxs.acls.append(subpath=path, identities=_identities, permissions=[_permissions],
                                        rev=current_rev)
+        if _json:
+            utils.print_json(response, colorize=pretty)
+    except nxs.HTTPError as e:
+        utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
+
+
+def count_not_None(_list):
+    count = 0
+    for item in _list:
+        if type(item) is bool and item is True:
+            count += 1
+        elif type(item) is str and len(item) > 0:
+            count += 1
+    return count
+
+
+# Identities definition: https://bluebrain.github.io/nexus/docs/api/iam/iam-identities.html
+def build_identity(_anonymous, _authenticated, _user, _group, _realm):
+    identities = []
+    if _anonymous is True:
+        identities.append(_ANONYMOUS_)
+    elif _authenticated is True:
+        identities.append({
+            "@type": "Authenticated",
+            "realm": _realm
+        })
+    elif _user is not None:
+        identities.append({
+              "@type": "User",
+              "realm": _realm,
+              "subject": _user
+        })
+    elif _group is not None:
+        identities.append({
+            "@type": "Group",
+            "group": _group,
+            "realm": _realm
+        })
+    return identities
+
+
+def build_permissions_param(_permissions):
+    param = []
+    for p in _permissions:
+        param.append(p)
+    return [param]
+
+
+@acls.command(name='append', help='Add permissions')
+@click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
+@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('--root', is_flag=True, default=False, help='Add permissions to the ACLs root path')
+@click.option('_anonymous', '--anonymous', is_flag=True, default=False, help='Grant permissions to Anonymous')
+@click.option('_authenticated', '--authenticated', is_flag=True, default=False, help='Grant permissions to Authenticated')
+@click.option('_group', '--group', help='Grant permissions to a specific User')
+@click.option('_user', '--user', help='Grant permissions to a specific User')
+@click.option('_realm', '--realm', help='Specify the Realm for Authenticated user, specific User or Group')
+@click.option('_permissions', '--permission', multiple=True, help='The permission to grant')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--verbose', '-v', is_flag=True, default=False, help='Print verbose information')
+def append_permissions(_org_label, _prj_label, root, _anonymous, _authenticated, _group, _user, _realm, _permissions,
+                       _json, pretty, verbose):
+    _add_or_sub(_org_label, _prj_label, root, _anonymous, _authenticated, _group, _user, _realm, _permissions,
+               _json, pretty, verbose, True)
+
+
+@acls.command(name='subtract', help='Remove permissions')
+@click.option('_org_label', '--org', '-o', help='Organization to work on (overrides selection made via orgs command)')
+@click.option('_prj_label', '--project', '-p', help='Project to work on (overrides selection made via projects command)')
+@click.option('--root', is_flag=True, default=False, help='Add permissions to the ACLs root path')
+@click.option('_anonymous', '--anonymous', is_flag=True, default=False, help='Remove permissions for Anonymous')
+@click.option('_authenticated', '--authenticated', is_flag=True, default=False, help='Remove permissions for Authenticated')
+@click.option('_group', '--group', help='Remove permissions for a specific User')
+@click.option('_user', '--user', help='Remove permissions for a specific User')
+@click.option('_realm', '--realm', help='Specify the Realm for Authenticated user, specific User or Group')
+@click.option('_permissions', '--permission', multiple=True, help='The permission to grant')
+@click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--verbose', '-v', is_flag=True, default=False, help='Print verbose information')
+def subtract_permissions(_org_label, _prj_label, root, _anonymous, _authenticated, _group, _user, _realm, _permissions,
+                       _json, pretty, verbose):
+    _add_or_sub(_org_label, _prj_label, root, _anonymous, _authenticated, _group, _user, _realm, _permissions,
+               _json, pretty, verbose, False)
+
+
+def _add_or_sub(_org_label, _prj_label, root, _anonymous, _authenticated, _group, _user, _realm, _permissions,
+                       _json, pretty, verbose, add):
+    subpath = ''
+    if root:
+        if _org_label or _prj_label:
+            utils.error("The --root flag cannot be used together with --org or --project.")
+    else:
+        if _org_label:
+            subpath = _org_label
+            if _prj_label:
+                subpath += '/' + _prj_label
+        else:
+            subpath = utils.get_default_organization() + '/' + utils.get_default_project()
+
+    count = count_not_None([_anonymous, _authenticated, _group, _user])
+    if count == 0:
+        utils.error("You must choose to whom you will grant permissions using one of: --anonymous, --authenticated, "
+                    "--group, --user.")
+    elif count > 1:
+        utils.error("The following options are mutually exclusive: --anonymous, --authenticated, --group, --user.")
+
+    if count_not_None([_authenticated, _user, _group]) > 0 and _realm is None:
+        utils.error("You must set a Realm if you want to grant permissions to --authenticated, --user or --group.")
+
+    if len(_permissions) == 0:
+        utils.error("You must define the permissions to grant.")
+
+    for p in _permissions:
+        print(p)
+
+    nxs = utils.get_nexus_client()
+    try:
+        response = nxs.acls.fetch(subpath=subpath)
+        count = len(response["_results"])
+        if count > 1:
+            utils.error("More than one ACL matching: %d" % count)
+        elif count == 0:
+            utils.warn("No ACL found specifically for the path '/%s'." % subpath)
+            current_rev = 0
+        else:
+            current_rev = response["_results"][0]['_rev']
+
+        _identities = build_identity(_anonymous, _authenticated, _user, _group, _realm)
+        _permissions_param = build_permissions_param(_permissions)
+
+        print("Modifying existing ACLs on path '/%s'" % subpath)
+        if verbose:
+            utils.print_json(subpath)
+            utils.print_json(_identities)
+            utils.print_json(_permissions)
+            utils.print_json(current_rev)
+        response = {}
+        if add:
+            nxs.acls.append(subpath=subpath, identities=_identities, permissions=_permissions_param, rev=current_rev)
+        else:
+            nxs.acls.subtract(subpath=subpath, identities=_identities, permissions=_permissions_param, rev=current_rev)
+
         if _json:
             utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:

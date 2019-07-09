@@ -72,6 +72,7 @@ def print_time(seconds: int):
     else:
         return '%s%ds' % (sign_string, seconds)
 
+
 def get_nexus_client():
     key, cfg = get_selected_deployment_config()
     if cfg is None:
@@ -100,6 +101,7 @@ def remove_nexus_metadata(d: dict):
             x[k] = d[k]
     return x
 
+
 def remove_nexus_added_context(d:dict):
     """ Returns a copy of the provided dictionary without nexus metadata (i.e. root keys starting with '_'). """
     if "@context" in d:
@@ -112,6 +114,7 @@ def remove_nexus_added_context(d:dict):
 
         d["@context"] = context
     return d
+
 
 def sort_dictionary(od):
     res = OrderedDict()
@@ -375,7 +378,7 @@ def merge_csv(file_paths, on):
     return df
 
 
-def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_colum=None, id_namespace=None, aggreg_column=None, max_connections=50):
+def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_on=None, _type=None, id_column=None, id_namespace=None, aggreg_column=None, max_connections=50):
     try:
         if merge_with:
             merge_with = list(merge_with)
@@ -403,8 +406,8 @@ def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_o
         print("Loading {} resources...".format(len(reader)))
 
         data_model = dict()
-        if id_colum:
-            data_model["id"] = id_colum
+        if id_column:
+            data_model["id"] = id_column
         if id_namespace:
             data_model["id_namespace"] = id_namespace
         if _type:
