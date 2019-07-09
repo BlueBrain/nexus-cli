@@ -15,7 +15,7 @@ def orgs():
 @orgs.command(name='fetch', help='Fetch an organization')
 @click.argument('label')
 @click.option('--revision', '-r', default=None, type=int, help='Fetch the organization at a specific revision')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def fetch(label, revision, pretty):
     nxs = utils.get_nexus_client()
     try:
@@ -32,7 +32,7 @@ def fetch(label, revision, pretty):
 @click.argument('label')
 @click.option('--description', '-d', help='Description of the organization')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def create(label, description, _json, pretty):
     nxs = utils.get_nexus_client()
     try:
@@ -92,7 +92,7 @@ def update(label, _payload, name, description):
 @click.option('_from', '--from', '-f', default=0, help='Offset of the listing')
 @click.option('--size', '-s', default=20, help='How many resource to list')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 def _list(_from, size, _json, pretty):
     nxs = utils.get_nexus_client()
     try:
@@ -118,7 +118,7 @@ def _list(_from, size, _json, pretty):
 
 @orgs.command(name='deprecate', help='Deprecate an organization')
 @click.option('_json', '--json', '-j', is_flag=True, default=False, help='Print JSON payload returned by the nexus API')
-@click.option('--pretty', '-p', is_flag=True, default=False, help='Colorize JSON output')
+@click.option('--pretty', is_flag=True, default=False, help='Colorize JSON output')
 @click.argument('label')
 def deprecate(label, _json, pretty):
     nxs = utils.get_nexus_client()
