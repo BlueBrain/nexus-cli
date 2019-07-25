@@ -1,4 +1,5 @@
 import getpass
+import webbrowser
 from datetime import datetime
 
 import click
@@ -17,6 +18,15 @@ from nexuscli.config import TOKEN_KEY, URL_KEY
 @cli.group()
 def auth():
     """Authentication operations"""
+
+
+@auth.command('web', help='Open Nexus web in the system browser')
+def open_nexus_web():
+    base_url = utils.get_selected_deployment_config()[1][URL_KEY]
+    print("A browser window will now open, please login, copy your token and use the 'set-token' command "
+          "to store it in the CLI")
+    input("Press ENTER to continue...")
+    webbrowser.open_new(base_url.strip("/v1") + "/web")
 
 
 @auth.command('login', help='Login interactively against a specific realm, with username, password and client ID.')
@@ -93,7 +103,7 @@ def _select_realm():
         utils.error("Invalid input.")
 
 
-@auth.command('set-token', help='Registers the user token in the current profile')
+@auth.command('set-token', help='Register the user token in the current profile')
 @click.argument('token')
 def set_token(token):
     """Registers the user token in the current profile."""
