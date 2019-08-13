@@ -66,7 +66,7 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
 
 
         if file is not None and format == "csv":
-           utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_colum=idcolumn, id_namespace=idnamespace, aggreg_column=aggreg_column,max_connections=max_connections)
+           utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_column=idcolumn, id_namespace=idnamespace, aggreg_column=aggreg_column,max_connections=max_connections)
            print("Finished loading.")
 
     except nxs.HTTPError as e:
