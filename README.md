@@ -5,7 +5,7 @@ A command line interface for Nexus
 
 As seen in http://click.pocoo.org/7/setuptools/#setuptools-integration
 ```
-   <install conda - https://conda.io/docs/user-guide/install/index.html>
+   <install conda - https://conda.io/projects/conda/en/latest/user-guide/install/index.html>
 
    conda create -n nexus-cli python=3.5
    conda activate nexus-cli
