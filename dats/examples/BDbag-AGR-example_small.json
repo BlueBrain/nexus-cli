@@ -1,0 +1,83 @@
+{
+    "@type": "Dataset",
+    "@id": "http://identifiers.org/minid:b9j69h",
+    "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
+    "identifier": {
+        "@type": "Identifier",
+        "@context": "https://w3id.org/dats/context/sdo/identifier_info_sdo_context.jsonld",
+        "identifier": "http://identifiers.org/minid:b9j69h",
+        "identifierSource": "minid"
+    },
+    "title": "AGR Data set with identifier-based references to data in cloud storage",
+    "description": "AGR Data set with identifier-based references to data in cloud storage",
+    "dates": [{
+        "date": "2018-03-19T17:43:57.073822",
+        "type": {
+            "value": "creation",
+            "valueIRI": ""
+        }
+    }],
+    "creators": [{
+        "@type": "Person",
+        "@context": "https://w3id.org/dats/context/sdo/person_sdo_context.jsonld",
+        "@id": "http://orcid.org/0000-0003-2280-917X",
+        "identifier": {
+            "identifier": "http://orcid.org/0000-0003-2280-917X",
+            "identifierSource": "orcid"
+        },
+        "affiliations": [{
+            "@type": "Organization",
+            "@context": "https://w3id.org/dats/context/sdo/organization_sdo_context.jsonld",
+            "name": "University of Southern California / Information Science"
+        }],
+        "firstName": "Michel",
+        "fullName": "Mike d'Arcy",
+        "lastName": "d'Arcy"
+    }],
+    "types": [{"information": {"value": "model organism data"}}],
+    "distributions": [{
+        "@type": "DatasetDistribution",
+        "@context": "https://w3id.org/dats/context/sdo/dataset_distribution_sdo_context.jsonld",
+        "identifier": {
+            "identifier": "http://identifiers.org/minid:b9j69h",
+            "identifierSource": "minid"
+        },
+        "access": {
+            "@type": "Access",
+            "@context": "https://w3id.org/dats/context/sdo/access_sdo_context.jsonld",
+            "landingPage": "http://identifiers.org/minid/b9j69h",
+            "accessURL": "https://nih-commons.s3.amazonaws.com/misc/agr-example.tgz"
+        },
+        "conformsTo": [{
+            "name": "tar.gz",
+            "type": {
+                "value": "application/x-compressed",
+                "valueIRI": ""
+            }
+        }],
+        "size": -1,
+        "unit": {
+            "value": "byte",
+            "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+        },
+        "version": ""
+    }],
+    "extraProperties": [
+        {
+            "category": "checksum",
+            "categoryIRI": "http://purl.obolibrary.org/obo/NCIT_C43522",
+            "values": [{
+                "value": "6484968f81afac84857d02b573b0d589fb2f9582a2b920572830dc5781e0a53c",
+                "valueIRI": ""
+            }]
+        },
+        {
+            "category": "checksum algorithm",
+            "categoryIRI": "http://purl.obolibrary.org/obo/NCIT_C16275",
+            "values": [{
+                "value": "MD5",
+                "valueIRI": ""
+            }]
+        }
+    ]
+}

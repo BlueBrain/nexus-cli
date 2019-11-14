@@ -36,8 +36,8 @@ def create(_org_label, _prj_label, id, _payload, _json, pretty):
         if _json:
             utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
 @views.command(name='fetch', help='Fetch a view')
@@ -57,8 +57,8 @@ def fetch(id, _org_label, _prj_label, revision, tag, pretty):
         response = nxs.views.fetch(org_label=_org_label, project_label=_prj_label, view_id=id, rev=revision, tag=tag)
         utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
 @views.command(name='update', help='Update a view')
@@ -98,8 +98,8 @@ def update(id, _org_label, _prj_label, _payload):
             nxs.views.update_es(esview=view, rev=current_revision)
             print("View updated.")
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
 @views.command(name='list', help='List all views')
@@ -133,8 +133,8 @@ def _list(_org_label, _prj_label, deprecated, _from, size, _type, _json, pretty)
                 table.add_row([r["@id"], types, r["_rev"], r["_deprecated"]])
             print(table)
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
 @views.command(name='deprecate', help='Deprecate a view')
@@ -157,8 +157,8 @@ def deprecate(id, _org_label, _prj_label, _json, pretty):
             utils.print_json(response, colorize=pretty)
         print("View '%s' was deprecated." % id)
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
 def get_query_from_payload_xor_data_otherwise_editor(_payload, file, default_query, file_prefix):
@@ -246,8 +246,8 @@ def query_es(_org_label, _prj_label, id, _payload, file, _json, pretty):
                 table.add_row([r["_source"]["@id"], types, r["_source"]["_rev"], r["_source"]["_deprecated"]])
             print(table)
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
 @views.command(name='query-sparql', help='Query a SparqlView')
@@ -282,8 +282,8 @@ def query_sparql(_org_label, _prj_label, id, _payload, file, _json, pretty):
                 table.add_row(cells)
             print(table)
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
 @views.command(name='statistics', help='Fetch view statistics')
@@ -300,5 +300,5 @@ def statistics(_org_label, _prj_label, id, pretty):
         response = nxs.views.stats(org_label=_org_label, project_label=_prj_label, view_id=id)
         utils.print_json(response, colorize=pretty)
     except nxs.HTTPError as e:
-        utils.error(str(e))
         utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))

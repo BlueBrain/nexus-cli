@@ -50,7 +50,6 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
                 if len(data) == 0:
                     utils.error("You must give a non empty payload")
         if data:
-
             if _type:
                 types = [] if "@type" not in data else data["@type"]
                 if type(types) is not list:
@@ -64,7 +63,6 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
             if _json:
                 utils.print_json(response, colorize=pretty)
 
-
         if file is not None and format == "csv":
            utils.load_csv(_org_label, _prj_label, schema, file_path=file, merge_with=mergewith, merge_on=mergeon, _type=_type, id_column=idcolumn, id_namespace=idnamespace, aggreg_column=aggreg_column,max_connections=max_connections)
            print("Finished loading.")
@@ -72,8 +70,6 @@ def create(_org_label, _prj_label, id, file, _type, _payload, format, idcolumn, 
     except nxs.HTTPError as e:
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
-
-
 
 
 @resources.command(name='fetch', help='Fetch a resource')

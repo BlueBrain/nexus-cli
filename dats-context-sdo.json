@@ -1,0 +1,176 @@
+{
+  "@context": {
+    "abbreviation": {
+      "@type": "sdo:Text",
+      "@id": "sdo:name"
+    },
+    "access": {
+      "@type": "sdo:EntryPoint",
+      "@id": "sdo:accessMode"
+    },
+    "Access": "sdo:EntryPoint",
+    "accessURL": {
+      "@type": "sdo:URL",
+      "@id": "sdo:url"
+    },
+    "acknowledges": "sdo:funder",
+    "Activity": "sdo:Action",
+    "affiliations": "sdo:affiliation",
+    "alternateIdentifier": "sdo:alternateName",
+    "alternateIdentifiers": "sdo:identifier",
+    "AnatomicalPart": "sdo:AnatomicalStructure",
+    "Annotation": "sdo:Thing",
+    "authorList": "sdo:author",
+    "authors": "sdo:author",
+    "BiologicalEntity": "sdo:Thing",
+    "category": {
+      "@type": "sdo:Text",
+      "@id": "sdo:value"
+    },
+    "categoryIRI": {
+      "@type": "sdo:URL",
+      "@id": "sdo:url"
+    },
+    "CategoryValuesPair": "sdo:PropertyValue",
+    "citations": "sdo:citation",
+    "coordinates": {
+      "@type": "sdo:GeoCoordinates",
+      "@id": "sdo:geo"
+    },
+    "creators": {
+      "@type": "sdo:Thing",
+      "@id": "sdo:creator"
+    },
+    "DataAcquisition": "sdo:CreateAction",
+    "DataAnalysis": "sdo:Action",
+    "DataRepository": "sdo:DataCatalog",
+    "Dataset": "sdo:Dataset",
+    "DatasetDistribution": "sdo:DataDownload",
+    "DataStandard": "sdo:CreativeWork",
+    "DataType": "sdo:Thing",
+    "date": {
+      "@id": "sdo:Property"
+    },
+    "Date": "sdo:DateTime",
+    "dates": "sdo:temporalCoverage",
+    "description": {
+      "@type": "sdo:Text",
+      "@id": "sdo:description"
+    },
+    "Dimension": "sdo:Thing",
+    "dimensions": "sdo:variableMeasured",
+    "Disease": "sdo:MedicalCondition",
+    "distributions": {
+      "@type": "sdo:DataDownload",
+      "@id": "sdo:distribution"
+    },
+    "email": "sdo:email",
+    "endDate": {
+      "@type": "sdo:DateTime",
+      "@id": "sdo:endTime"
+    },
+    "firstName": "sdo:givenName",
+    "fullName": "sdo:name",
+    "geometry": {
+      "@type": "sdo:GeospatialGeometry",
+      "@id": "sdo:geospatiallyContains"
+    },
+    "Grant": "wsdo:Grant",
+    "hasPart": {
+      "@type": "sdo:Dataset",
+      "@id": "sdo:hasPart"
+    },
+    "Identifier": "sdo:Thing",
+    "identifier": {
+      "@type": "sdo:Text",
+      "@id": "sdo:identifier"
+    },
+    "identifierSource": {
+      "@type": "sdo:Text",
+      "@id": "sdo:Property"
+    },
+    "information": {
+      "@id": "sdo:Property"
+    },
+    "Instrument": "sdo:Product",
+    "instrument": {
+      "@id": "sdo:instrument"
+    },
+    "isAbout": "sdo:about",
+    "landingPage": {
+      "@type": "sdo:URL",
+      "@id": "sdo:url"
+    },
+    "lastName": "sdo:familyName",
+    "License": "sdo:CreativeWork",
+    "licenses": "sdo:license",
+    "location": "sdo:location",
+    "Material": "sdo:Thing",
+    "method": {
+      "@id": "sdo:Property"
+    },
+    "name": {
+      "@type": "sdo:Text",
+      "@id": "sdo:name"
+    },
+    "Organization": "sdo:Organization",
+    "performedBy": "sdo:agent",
+    "Person": "sdo:Person",
+    "Place": "sdo:Place",
+    "platform": {
+      "@id": "sdo:Property"
+    },
+    "postalAddress": {
+      "@type": "sdo:PostalAddress",
+      "@id": "sdo:address"
+    },
+    "primaryPublications": "sdo:citation",
+    "producedBy": "sdo:producer",
+    "Publication": "sdo:ScholarlyArticle",
+    "publicationVenue": "sdo:publication",
+    "publishers": "sdo:publisher",
+    "relatedIdentifier": "sdo:mentions",
+    "RelatedIdentifier": "sdo:Thing",
+    "relatedIdentifiers": "sdo:identifier",
+    "roles": {
+      "@type": "sdo:Text",
+      "@id": "sdo:roleName"
+    },
+    "sdo": "https://schema.org/",
+    "size": {
+      "@type": "sdo:Text",
+      "@id": "sdo:contentSize"
+    },
+    "Software": "sdo:SoftwareApplication",
+    "spatialCoverage": "sdo:spatialCoverage",
+    "startDate": {
+      "@type": "sdo:DateTime",
+      "@id": "sdo:startTime"
+    },
+    "storedIn": {
+      "@type": "sdo:DataCatalog",
+      "@id": "sdo:includedInDataCatalog"
+    },
+    "Study": "sdo:Action",
+    "StudyGroup": "sdo:Thing",
+    "TaxonomicInformation": "sdo:Thing",
+    "title": {
+      "@type": "sdo:Text",
+      "@id": "sdo:name"
+    },
+    "Treatmet": "sdo:Thing",
+    "type": {
+      "@id": "sdo:Property"
+    },
+    "value": {
+      "@type": "sdo:DataType",
+      "@id": "sdo:value"
+    },
+    "valueIRI": {
+      "@type": "sdo:URL",
+      "@id": "sdo:url"
+    },
+    "version": "sdo:version",
+    "wsdo": "https://webschemas.org/"
+  }
+}

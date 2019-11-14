@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='nexus-cli',
-    version='0.3.0',
+    version='0.4.0',
     description='A Command Line Interface (CLI) for Blue Brain Nexus.',
     keywords='nexus cli',
     url="https://github.com/BlueBrain/nexus-cli",
@@ -14,6 +14,7 @@ setup(
     packages=["nexuscli","nexuscli.helpers"],
     install_requires=[
         'aiohttp',
+        'requests',
         'click',
         'colorama',
         'progressbar2',
@@ -26,7 +27,10 @@ setup(
         'nexus-sdk',
         'rdflib',
         'rdflib-jsonld',
-        'SPARQLWrapper'
+        'PyLD',
+        'SPARQLWrapper',
+        'Pillow',
+        'gitpython'
     ],
     entry_points='''
         [console_scripts]

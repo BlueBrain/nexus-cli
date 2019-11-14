@@ -1,0 +1,902 @@
+{
+    "@type": "Dataset",
+    "@id": "http://identifiers.org/minid:b9j69h",
+    "@context": {
+        "sdo": "https://schema.org/",
+        "Dataset": "sdo:Dataset",
+        "identifier": {
+          "@id": "sdo:identifier",
+          "@type": "sdo:Text"
+        },
+        "alternateIdentifier": "sdo:alternateName",
+        "relatedIdentifier": "sdo:mentions",
+        "title": {
+          "@id": "sdo:name",
+          "@type": "sdo:Text"
+        },
+        "description": {
+          "@id": "sdo:description",
+          "@type": "sdo:Text"
+        },
+        "dates": "sdo:temporalCoverage",
+        "spatialCoverage": "sdo:spatialCoverage",
+        "storedIn": {
+            "@id": "sdo:includedInDataCatalog",
+            "@type": "sdo:DataCatalog"
+        },
+        "distributions": {
+          "@id": "sdo:distribution",
+          "@type": "sdo:DataDownload"
+        },
+        "primaryPublications": "sdo:citation",
+        "citations": "sdo:citation",
+        "producedBy": "sdo:producer",
+        "creators": {
+            "@id": "sdo:creator",
+            "@type": "sdo:Thing"
+        },
+        "licenses": "sdo:license",
+        "isAbout": "sdo:about",
+        "hasPart": {
+            "@id": "sdo:hasPart",
+            "@type": "Dataset"
+        },
+        "acknowledges": "sdo:funder",
+        "dimensions": "sdo:variableMeasured"
+    },
+    "identifier": {
+        "@type": "Identifier",
+        "@context": {
+            "sdo": "https://schema.org/",
+            "Identifier": "sdo:Thing",
+            "identifier": "sdo:identifier",
+            "identifierSource": {
+               "@id": "sdo:Property",
+               "@type": "sdo:Text"
+            }
+        },
+        "identifier": "http://identifiers.org/minid:b9j69h",
+        "identifierSource": "minid"
+    },
+    "title": "AGR Data set with identifier-based references to data in cloud storage",
+    "description": "AGR Data set with identifier-based references to data in cloud storage",
+    "dates": [{
+        "date": "2018-03-19T17:43:57.073822",
+        "type": {
+            "value": "creation",
+            "valueIRI": ""
+        }
+    }],
+    "creators": [{
+        "@type": "Person",
+        "@context": {
+            "sdo": "https://schema.org/",
+            "Person": "sdo:Person",
+            "identifier": "sdo:identifier",
+            "firstName": "sdo:givenName",
+            "lastName": "sdo:familyName",
+            "fullName": "sdo:name",
+            "email": "sdo:email",
+            "affiliations": "sdo:affiliation",
+            "roles": "sdo:roleName"
+        },
+        "@id": "http://orcid.org/0000-0003-2280-917X",
+        "identifier": {
+            "identifier": "http://orcid.org/0000-0003-2280-917X",
+            "identifierSource": "orcid"
+        },
+        "affiliations": [{
+            "@type": "Organization",
+
+            "@context": {
+              "sdo": "https://schema.org/",
+              "Organization": "sdo:Organization",
+              "identifier": {
+                "@id": "sdo:identifier",
+                "@type": "sdo:Text"
+              },
+              "name": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+              },
+              "abbreviation": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+              },
+              "location": {
+                  "@id": "sdo:address",
+                  "@type": "sdo:Text"
+              },
+              "roles": {
+                  "@id": "sdo:roleName",
+                  "@type": "sdo:Text"
+              }
+            },
+            "name": "University of Southern California / Information Science"
+        }],
+        "firstName": "Michel",
+        "fullName": "Mike d'Arcy",
+        "lastName": "d'Arcy"
+    }],
+    "types": [{"information": {"value": "model organism data"}}],
+    "hasPart": [
+        {
+            "@type": "Dataset",
+            "@context": {
+                "sdo": "https://schema.org/",
+                "Dataset": "sdo:Dataset",
+                "identifier": {
+                  "@id": "sdo:identifier",
+                  "@type": "sdo:Text"
+                },
+                "alternateIdentifier": "sdo:alternateName",
+                "relatedIdentifier": "sdo:mentions",
+                "title": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+                },
+                "description": {
+                  "@id": "sdo:description",
+                  "@type": "sdo:Text"
+                },
+                "dates": "sdo:temporalCoverage",
+                "spatialCoverage": "sdo:spatialCoverage",
+                "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                },
+                "distributions": {
+                  "@id": "sdo:distribution",
+                  "@type": "sdo:DataDownload"
+                },
+                "primaryPublications": "sdo:citation",
+                "citations": "sdo:citation",
+                "producedBy": "sdo:producer",
+                "creators": {
+                    "@id": "sdo:creator",
+                    "@type": "sdo:Thing"
+                },
+                "licenses": "sdo:license",
+                "isAbout": "sdo:about",
+                "hasPart": {
+                    "@id": "sdo:hasPart",
+                    "@type": "Dataset"
+                },
+                "acknowledges": "sdo:funder",
+                "dimensions": "sdo:variableMeasured"
+            },
+            "@id": "https://identifiers.org/minid:b9n39d",
+            "identifier": {
+                "identifier": "minid:b9n39d",
+                "identifierSource": "minid"
+            },
+            "title": "A list of disease ontology terms obtained from the Disease Ontology website.",
+            "types": [{"information": {"value": "ontology terms"}}],
+            "creators": [ {} ],
+            "distributions": [{
+                "@type": "DatasetDistribution",
+                "@context": {
+                  "sdo": "https://schema.org/",
+                  "DatasetDistribution": "sdo:DataDownload",
+                  "identifier": {
+                    "@id": "sdo:identifier",
+                    "@type": "sdo:Text"
+                  },
+                  "alternateIdentifiers": "sdo:identifier",
+                  "relatedIdentifiers": "sdo:identifier",
+                  "title": {
+                    "@id": "sdo:name",
+                    "@type": "sdo:Text"
+                  },
+                  "description": {
+                    "@id": "sdo:description",
+                    "@type": "sdo:Text"
+                  },
+                  "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                  },
+                  "version": "sdo:version",
+                  "licenses": "sdo:license",
+                  "access": {
+                    "@id": "sdo:accessMode",
+                    "@type": "sdo:Access"
+                  },
+                  "size": {
+                      "@id": "sdo:contentSize",
+                      "@type": "sdo:Text"
+                  }
+                },
+                "identifier": {
+                    "identifier": "minid:b9n39d",
+                    "identifierSource": ""
+                },
+                "access": {
+                    "@type": "Access",
+                    "@context": "https://w3id.org/dats/context/sdo/access_sdo_context.jsonld",
+                    "accessURL": "https://s3.amazonaws.com/mod-datadumps/DO/do_1.0.obo",
+                    "landingPage": "https://identifiers.org/minid:b9n39d"
+                },
+                "conformsTo": [{
+                    "name": "obo format",
+                    "type": {
+                        "value": "text/plain",
+                        "valueIRI": ""
+                    }
+                }],
+                "size": 4784295,
+                "unit": {
+                    "value": "byte",
+                    "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+                },
+                "version": "Release 2.6.2018"
+            }]
+        },
+        {
+            "@type": "Dataset",
+            "@id": "http://identifiers.org/minid:b9hd64",
+            "@context": {
+                "sdo": "https://schema.org/",
+                "Dataset": "sdo:Dataset",
+                "identifier": {
+                  "@id": "sdo:identifier",
+                  "@type": "sdo:Text"
+                },
+                "alternateIdentifier": "sdo:alternateName",
+                "relatedIdentifier": "sdo:mentions",
+                "title": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+                },
+                "description": {
+                  "@id": "sdo:description",
+                  "@type": "sdo:Text"
+                },
+                "dates": "sdo:temporalCoverage",
+                "spatialCoverage": "sdo:spatialCoverage",
+                "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                },
+                "distributions": {
+                  "@id": "sdo:distribution",
+                  "@type": "sdo:DataDownload"
+                },
+                "primaryPublications": "sdo:citation",
+                "citations": "sdo:citation",
+                "producedBy": "sdo:producer",
+                "creators": {
+                    "@id": "sdo:creator",
+                    "@type": "sdo:Thing"
+                },
+                "licenses": "sdo:license",
+                "isAbout": "sdo:about",
+                "hasPart": {
+                    "@id": "sdo:hasPart",
+                    "@type": "Dataset"
+                },
+                "acknowledges": "sdo:funder",
+                "dimensions": "sdo:variableMeasured"
+            },
+            "identifier": {
+                "identifier": "minid:b9hd64",
+                "identifierSource": "minid"
+            },
+            "title": "A list of gene ontology terms obtained from the Gene Ontology Consortium.",
+            "types": [{"information": {"value": "ontology terms"}}],
+            "creators": [ { } ],
+            "distributions": [{
+                "@type": "DatasetDistribution",
+                "@context": {
+                  "sdo": "https://schema.org/",
+                  "DatasetDistribution": "sdo:DataDownload",
+                  "identifier": {
+                    "@id": "sdo:identifier",
+                    "@type": "sdo:Text"
+                  },
+                  "alternateIdentifiers": "sdo:identifier",
+                  "relatedIdentifiers": "sdo:identifier",
+                  "title": {
+                    "@id": "sdo:name",
+                    "@type": "sdo:Text"
+                  },
+                  "description": {
+                    "@id": "sdo:description",
+                    "@type": "sdo:Text"
+                  },
+                  "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                  },
+                  "version": "sdo:version",
+                  "licenses": "sdo:license",
+                  "access": {
+                    "@id": "sdo:accessMode",
+                    "@type": "sdo:Access"
+                  },
+                  "size": {
+                      "@id": "sdo:contentSize",
+                      "@type": "sdo:Text"
+                  }
+                },
+                "identifier": {
+                    "identifier": "minid:b9hd64",
+                    "identifierSource": ""
+                },
+                "access": {
+                    "@type": "Access",
+                    "@context": "https://w3id.org/dats/context/sdo/access_sdo_context.jsonld",
+                    "accessURL": "https://s3.amazonaws.com/mod-datadumps/GO/go_1.0.obo",
+                    "landingPage": "http://identifiers.org/minid:b9hd64"
+                },
+                "conformsTo": [{
+                    "name": "obo format",
+                    "type": {
+                        "value": "text/plain",
+                        "valueIRI": ""
+                    }
+                }],
+                "size": 36520029,
+                "unit": {
+                    "value": "byte",
+                    "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+                },
+                "version": "Release 2.6.2018"
+            }]
+        },
+        {
+            "@type": "Dataset",
+            "@id": "http://identifiers.org/minid:b9px1z",
+            "@context": {
+                "sdo": "https://schema.org/",
+                "Dataset": "sdo:Dataset",
+                "identifier": {
+                  "@id": "sdo:identifier",
+                  "@type": "sdo:Text"
+                },
+                "alternateIdentifier": "sdo:alternateName",
+                "relatedIdentifier": "sdo:mentions",
+                "title": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+                },
+                "description": {
+                  "@id": "sdo:description",
+                  "@type": "sdo:Text"
+                },
+                "dates": "sdo:temporalCoverage",
+                "spatialCoverage": "sdo:spatialCoverage",
+                "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                },
+                "distributions": {
+                  "@id": "sdo:distribution",
+                  "@type": "sdo:DataDownload"
+                },
+                "primaryPublications": "sdo:citation",
+                "citations": "sdo:citation",
+                "producedBy": "sdo:producer",
+                "creators": {
+                    "@id": "sdo:creator",
+                    "@type": "sdo:Thing"
+                },
+                "licenses": "sdo:license",
+                "isAbout": "sdo:about",
+                "hasPart": {
+                    "@id": "sdo:hasPart",
+                    "@type": "Dataset"
+                },
+                "acknowledges": "sdo:funder",
+                "dimensions": "sdo:variableMeasured"
+            },
+            "identifier": {
+                "identifier": "minid:b9px1z",
+                "identifierSource": "minid"
+            },
+            "title": "A list of sequence ontology terms obtained from the Sequence Ontology website.",
+            "types": [{"information": {"value": "ontology terms"}}],
+            "creators": [ {} ],
+            "dates": [{
+                "date": "2018-06-02T00:00:00.00Z",
+                "type": {
+                    "value": "creation",
+                    "valueIRI": ""
+                }
+            }],
+            "distributions": [{
+                "@type": "DatasetDistribution",
+                "@context": {
+                  "sdo": "https://schema.org/",
+                  "DatasetDistribution": "sdo:DataDownload",
+                  "identifier": {
+                    "@id": "sdo:identifier",
+                    "@type": "sdo:Text"
+                  },
+                  "alternateIdentifiers": "sdo:identifier",
+                  "relatedIdentifiers": "sdo:identifier",
+                  "title": {
+                    "@id": "sdo:name",
+                    "@type": "sdo:Text"
+                  },
+                  "description": {
+                    "@id": "sdo:description",
+                    "@type": "sdo:Text"
+                  },
+                  "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                  },
+                  "version": "sdo:version",
+                  "licenses": "sdo:license",
+                  "access": {
+                    "@id": "sdo:accessMode",
+                    "@type": "sdo:Access"
+                  },
+                  "size": {
+                      "@id": "sdo:contentSize",
+                      "@type": "sdo:Text"
+                  }
+                },
+                "identifier": {
+                    "identifier": "minid:b9px1z",
+                    "identifierSource": ""
+                },
+                "access": {
+                    "@type": "Access",
+                    "@context": "https://w3id.org/dats/context/sdo/access_sdo_context.jsonld",
+                    "accessURL": "https://s3.amazonaws.com/mod-datadumps/SO/so_1.0.obo",
+                    "landingPage": "http://identifiers.org/minid:b9px1z"
+                },
+                "conformsTo": [{
+                    "name": "obo format",
+                    "type": {
+                        "value": "text/plain",
+                        "valueIRI": ""
+                    }
+                }],
+                "size": 902733,
+                "unit": {
+                    "value": "byte",
+                    "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+                },
+                "version": "Release 11.24.2015"
+            }]
+        },
+        {
+            "@type": "Dataset",
+            "@id": "http://identifiers.org/minid:b9dm68",
+            "@context": {
+                "sdo": "https://schema.org/",
+                "Dataset": "sdo:Dataset",
+                "identifier": {
+                  "@id": "sdo:identifier",
+                  "@type": "sdo:Text"
+                },
+                "alternateIdentifier": "sdo:alternateName",
+                "relatedIdentifier": "sdo:mentions",
+                "title": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+                },
+                "description": {
+                  "@id": "sdo:description",
+                  "@type": "sdo:Text"
+                },
+                "dates": "sdo:temporalCoverage",
+                "spatialCoverage": "sdo:spatialCoverage",
+                "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                },
+                "distributions": {
+                  "@id": "sdo:distribution",
+                  "@type": "sdo:DataDownload"
+                },
+                "primaryPublications": "sdo:citation",
+                "citations": "sdo:citation",
+                "producedBy": "sdo:producer",
+                "creators": {
+                    "@id": "sdo:creator",
+                    "@type": "sdo:Thing"
+                },
+                "licenses": "sdo:license",
+                "isAbout": "sdo:about",
+                "hasPart": {
+                    "@id": "sdo:hasPart",
+                    "@type": "Dataset"
+                },
+                "acknowledges": "sdo:funder",
+                "dimensions": "sdo:variableMeasured"
+            },
+            "identifier": {
+                "identifier": "minid:b9dm68",
+                "identifierSource": "minid"
+            },
+            "title": "Flybase MOD data",
+            "types": [{"information": {"value": "MOD data"}}],
+            "creators": [ {} ],
+            "distributions": [{
+                "@type": "DatasetDistribution",
+                "@context": {
+                  "sdo": "https://schema.org/",
+                  "DatasetDistribution": "sdo:DataDownload",
+                  "identifier": {
+                    "@id": "sdo:identifier",
+                    "@type": "sdo:Text"
+                  },
+                  "alternateIdentifiers": "sdo:identifier",
+                  "relatedIdentifiers": "sdo:identifier",
+                  "title": {
+                    "@id": "sdo:name",
+                    "@type": "sdo:Text"
+                  },
+                  "description": {
+                    "@id": "sdo:description",
+                    "@type": "sdo:Text"
+                  },
+                  "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                  },
+                  "version": "sdo:version",
+                  "licenses": "sdo:license",
+                  "access": {
+                    "@id": "sdo:accessMode",
+                    "@type": "sdo:Access"
+                  },
+                  "size": {
+                      "@id": "sdo:contentSize",
+                      "@type": "sdo:Text"
+                  }
+                },
+                "identifier": {
+                    "identifier": "minid:b9dm68",
+                    "identifierSource": ""
+                },
+                "access": {
+                    "@type": "Access",
+                    "@context": "https://w3id.org/dats/context/sdo/access_sdo_context.jsonld",
+                    "accessURL": "https://s3.amazonaws.com/mod-datadumps/FB_1.0.4_4.tar.gz",
+                    "landingPage": "http://identifiers.org/minid:b9dm68"
+                },
+                "conformsTo": [{
+                    "name": "tar.gz",
+                    "type": {
+                        "value": "application/x-compressed",
+                        "valueIRI": ""
+                    }
+                }],
+                "size": 7361930,
+                "unit": {
+                    "value": "byte",
+                    "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+                },
+                "version": "1.0.4_4"
+            }]
+        },
+        {
+            "@type": "Dataset",
+            "@id": "http://identifiers.org/minid:b9cm3t",
+            "@context": {
+                "sdo": "https://schema.org/",
+                "Dataset": "sdo:Dataset",
+                "identifier": {
+                  "@id": "sdo:identifier",
+                  "@type": "sdo:Text"
+                },
+                "alternateIdentifier": "sdo:alternateName",
+                "relatedIdentifier": "sdo:mentions",
+                "title": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+                },
+                "description": {
+                  "@id": "sdo:description",
+                  "@type": "sdo:Text"
+                },
+                "dates": "sdo:temporalCoverage",
+                "spatialCoverage": "sdo:spatialCoverage",
+                "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                },
+                "distributions": {
+                  "@id": "sdo:distribution",
+                  "@type": "sdo:DataDownload"
+                },
+                "primaryPublications": "sdo:citation",
+                "citations": "sdo:citation",
+                "producedBy": "sdo:producer",
+                "creators": {
+                    "@id": "sdo:creator",
+                    "@type": "sdo:Thing"
+                },
+                "licenses": "sdo:license",
+                "isAbout": "sdo:about",
+                "hasPart": {
+                    "@id": "sdo:hasPart",
+                    "@type": "Dataset"
+                },
+                "acknowledges": "sdo:funder",
+                "dimensions": "sdo:variableMeasured"
+            },
+            "identifier": {
+                "identifier": "minid:b9cm3t",
+                "identifierSource": "minid"
+            },
+            "title": "A list of gene ontology associations for Drosophila obtained from the Gene Ontology Consortium.",
+            "types": [{"information": {"value": "gene association data"}}],
+            "creators": [ {} ],
+            "distributions": [{
+                "@type": "DatasetDistribution",
+                "@context": {
+                  "sdo": "https://schema.org/",
+                  "DatasetDistribution": "sdo:DataDownload",
+                  "identifier": {
+                    "@id": "sdo:identifier",
+                    "@type": "sdo:Text"
+                  },
+                  "alternateIdentifiers": "sdo:identifier",
+                  "relatedIdentifiers": "sdo:identifier",
+                  "title": {
+                    "@id": "sdo:name",
+                    "@type": "sdo:Text"
+                  },
+                  "description": {
+                    "@id": "sdo:description",
+                    "@type": "sdo:Text"
+                  },
+                  "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                  },
+                  "version": "sdo:version",
+                  "licenses": "sdo:license",
+                  "access": {
+                    "@id": "sdo:accessMode",
+                    "@type": "sdo:Access"
+                  },
+                  "size": {
+                      "@id": "sdo:contentSize",
+                      "@type": "sdo:Text"
+                  }
+                },
+                "identifier": {
+                    "identifier": "minid:b9cm3t",
+                    "identifierSource": ""
+                },
+                "access": {
+                    "@type": "Access",
+                    "@context": "https://w3id.org/dats/context/sdo/access_sdo_context.jsonld",
+                    "accessURL": "https://s3.amazonaws.com/mod-datadumps/GO/ANNOT/gene_association.fb.gz",
+                    "landingPage": "http://identifiers.org/minid:b9cm3t"
+                },
+                "conformsTo": [{
+                    "name": "tar.gz",
+                    "type": {
+                        "value": "application/x-compressed",
+                        "valueIRI": ""
+                    }
+                }],
+                "size": 2731033,
+                "unit": {
+                    "value": "byte",
+                    "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+                },
+                "version": "Last updated 2.6.2018"
+            }]
+        },
+        {
+            "@type": "Dataset",
+            "@id":  "http://identifiers.org/minid:b9m393",
+            "@context": {
+                "sdo": "https://schema.org/",
+                "Dataset": "sdo:Dataset",
+                "identifier": {
+                  "@id": "sdo:identifier",
+                  "@type": "sdo:Text"
+                },
+                "alternateIdentifier": "sdo:alternateName",
+                "relatedIdentifier": "sdo:mentions",
+                "title": {
+                  "@id": "sdo:name",
+                  "@type": "sdo:Text"
+                },
+                "description": {
+                  "@id": "sdo:description",
+                  "@type": "sdo:Text"
+                },
+                "dates": "sdo:temporalCoverage",
+                "spatialCoverage": "sdo:spatialCoverage",
+                "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                },
+                "distributions": {
+                  "@id": "sdo:distribution",
+                  "@type": "sdo:DataDownload"
+                },
+                "primaryPublications": "sdo:citation",
+                "citations": "sdo:citation",
+                "producedBy": "sdo:producer",
+                "creators": {
+                    "@id": "sdo:creator",
+                    "@type": "sdo:Thing"
+                },
+                "licenses": "sdo:license",
+                "isAbout": "sdo:about",
+                "hasPart": {
+                    "@id": "sdo:hasPart",
+                    "@type": "Dataset"
+                },
+                "acknowledges": "sdo:funder",
+                "dimensions": "sdo:variableMeasured"
+            },
+            "identifier": {
+                "identifier": "http://identifiers.org/minid:b9m393",
+                "identifierSource": "minid"
+            },
+            "title": "JSON files containing orthology derived from DIOPT v6.2 http://www.flyrnai.org/cgi-bin/DRSC_orthologs.pl",
+            "types": [{"information": {"value": "orthology data"}}],
+            "creators": [ {} ],
+            "distributions": [{
+                "@type": "DatasetDistribution",
+                "@context": {
+                  "sdo": "https://schema.org/",
+                  "DatasetDistribution": "sdo:DataDownload",
+                  "identifier": {
+                    "@id": "sdo:identifier",
+                    "@type": "sdo:Text"
+                  },
+                  "alternateIdentifiers": "sdo:identifier",
+                  "relatedIdentifiers": "sdo:identifier",
+                  "title": {
+                    "@id": "sdo:name",
+                    "@type": "sdo:Text"
+                  },
+                  "description": {
+                    "@id": "sdo:description",
+                    "@type": "sdo:Text"
+                  },
+                  "storedIn": {
+                    "@id": "sdo:includedInDataCatalog",
+                    "@type": "sdo:DataCatalog"
+                  },
+                  "version": "sdo:version",
+                  "licenses": "sdo:license",
+                  "access": {
+                    "@id": "sdo:accessMode",
+                    "@type": "sdo:Access"
+                  },
+                  "size": {
+                      "@id": "sdo:contentSize",
+                      "@type": "sdo:Text"
+                  }
+                },
+                "identifier": {
+                    "identifier": "http://identifiers.org/minid:b9m393",
+                    "identifierSource": "minid"
+                },
+                "access": {
+                    "@type": "Access",
+                    "@context": "https://w3id.org/dats/context/sdo/access_sdo_context.jsonld",
+                    "accessURL": "https://s3.amazonaws.com/mod-datadumps/ORTHO/orthology_FlyBase_1.0.0_2.json.tar.gz",
+                    "landingPage": "http://identifiers.org/minid:b9m393"
+                },
+                "conformsTo": [
+                    {
+                        "name": "tar.gz",
+                        "type": {
+                            "value": "application/x-compressed",
+                            "valueIRI": ""
+                        }
+                    },
+                    {
+                        "name": "json",
+                        "type": {
+                            "value": "application/json",
+                            "valueIRI": ""
+                        }
+                    }
+                ],
+                "size": 2614596,
+                "unit": {
+                    "value": "byte",
+                    "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+                },
+                "version": "DIOPT v6.2"
+            }]
+        }
+    ],
+    "distributions": [{
+        "@type": "DatasetDistribution",
+        "@context": {
+          "sdo": "https://schema.org/",
+          "DatasetDistribution": "sdo:DataDownload",
+          "identifier": {
+            "@id": "sdo:identifier",
+            "@type": "sdo:Text"
+          },
+          "alternateIdentifiers": "sdo:identifier",
+          "relatedIdentifiers": "sdo:identifier",
+          "title": {
+            "@id": "sdo:name",
+            "@type": "sdo:Text"
+          },
+          "description": {
+            "@id": "sdo:description",
+            "@type": "sdo:Text"
+          },
+          "storedIn": {
+            "@id": "sdo:includedInDataCatalog",
+            "@type": "sdo:DataCatalog"
+          },
+          "version": "sdo:version",
+          "licenses": "sdo:license",
+          "access": {
+            "@id": "sdo:accessMode",
+            "@type": "sdo:Access"
+          },
+          "size": {
+              "@id": "sdo:contentSize",
+              "@type": "sdo:Text"
+          }
+        },
+        "identifier": {
+            "identifier": "http://identifiers.org/minid:b9j69h",
+            "identifierSource": "minid"
+        },
+        "access": {
+            "@type": "Access",
+            "@context": {
+              "sdo": "https://schema.org/",
+              "identifier": {
+                "@id": "sdo:identifier",
+                "@type": "sdo:Text"
+              },
+              "landingPage": {
+                  "@id": "sdo:url",
+                  "@type": "sdo:URL"
+              },
+              "accessURL": {
+                  "@id": "sdo:contentUrl",
+                  "@type": "sdo:URL"
+              }
+            },
+            "landingPage": "http://identifiers.org/minid/b9j69h",
+            "accessURL": "https://nih-commons.s3.amazonaws.com/misc/agr-example.tgz"
+        },
+        "conformsTo": [{
+            "name": "tar.gz",
+            "type": {
+                "value": "application/x-compressed",
+                "valueIRI": ""
+            }
+        }],
+        "size": -1,
+        "unit": {
+            "value": "byte",
+            "valueIRI": "http://purl.obolibrary.org/obo/UO_0000233"
+        },
+        "version": ""
+    }],
+    "extraProperties": [
+        {
+            "category": "checksum",
+            "categoryIRI": "http://purl.obolibrary.org/obo/NCIT_C43522",
+            "values": [{
+                "value": "6484968f81afac84857d02b573b0d589fb2f9582a2b920572830dc5781e0a53c",
+                "valueIRI": ""
+            }]
+        },
+        {
+            "category": "checksum algorithm",
+            "categoryIRI": "http://purl.obolibrary.org/obo/NCIT_C16275",
+            "values": [{
+                "value": "MD5",
+                "valueIRI": ""
+            }]
+        }
+    ]
+}
