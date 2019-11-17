@@ -1,6 +1,6 @@
 {
     "@type": "Dataset",
-    "@id": "http://identifiers.org/minid:b9j69h_5",
+    "@id": "http://identifiers.org/minid:b9j69h",
     "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
     "identifier": {
         "@type": "Identifier",
@@ -39,7 +39,7 @@
         {
             "@type": "Dataset",
             "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
-            "@id": "https://identifiers.org/minid:b9n39d_5",
+            "@id": "https://identifiers.org/minid:b9n39d",
             "identifier": {
                 "identifier": "minid:b9n39d",
                 "identifierSource": "minid"
@@ -77,7 +77,7 @@
         },
         {
             "@type": "Dataset",
-            "@id": "http://identifiers.org/minid:b9hd64_5",
+            "@id": "http://identifiers.org/minid:b9hd64",
             "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
             "identifier": {
                 "identifier": "minid:b9hd64",
@@ -116,7 +116,7 @@
         },
         {
             "@type": "Dataset",
-            "@id": "http://identifiers.org/minid:b9px1z_5",
+            "@id": "http://identifiers.org/minid:b9px1z",
             "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
             "identifier": {
                 "identifier": "minid:b9px1z",
@@ -162,7 +162,7 @@
         },
         {
             "@type": "Dataset",
-            "@id": "http://identifiers.org/minid:b9dm68_5",
+            "@id": "http://identifiers.org/minid:b9dm68",
             "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
             "identifier": {
                 "identifier": "minid:b9dm68",
@@ -201,7 +201,7 @@
         },
         {
             "@type": "Dataset",
-            "@id": "http://identifiers.org/minid:b9cm3t_5",
+            "@id": "http://identifiers.org/minid:b9cm3t",
             "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
             "identifier": {
                 "identifier": "minid:b9cm3t",
@@ -240,7 +240,7 @@
         },
         {
             "@type": "Dataset",
-            "@id":  "http://identifiers.org/minid:b9m393_5",
+            "@id":  "http://identifiers.org/minid:b9m393",
             "@context": "https://w3id.org/dats/context/sdo/dataset_sdo_context.jsonld",
             "identifier": {
                 "identifier": "http://identifiers.org/minid:b9m393",
@@ -291,7 +291,7 @@
         "@type": "DatasetDistribution",
         "@context": "https://w3id.org/dats/context/sdo/dataset_distribution_sdo_context.jsonld",
         "identifier": {
-            "identifier": "http://identifiers.org/minid:b9j69h_5",
+            "identifier": "http://identifiers.org/minid:b9j69h",
             "identifierSource": "minid"
         },
         "access": {

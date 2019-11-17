@@ -24,7 +24,8 @@ from nexuscli.cli import cli
     Framing example:    https://codemeta.github.io/codemetar/articles/JSON-LD-framing.html
                         https://www.carlboettiger.info/2017/05/17/json-ld-framing-strategy/
     
-    CONP DATS data:     https://github.com/conpdatasets/preventad-open/blob/ff3f54de45c31fc0d3f0e55346e14d7b4c64e631/DATS.json
+    CONP DATS data:      https://github.com/conpdatasets/
+                         https://github.com/conpdatasets/preventad-open/blob/ff3f54de45c31fc0d3f0e55346e14d7b4c64e631/DATS.json
     
     Contexts:
         https://datatagsuite.github.io/context/
@@ -41,14 +42,29 @@ from nexuscli.cli import cli
 #   Typo in Access context: https://github.com/datatagsuite/examples/issues/3
 
 """
-    Potential issues in the SDO context:
+    Potential issues in the DATS SDO context:
         - "Treatmet": "sdo:Thing",
-        
-
 """
 
-# global context repo: https://github.com/samuel-kerrien/nexus-dats
+
+# Public URL for an SDO merged context
+# Public github repository: https://github.com/samuel-kerrien/nexus-dats
 GLOBAL_SDO_CONTEXT = "https://raw.githubusercontent.com/samuel-kerrien/nexus-dats/master/dats-context-sdo.json"
+
+
+# TODO Make Access (under distributions) it's own entity
+# TODO Add support for Dataset -> DataRepository
+# TODO Add support for DatasetDistribution -> DataRepository
+# TODO Add support for DatasetDistribution -> DataStandard
+# TODO Add support for Dataset -> License
+# TODO Add support for Dataset -> Publication
+# TODO Add support for Dataset -> DataType
+# TODO Add support for Dataset -> Dimension
+# TODO Add support for Dimension -> DataType
+# TODO Add support for Dataset -> Material
+# TODO Add support for Material -> Material
+# TODO Add support for Publication -> Grant
+# TODO Add support for Grant -> (Organization, Person)
 
 
 @cli.group()
@@ -75,7 +91,8 @@ def get_entity_by_type_and_property(_type, _property, _value, debug=False):
     try:
         response = nxs.views.query_sparql(org_label=_org_label, project_label=_prj_label, query=q, view_id=view_id)
         if len(response["results"]["bindings"]) == 0:
-            print("no results")
+            if debug:
+                print("no results")
             return None
         for b in response["results"]["bindings"]:
             return b["s"]["value"]
@@ -135,9 +152,6 @@ def save_context(context_payload, debug=False):
         else:
             # first lookup
             fetched = fetch_by_id(context_url, debug=debug)
-
-
-
             if fetched is None:
                 # save it
                 import requests
@@ -180,16 +194,19 @@ def save(json_payload, debug=False):
     if '@id' in json_payload:
         _id = json_payload['@id']
     if _id is None:
-        print("No @id in this entity")
+        if debug:
+            print("No @id in this entity")
     else:
-        print("Honoring the entity @id: " + _id)
+        if debug:
+            print("Honoring the entity @id: " + _id)
 
     _org_label = utils.get_organization_label(None)
     _prj_label = utils.get_project_label(None)
     nxs = utils.get_nexus_client()
     try:
         if _id is not None:
-            print("Checking if the entity is already in Nexus, searching by @id: " + _id)
+            if debug:
+                print("Checking if the entity is already in Nexus, searching by @id: " + _id)
             e = fetch_by_id(_id, debug=debug)
             if e is not None:
                 if debug:
@@ -199,8 +216,9 @@ def save(json_payload, debug=False):
         # saving new entity
         response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, schema_id=None,
                                         data=json_payload, resource_id=_id)
+        _type = json_payload['@type']
+        print("Resource of type '%s' created (id: %s)" % (_type, response["@id"]))
         if debug:
-            print("Resource created (id: %s)" % response["@id"])
             utils.print_json(response, colorize=True)
         return response["@id"]
     except nxs.HTTPError as e:
@@ -288,15 +306,163 @@ def json_for_graph(g):
                 v['datatype'] = str(o.datatype)
 
         # add the triple
-        # print("--- triple'")
-        # print(str(type(s)) + " > " + str(s))
-        # print(str(type(p)) + " > " + str(p))
-        # print(str(type(v)) + " > " + str(v))
         if not p in json_dict[s]:
             json_dict[s][p] = {}
         json_dict[s][p].update(v)
 
     return json_dict
+
+
+def add_context_if_missing(json_payload, context):
+    if '@context' not in json_payload:
+        json_payload['@context'] = context
+
+
+def add_if_exist(source_dict, target_dict, key):
+    if key in source_dict:
+        target_dict[key] = source_dict[key]
+
+
+def remove_all_contexts(json_data):
+    for key in list(json_data.keys()):
+        if isinstance(json_data[key], dict):
+            remove_all_contexts(json_data[key])
+        elif isinstance(json_data[key], list):
+            for x in json_data[key]:
+                if isinstance(x, dict):
+                    remove_all_contexts(x)
+        else:
+            if key == "@context":
+                del json_data["@context"]
+
+
+def save_dataset(source_dict, debug=False):
+    # Build the payload to save in Nexus
+    add_context_if_missing(source_dict, GLOBAL_SDO_CONTEXT)
+    dataset = {
+        "@type": source_dict['@type'],
+        "@id": source_dict['@id'],
+        "@context": GLOBAL_SDO_CONTEXT,
+        "title": source_dict["title"]
+    }
+
+    if 'creators' in source_dict:
+        for c in source_dict['creators']:
+            if len(c) == 0:
+                if debug:
+                    print("Skipping empty creator")
+                continue;
+
+            add_context_if_missing(c, GLOBAL_SDO_CONTEXT)
+
+            creator_refs = []
+            affiliation_refs = []
+            if "affiliations" in c:
+                for a in c['affiliations']:
+                    add_context_if_missing(a, GLOBAL_SDO_CONTEXT)
+                    _type = get_expanded_entity_type(a)
+                    e = get_entity_by_type_and_property(_type, 'https://schema.org/name', a['name'], debug=debug)
+                    if e is not None:
+                        # found it in Nexus, reuse it
+                        affiliation_refs.append({
+                            "@id": e,
+                            "@type": _type
+                        })
+                    else:
+                        # doesn't exist, save it and reuse id
+                        e = save(a, debug=debug)
+                        affiliation_refs.append({
+                            "@id": e,
+                            "@type": a['@type']
+                        })
+
+            # replace original creator payload with affiliations in Nexus
+            c['affiliations'] = affiliation_refs
+            if fetch_by_id(c['@id'], debug=debug) is None:
+                creator_id = save(c, debug=debug)
+            else:
+                creator_id = c['@id']
+
+            _type = get_expanded_entity_type(c)
+            creator_refs.append({
+                "@id": creator_id,
+                "@type": _type
+            })
+
+            dataset["creators"] = creator_refs
+
+    if "distributions" in source_dict:
+        distribution_refs = []
+        for d in source_dict['distributions']:
+            add_context_if_missing(d, GLOBAL_SDO_CONTEXT)
+            distribution_id = save(d, debug=debug)
+            _type = get_expanded_entity_type(d)
+            distribution_refs.append({
+                "@id": distribution_id,
+                "@type": _type
+            })
+        dataset['distributions'] = distribution_refs
+
+    if "hasPart" in source_dict:
+        sub_dataset_refs = []
+        for d in source_dict['hasPart']:
+            sub_dataset_id = save_dataset(d, debug=debug)
+            _type = get_expanded_entity_type(d)
+            sub_dataset_refs.append({
+                "@id": sub_dataset_id,
+                "@type": _type
+            })
+        dataset["hasPart"] = sub_dataset_refs
+
+    # Add optional properties that don't involve entity relations
+    add_if_exist(source_dict=source_dict, target_dict=dataset, key="description")
+
+    # Save context of identifier in Nexus prior to saving since this will not be stored in a separate linked entity
+    add_if_exist(source_dict=source_dict, target_dict=dataset, key="identifier")
+    add_if_exist(source_dict=source_dict, target_dict=dataset, key="dates")
+    add_if_exist(source_dict=source_dict, target_dict=dataset, key="types")
+    add_if_exist(source_dict=source_dict, target_dict=dataset, key="extraProperties")
+
+    return save(dataset, debug=debug)
+
+
+def process_register_context(file, context_id, debug):
+    with open(file) as json_file:
+        context_data = json.load(json_file)
+
+    _org_label = utils.get_organization_label(None)
+    _prj_label = utils.get_project_label(None)
+    nxs = utils.get_nexus_client()
+    try:
+        if context_id is not None:
+            if debug:
+                print("Checking if the context is already in Nexus, searching by @id: " + context_id)
+            e = fetch_by_id(context_id, debug=debug)
+            if e is not None:
+                if debug:
+                    print("An entity with this id (%s) already exists, updating...")
+                context_data['@id'] = context_id
+                context_data['_self'] = e["_self"]
+                response = nxs.resources.update(resource=context_data, rev=e["_rev"])
+                if debug:
+                    print("Context updated (id: %s)" % response["@id"])
+            else:
+                # saving new context
+                response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, schema_id=None,
+                                                data=context_data, resource_id=context_id)
+                if debug:
+                    print("Context created (id: %s)" % response["@id"])
+                    utils.print_json(response, colorize=True)
+                return response["@id"]
+    except nxs.HTTPError as e:
+        print("Failed to load context into Nexus.")
+        utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
+
+
+def get_code_root_directory():
+    import os
+    return os.path.dirname(os.path.realpath(__file__)) + "/.."
 
 
 @dats.command(name='build-merged-context', help='Merge all DATS contexts into a single file')
@@ -373,49 +539,22 @@ def build_merged_context(debug):
 @click.argument('context_id')
 @click.option('--debug', is_flag=True, default=False, help='Print debug statements')
 def register_context(file, context_id, debug):
-    with open(file) as json_file:
-        context_data = json.load(json_file)
-
-    _org_label = utils.get_organization_label(None)
-    _prj_label = utils.get_project_label(None)
-    nxs = utils.get_nexus_client()
-    try:
-        if context_id is not None:
-            if debug:
-                print("Checking if the context is already in Nexus, searching by @id: " + context_id)
-            e = fetch_by_id(context_id, debug=debug)
-            if e is not None:
-                if debug:
-                    print("An entity with this id (%s) already exists, updating...")
-                context_data['@id'] = context_id
-                context_data['_self'] = e["_self"]
-
-                response = nxs.resources.update(resource=context_data, rev=e["_rev"])
-
-                if debug:
-                    print("Context updated (id: %s)" % response["@id"])
-            else:
-                # saving new context
-                response = nxs.resources.create(org_label=_org_label, project_label=_prj_label, schema_id=None,
-                                                data=context_data, resource_id=context_id)
-                if debug:
-                    print("Context created (id: %s)" % response["@id"])
-                    utils.print_json(response, colorize=True)
-                return response["@id"]
-    except nxs.HTTPError as e:
-        print("Failed to load context into Nexus.")
-        utils.print_json(e.response.json(), colorize=True)
-        utils.error(str(e))
+    process_register_context(file=file, context_id=context_id, debug=debug)
 
 
 @dats.command(name='load', help='Load a DATS file in Nexus')
 @click.argument('file')
-@click.option('_override', '--override-context', is_flag=True, default=False,
+@click.option('_override', '--override-context',
+              default=GLOBAL_SDO_CONTEXT,
               help='the id of a context stored in Nexus to be use as drop-in replacement for DATS''')
 @click.option('--debug', is_flag=True, default=False, help='Print debug statements')
 def load(file, _override, debug):
     if debug:
         print("Loading file: " + file)
+
+    # Check if DATS-SDO context already exists in Nexus, if not, register it
+    context_file_path = get_code_root_directory() + "/dats/dats-context-sdo.json"
+    process_register_context(file=context_file_path, context_id=GLOBAL_SDO_CONTEXT, debug=False)
 
     with open(file) as json_file:
         json_data = json.load(json_file)
@@ -423,189 +562,58 @@ def load(file, _override, debug):
         save_dataset(json_data, debug=debug)
 
 
-def remove_all_contexts(json_data):
-    for key in list(json_data.keys()):
-        if isinstance(json_data[key], dict):
-            remove_all_contexts(json_data[key])
-        elif isinstance(json_data[key], list):
-            for x in json_data[key]:
-                if isinstance(x, dict):
-                    remove_all_contexts(x)
+@dats.command(name='search', help='Search for datasets in data loaded in Nexus')
+@click.argument('query')
+@click.option('--debug', is_flag=True, default=False, help='Print debug statements')
+def search(query, debug):
+    _org_label = utils.get_organization_label(None)
+    _prj_label = utils.get_project_label(None)
+    nxs = utils.get_nexus_client()
+    try:
+        es_query = {
+            "query": {
+                "query_string": {
+                    "query": query
+                }
+            }
+        }
+        es_view_id = "https://bluebrain.github.io/nexus/vocabulary/defaultElasticSearchIndex"
+        response = nxs.views.query_es(org_label=_org_label, project_label=_prj_label, view_id=es_view_id, query=es_query)
+        if debug:
+            utils.print_json(response, colorize=True)
         else:
-            if key == "@context":
-                del json_data["@context"]
-
-
-def save_dataset(source_dict, debug=False):
-    # Build the payload to save in Nexus
-    # source_dict['@context']
-
-    add_context_if_missing(source_dict, GLOBAL_SDO_CONTEXT)
-
-    dataset = {
-        "@type": source_dict['@type'],
-        "@id": source_dict['@id'],
-        "@context": GLOBAL_SDO_CONTEXT,
-        "title": source_dict["title"]
-    }
-
-    if 'creators' in source_dict:
-        for c in source_dict['creators']:
-            if len(c) == 0:
-                if debug:
-                    print("Skipping empty creator")
-                continue;
-
-            add_context_if_missing(c, GLOBAL_SDO_CONTEXT)
-
-            creator_refs = []
-            affiliation_refs = []
-            if "affiliations" in c:
-                for a in c['affiliations']:
-                    add_context_if_missing(a, GLOBAL_SDO_CONTEXT)
-                    _type = get_expanded_entity_type(a)
-                    e = get_entity_by_type_and_property(_type, 'https://schema.org/name', a['name'], debug=debug)
-                    if e is not None:
-                        # found it in Nexus, reuse it
-                        affiliation_refs.append({
-                            "@id": e,
-                            "@type": _type
-                        })
+            from prettytable import PrettyTable
+            import collections
+            table = PrettyTable(['Id', 'Type', 'Revision', 'Deprecated'])
+            table.align["Id"] = "l"
+            table.align["Type"] = "l"
+            table.align["Revision"] = "l"
+            table.align["Deprecated"] = "l"
+            for r in response["hits"]["hits"]:
+                types = ""
+                if "_source" in r and "@type" in r["_source"]:
+                    if type(r["_source"]["@type"]) is str:
+                        types = r["_source"]["@type"]
+                    elif isinstance(r["_source"]["@type"], collections.Sequence):
+                        for t in r["_source"]["@type"]:
+                            types += t + "\n"
                     else:
-                        # doesn't exist, save it and reuse id
-                        e = save(a, debug=debug)
-                        affiliation_refs.append({
-                            "@id": e,
-                            "@type": a['@type']
-                        })
+                        utils.warn("Unsupported type: " + type(r["_source"]["@type"]))
+                        types = r["_source"]["@type"]
+                else:
+                    types = '-'
 
-            # replace original creator payload with affiliations in Nexus
-            c['affiliations'] = affiliation_refs
-            if fetch_by_id(c['@id'], debug=debug) is None:
-                creator_id = save(c, debug=debug)
-            else:
-                creator_id = c['@id']
-
-            _type = get_expanded_entity_type(c)
-            creator_refs.append({
-                "@id": creator_id,
-                "@type": _type
-            })
-
-            dataset["creators"] = creator_refs
-
-    if "distributions" in source_dict:
-        distribution_refs = []
-        for d in source_dict['distributions']:
-            add_context_if_missing(d, GLOBAL_SDO_CONTEXT)
-            # if 'access' in d:
-            #     if '@context' in source_dict['distributions']:
-            #         for c in make_list(source_dict['distributions']['@context']):
-            #             save_context(c, debug=debug)
-            distribution_id = save(d, debug=debug)
-            _type = get_expanded_entity_type(d)
-            distribution_refs.append({
-                "@id": distribution_id,
-                "@type": _type
-            })
-        dataset['distributions'] = distribution_refs
-
-    if "hasPart" in source_dict:
-        sub_dataset_refs = []
-        for d in source_dict['hasPart']:
-            sub_dataset_id = save_dataset(d, debug=debug)
-            _type = get_expanded_entity_type(d)
-            sub_dataset_refs.append({
-                "@id": sub_dataset_id,
-                "@type": _type
-            })
-        dataset["hasPart"] = sub_dataset_refs
-
-    # Add optional properties that don't involve entity relations
-    add_if_exist(source_dict=source_dict, target_dict=dataset, key="description")
-
-    # Save context of identifier in Nexus prior to saving since this will not be stored in a separate linked entity
-    # if 'identifier' in source_dict:
-    #     if '@context' in source_dict['identifier']:
-    #         for c in make_list(source_dict['identifier']['@context']):
-    #             save_context(c, debug=debug)
-    add_if_exist(source_dict=source_dict, target_dict=dataset, key="identifier")
-    add_if_exist(source_dict=source_dict, target_dict=dataset, key="dates")
-    add_if_exist(source_dict=source_dict, target_dict=dataset, key="types")
-    add_if_exist(source_dict=source_dict, target_dict=dataset, key="extraProperties")
-
-    return save(dataset, debug=debug)
+                table.add_row([r["_source"]["@id"], types, r["_source"]["_rev"], r["_source"]["_deprecated"]])
+            print(table)
+    except nxs.HTTPError as e:
+        print("Failed to execute ElasticSearch query: '%s'" % query)
+        utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
 
 
-def add_context_if_missing(json_payload, context):
-    if '@context' not in json_payload:
-        json_payload['@context'] = context
-
-
-def add_if_exist(source_dict, target_dict, key):
-    if key in source_dict:
-        target_dict[key] = source_dict[key]
-
-
-@dats.command(name='show-schema', help='Show the overall DATS data model')
+@dats.command(name='show-schema', help='Render picture of the overall DATS data model')
 def show_schema():
+    path = get_code_root_directory() + "/dats/sdata201759-f1.jpg"
     from PIL import Image
-    im = Image.open(r"/Users/kerrien/Projects/Nexus/nexus-cli/dats/sdata201759-f1.jpg")
+    im = Image.open(path)
     im.show()
-
-
-@dats.command(name='visualise', help='render the graph of a given DATS file')
-@click.argument('file')
-def visualise(file):
-    """
-        to explore:
-            https://www.w3.org/2018/09/rdf-data-viz/
-            https://www.oclc.org/developer/news/2016/making-sense-of-linked-data-with-python.en.html
-            https://stackoverflow.com/questions/39274216/visualize-an-rdflib-graph-in-python
-    """
-    print("Loading file: " + file)
-
-    import json
-    from rdflib import Graph, plugin
-    import rdflib_jsonld
-    from rdflib.plugin import register, Serializer
-    register('json-ld', Serializer, 'rdflib_jsonld.serializer', 'JsonLDSerializer')
-
-    with open(file) as json_file:
-        data = json.load(json_file)
-
-    # context = {
-    #     "@context": {
-    #         "foaf": "http://xmlns.com/foaf/0.1/",
-    #         "vcard": "http://www.w3.org/2006/vcard/ns#country-name",
-    #         "job": "http://example.org/job",
-    #
-    #         "name": {"@id": "foaf:name"},
-    #         "country": {"@id": "vcard:country-name"},
-    #         "profession": {"@id": "job:occupation"},
-    #     }
-    # }
-
-    x = [{"name": "bert", "country": "antartica", "profession": "bear"}]
-    g = Graph()
-    # g.parse(data=json.dumps(x), format='json-ld', context=context)
-    result = g.parse(data=json.dumps(x), format='json-ld')
-
-    import rdflib
-    from rdflib.extras.external_graph_libs import rdflib_to_networkx_multidigraph
-    import networkx as nx
-    import matplotlib.pyplot as plt
-
-    # url = 'https://www.w3.org/TeamSubmission/turtle/tests/test-30.ttl'
-    # g = rdflib.Graph()
-    # result = g.parse(url, 'ttl')
-
-    G = rdflib_to_networkx_multidigraph(result)
-
-    # Plot Networkx instance of RDF Graph
-    pos = nx.spring_layout(G, scale=2)
-    edge_labels = nx.get_edge_attributes(G, 'r')
-    nx.draw_networkx_edge_labels(G, pos, labels=edge_labels)
-    nx.draw(G, with_labels=True)
-
-    g.close()

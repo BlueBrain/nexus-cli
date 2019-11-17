@@ -1,17 +1,17 @@
 {
   "@context": {
     "abbreviation": {
-      "@type": "sdo:Text",
-      "@id": "sdo:name"
+      "@id": "sdo:name",
+      "@type": "sdo:Text"
     },
     "access": {
-      "@type": "sdo:EntryPoint",
-      "@id": "sdo:accessMode"
+      "@id": "sdo:accessMode",
+      "@type": "sdo:EntryPoint"
     },
     "Access": "sdo:EntryPoint",
     "accessURL": {
-      "@type": "sdo:URL",
-      "@id": "sdo:url"
+      "@id": "sdo:url",
+      "@type": "sdo:URL"
     },
     "acknowledges": "sdo:funder",
     "Activity": "sdo:Action",
@@ -24,22 +24,22 @@
     "authors": "sdo:author",
     "BiologicalEntity": "sdo:Thing",
     "category": {
-      "@type": "sdo:Text",
-      "@id": "sdo:value"
+      "@id": "sdo:value",
+      "@type": "sdo:Text"
     },
     "categoryIRI": {
-      "@type": "sdo:URL",
-      "@id": "sdo:url"
+      "@id": "sdo:url",
+      "@type": "sdo:URL"
     },
     "CategoryValuesPair": "sdo:PropertyValue",
     "citations": "sdo:citation",
     "coordinates": {
-      "@type": "sdo:GeoCoordinates",
-      "@id": "sdo:geo"
+      "@id": "sdo:geo",
+      "@type": "sdo:GeoCoordinates"
     },
     "creators": {
-      "@type": "sdo:Thing",
-      "@id": "sdo:creator"
+      "@id": "sdo:creator",
+      "@type": "sdo:Thing"
     },
     "DataAcquisition": "sdo:CreateAction",
     "DataAnalysis": "sdo:Action",
@@ -54,40 +54,40 @@
     "Date": "sdo:DateTime",
     "dates": "sdo:temporalCoverage",
     "description": {
-      "@type": "sdo:Text",
-      "@id": "sdo:description"
+      "@id": "sdo:description",
+      "@type": "sdo:Text"
     },
     "Dimension": "sdo:Thing",
     "dimensions": "sdo:variableMeasured",
     "Disease": "sdo:MedicalCondition",
     "distributions": {
-      "@type": "sdo:DataDownload",
-      "@id": "sdo:distribution"
+      "@id": "sdo:distribution",
+      "@type": "sdo:DataDownload"
     },
     "email": "sdo:email",
     "endDate": {
-      "@type": "sdo:DateTime",
-      "@id": "sdo:endTime"
+      "@id": "sdo:endTime",
+      "@type": "sdo:DateTime"
     },
     "firstName": "sdo:givenName",
     "fullName": "sdo:name",
     "geometry": {
-      "@type": "sdo:GeospatialGeometry",
-      "@id": "sdo:geospatiallyContains"
+      "@id": "sdo:geospatiallyContains",
+      "@type": "sdo:GeospatialGeometry"
     },
     "Grant": "wsdo:Grant",
     "hasPart": {
-      "@type": "sdo:Dataset",
-      "@id": "sdo:hasPart"
+      "@id": "sdo:hasPart",
+      "@type": "sdo:Dataset"
+    },
+    "identifier": {
+      "@id": "sdo:identifier",
+      "@type": "sdo:Text"
     },
     "Identifier": "sdo:Thing",
-    "identifier": {
-      "@type": "sdo:Text",
-      "@id": "sdo:identifier"
-    },
     "identifierSource": {
-      "@type": "sdo:Text",
-      "@id": "sdo:Property"
+      "@id": "sdo:Property",
+      "@type": "sdo:Text"
     },
     "information": {
       "@id": "sdo:Property"
@@ -98,8 +98,8 @@
     },
     "isAbout": "sdo:about",
     "landingPage": {
-      "@type": "sdo:URL",
-      "@id": "sdo:url"
+      "@id": "sdo:url",
+      "@type": "sdo:URL"
     },
     "lastName": "sdo:familyName",
     "License": "sdo:CreativeWork",
@@ -110,8 +110,8 @@
       "@id": "sdo:Property"
     },
     "name": {
-      "@type": "sdo:Text",
-      "@id": "sdo:name"
+      "@id": "sdo:name",
+      "@type": "sdo:Text"
     },
     "Organization": "sdo:Organization",
     "performedBy": "sdo:agent",
@@ -121,8 +121,8 @@
       "@id": "sdo:Property"
     },
     "postalAddress": {
-      "@type": "sdo:PostalAddress",
-      "@id": "sdo:address"
+      "@id": "sdo:address",
+      "@type": "sdo:PostalAddress"
     },
     "primaryPublications": "sdo:citation",
     "producedBy": "sdo:producer",
@@ -133,42 +133,42 @@
     "RelatedIdentifier": "sdo:Thing",
     "relatedIdentifiers": "sdo:identifier",
     "roles": {
-      "@type": "sdo:Text",
-      "@id": "sdo:roleName"
+      "@id": "sdo:roleName",
+      "@type": "sdo:Text"
     },
     "sdo": "https://schema.org/",
     "size": {
-      "@type": "sdo:Text",
-      "@id": "sdo:contentSize"
+      "@id": "sdo:contentSize",
+      "@type": "sdo:Text"
     },
     "Software": "sdo:SoftwareApplication",
     "spatialCoverage": "sdo:spatialCoverage",
     "startDate": {
-      "@type": "sdo:DateTime",
-      "@id": "sdo:startTime"
+      "@id": "sdo:startTime",
+      "@type": "sdo:DateTime"
     },
     "storedIn": {
-      "@type": "sdo:DataCatalog",
-      "@id": "sdo:includedInDataCatalog"
+      "@id": "sdo:includedInDataCatalog",
+      "@type": "sdo:DataCatalog"
     },
     "Study": "sdo:Action",
     "StudyGroup": "sdo:Thing",
     "TaxonomicInformation": "sdo:Thing",
     "title": {
-      "@type": "sdo:Text",
-      "@id": "sdo:name"
+      "@id": "sdo:name",
+      "@type": "sdo:Text"
     },
     "Treatmet": "sdo:Thing",
     "type": {
       "@id": "sdo:Property"
     },
     "value": {
-      "@type": "sdo:DataType",
-      "@id": "sdo:value"
+      "@id": "sdo:value",
+      "@type": "sdo:DataType"
     },
     "valueIRI": {
-      "@type": "sdo:URL",
-      "@id": "sdo:url"
+      "@id": "sdo:url",
+      "@type": "sdo:URL"
     },
     "version": "sdo:version",
     "wsdo": "https://webschemas.org/"
