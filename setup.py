@@ -30,7 +30,8 @@ setup(
         'PyLD',
         'SPARQLWrapper',
         'Pillow',
-        'gitpython'
+        'gitpython',
+        'rfc3987'
     ],
     entry_points='''
         [console_scripts]
