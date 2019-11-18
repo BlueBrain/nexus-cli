@@ -336,15 +336,33 @@ def remove_all_contexts(json_data):
                 del json_data["@context"]
 
 
-def save_dataset(source_dict, debug=False):
+def save_dataset(source_dict, _context, debug=False):
     # Build the payload to save in Nexus
     add_context_if_missing(source_dict, GLOBAL_SDO_CONTEXT)
     dataset = {
         "@type": source_dict['@type'],
-        "@id": source_dict['@id'],
-        "@context": GLOBAL_SDO_CONTEXT,
+        "@context": _context,
         "title": source_dict["title"]
     }
+
+    # Look up payload for a valid @id
+    if '@id' in source_dict:
+        dataset['@id'] = source_dict['@id']
+    else:
+        if 'identifier' in source_dict and 'identifier' in source_dict['identifier']:
+            i = source_dict['identifier']['identifier']
+            if utils.is_valid_IRI(i):
+                if debug:
+                    print("Using 'identifier' as @id: %s" % i)
+                dataset['@id'] = i
+
+        if '@id' not in dataset and 'alternateIdentifiers' in source_dict:
+            for ai in source_dict['alternateIdentifiers']:
+                if utils.is_valid_IRI(ai["identifier"]):
+                    if debug:
+                        print("Using 'alternateIdentifiers' as @id: %s" % ai["identifier"])
+                    dataset['@id'] = ai["identifier"]
+                    break
 
     if 'creators' in source_dict:
         for c in source_dict['creators']:
@@ -353,13 +371,13 @@ def save_dataset(source_dict, debug=False):
                     print("Skipping empty creator")
                 continue;
 
-            add_context_if_missing(c, GLOBAL_SDO_CONTEXT)
+            add_context_if_missing(c, _context)
 
             creator_refs = []
             affiliation_refs = []
             if "affiliations" in c:
                 for a in c['affiliations']:
-                    add_context_if_missing(a, GLOBAL_SDO_CONTEXT)
+                    add_context_if_missing(a, _context)
                     _type = get_expanded_entity_type(a)
                     e = get_entity_by_type_and_property(_type, 'https://schema.org/name', a['name'], debug=debug)
                     if e is not None:
@@ -378,10 +396,14 @@ def save_dataset(source_dict, debug=False):
 
             # replace original creator payload with affiliations in Nexus
             c['affiliations'] = affiliation_refs
-            if fetch_by_id(c['@id'], debug=debug) is None:
+
+            if '@id' not in c:
                 creator_id = save(c, debug=debug)
             else:
-                creator_id = c['@id']
+                if fetch_by_id(c['@id'], debug=debug) is None:
+                    creator_id = save(c, debug=debug)
+                else:
+                    creator_id = c['@id']
 
             _type = get_expanded_entity_type(c)
             creator_refs.append({
@@ -394,7 +416,7 @@ def save_dataset(source_dict, debug=False):
     if "distributions" in source_dict:
         distribution_refs = []
         for d in source_dict['distributions']:
-            add_context_if_missing(d, GLOBAL_SDO_CONTEXT)
+            add_context_if_missing(d, _context)
             distribution_id = save(d, debug=debug)
             _type = get_expanded_entity_type(d)
             distribution_refs.append({
@@ -406,7 +428,7 @@ def save_dataset(source_dict, debug=False):
     if "hasPart" in source_dict:
         sub_dataset_refs = []
         for d in source_dict['hasPart']:
-            sub_dataset_id = save_dataset(d, debug=debug)
+            sub_dataset_id = save_dataset(d, _context, debug=debug)
             _type = get_expanded_entity_type(d)
             sub_dataset_refs.append({
                 "@id": sub_dataset_id,
@@ -416,9 +438,8 @@ def save_dataset(source_dict, debug=False):
 
     # Add optional properties that don't involve entity relations
     add_if_exist(source_dict=source_dict, target_dict=dataset, key="description")
-
-    # Save context of identifier in Nexus prior to saving since this will not be stored in a separate linked entity
     add_if_exist(source_dict=source_dict, target_dict=dataset, key="identifier")
+    add_if_exist(source_dict=source_dict, target_dict=dataset, key="alternateIdentifiers")
     add_if_exist(source_dict=source_dict, target_dict=dataset, key="dates")
     add_if_exist(source_dict=source_dict, target_dict=dataset, key="types")
     add_if_exist(source_dict=source_dict, target_dict=dataset, key="extraProperties")
@@ -542,13 +563,12 @@ def register_context(file, context_id, debug):
     process_register_context(file=file, context_id=context_id, debug=debug)
 
 
-@dats.command(name='load', help='Load a DATS file in Nexus')
+@dats.command(name='load', help='Load given DATS file in Nexus')
 @click.argument('file')
-@click.option('_override', '--override-context',
-              default=GLOBAL_SDO_CONTEXT,
-              help='the id of a context stored in Nexus to be use as drop-in replacement for DATS''')
+@click.option('_override_context', '--override-context', default=GLOBAL_SDO_CONTEXT,
+              help='The id of a context stored in Nexus to be use as drop-in replacement for DATS''')
 @click.option('--debug', is_flag=True, default=False, help='Print debug statements')
-def load(file, _override, debug):
+def load(file, _override_context, debug):
     if debug:
         print("Loading file: " + file)
 
@@ -559,54 +579,127 @@ def load(file, _override, debug):
     with open(file) as json_file:
         json_data = json.load(json_file)
         remove_all_contexts(json_data)
-        save_dataset(json_data, debug=debug)
+        save_dataset(json_data, _override_context, debug=debug)
 
 
-@dats.command(name='search', help='Search for datasets in data loaded in Nexus')
+@dats.command(name='search', help='Search for DATS datasets in Nexus (using ElasticSearchView)')
 @click.argument('query')
+@click.option('_from', '--from', default=0, help='index of the first entity to return (default:0, ie. the first one)')
+@click.option('_page_size', '--page-size', default=100, help='Page size (default:100)')
+@click.option('--field', help='Field targeted by the search (default: _all_fields)')
+@click.option('--exact', is_flag=True, default=False,
+              help='If set, will only match exact text. If not, use fuzzy search.')
+@click.option('--fuzziness', default=2, help='Level of fuzziness in string matching (default: 0, i.e. none).')
 @click.option('--debug', is_flag=True, default=False, help='Print debug statements')
-def search(query, debug):
+def search(query, _from, _page_size, field, exact, fuzziness, debug):
+    default_field = '_all_fields'
+    if exact and fuzziness>0:
+        utils.error("You cannot request an exact query with fuzziness greater than zero (%s)" % fuzziness)
+
     _org_label = utils.get_organization_label(None)
     _prj_label = utils.get_project_label(None)
     nxs = utils.get_nexus_client()
+
+    # create ElasticSearchView for datasets if missing
+    (_, config) = utils.get_selected_deployment_config()
+    nexus_base_url = config['url']
+    view_id = "%s/resources/%s/%s/_/DatsDatasetsElasticSearchView" % (nexus_base_url, _org_label, _prj_label)
+    _view = fetch_by_id(view_id)
+    if _view is None:
+        print("Creating ElasticSearch View for DATS Datasets...")
+        # load definition
+        view_definition_file = get_code_root_directory() + "/dats/dataset-es-view.json"
+        with open(view_definition_file) as json_file:
+            view_definition = json.load(json_file)
+            # create view in Nexus
+            try:
+                nxs.views.create_(org_label=_org_label, project_label=_prj_label, payload=view_definition, view_id=view_id)
+                if debug:
+                    print("View created")
+            except nxs.HTTPError as e:
+                print("Failed to create ElasticSearchView for Dataset.")
+                utils.print_json(e.response.json(), colorize=True)
+                utils.error(str(e))
+    else:
+        if debug:
+            print("View already exist: " + view_id)
+
+    # Before querying, verify that the view is fully indexed, if not, wait...
+    wait_for_view_indexing_to_complete(view_id=view_id, debug=debug)
+
     try:
+        _field = default_field
+        if field is not None:
+            _field = field
         es_query = {
+            "from": _from,
+            "size": _page_size,
             "query": {
-                "query_string": {
-                    "query": query
+                "match": {
+                    _field: {
+                        "query": query
+                    }
                 }
             }
         }
-        es_view_id = "https://bluebrain.github.io/nexus/vocabulary/defaultElasticSearchIndex"
-        response = nxs.views.query_es(org_label=_org_label, project_label=_prj_label, view_id=es_view_id, query=es_query)
-        if debug:
-            utils.print_json(response, colorize=True)
-        else:
-            from prettytable import PrettyTable
-            import collections
-            table = PrettyTable(['Id', 'Type', 'Revision', 'Deprecated'])
-            table.align["Id"] = "l"
-            table.align["Type"] = "l"
-            table.align["Revision"] = "l"
-            table.align["Deprecated"] = "l"
-            for r in response["hits"]["hits"]:
-                types = ""
-                if "_source" in r and "@type" in r["_source"]:
-                    if type(r["_source"]["@type"]) is str:
-                        types = r["_source"]["@type"]
-                    elif isinstance(r["_source"]["@type"], collections.Sequence):
-                        for t in r["_source"]["@type"]:
-                            types += t + "\n"
-                    else:
-                        utils.warn("Unsupported type: " + type(r["_source"]["@type"]))
-                        types = r["_source"]["@type"]
-                else:
-                    types = '-'
 
-                table.add_row([r["_source"]["@id"], types, r["_source"]["_rev"], r["_source"]["_deprecated"]])
-            print(table)
+        if not exact and fuzziness is not None:
+            es_query['query']['match'][_field]['fuzziness'] = int(fuzziness)
+
+        if debug:
+            print("\nElasticSearch Query:")
+            utils.print_json(es_query, colorize=True)
+
+        response = nxs.views.query_es(org_label=_org_label, project_label=_prj_label, view_id=view_id, query=es_query)
+        from prettytable import PrettyTable
+        import collections
+        table = PrettyTable(['Id', 'Title', 'Description'])
+        table.align["Id"] = "l"
+        table.align["Title"] = "l"
+        table.align["Description"] = "l"
+        for r in response["hits"]["hits"]:
+            _description = ""
+            if "description" in r["_source"]:
+                _description = r["_source"]["description"]
+            table.add_row([r["_source"]["@id"], r["_source"]["title"], _description])
+        doc_count = response['hits']['total']['value']
+        print("Total results: %s (took: %sms)" % (doc_count, response['took']))
+        if doc_count > _page_size:
+            utils.warn("WARNING - There is more data to be shows, increase the page size using: --page-size")
+        print(table)
+
+        if debug:
+            print("Raw ElasticSearch response:")
+            utils.print_json(response, colorize=True)
     except nxs.HTTPError as e:
         print("Failed to execute ElasticSearch query: '%s'" % query)
+        utils.print_json(e.response.json(), colorize=True)
+        utils.error(str(e))
+
+
+def wait_for_view_indexing_to_complete(view_id, debug):
+    _org_label = utils.get_organization_label(None)
+    _prj_label = utils.get_project_label(None)
+    nxs = utils.get_nexus_client()
+    completed = False
+    try:
+        while not completed:
+            response = nxs.views.stats(org_label=_org_label, project_label=_prj_label, view_id=view_id)
+            if debug:
+                utils.print_json(response, colorize=True)
+            remaining = int(response["remainingEvents"])
+            if remaining == 0:
+                completed = True
+                if debug:
+                    print("Indexing complete")
+            else:
+                if debug:
+                    print("Waiting for indexing to complete (%s left)..." % remaining)
+                import time
+                time.sleep(2)  # sleep 2 seconds
+
+    except nxs.HTTPError as e:
+        print("Failed to wait for view to complete indexing: '%s'" % view_id)
         utils.print_json(e.response.json(), colorize=True)
         utils.error(str(e))
 

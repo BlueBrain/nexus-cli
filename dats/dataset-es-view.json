@@ -1,0 +1,30 @@
+{
+  "@type": "ElasticSearchView",
+  "resourceTypes": ["https://schema.org/Dataset"],
+  "includeMetadata": true,
+  "includeDeprecated": false,
+  "mapping": {
+    "dynamic": false,
+    "properties": {
+      "_all_fields": {
+        "type": "text"
+      },
+      "@id": {
+        "copy_to": "_all_fields",
+        "type": "keyword"
+      },
+      "@type": {
+        "copy_to": "_all_fields",
+        "type": "keyword"
+      },
+      "title": {
+        "copy_to": "_all_fields",
+        "type": "text"
+      },
+      "description": {
+        "copy_to": "_all_fields",
+        "type": "text"
+      }
+    }
+  }
+}

@@ -421,3 +421,10 @@ def load_csv(_org_label, _prj_label, schema, file_path, merge_with=None, merge_o
         raise Exception from e
 
 
+def is_valid_IRI(string):
+    from rfc3987 import parse
+    try:
+        parse(string, rule='IRI')
+        return True
+    except ValueError as ve:
+        return False
