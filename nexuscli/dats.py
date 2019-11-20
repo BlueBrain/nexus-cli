@@ -589,11 +589,11 @@ def load(file, _override_context, debug):
 @click.option('--field', help='Field targeted by the search (default: _all_fields)')
 @click.option('--exact', is_flag=True, default=False,
               help='If set, will only match exact text. If not, use fuzzy search.')
-@click.option('--fuzziness', default=2, help='Level of fuzziness in string matching (default: 0, i.e. none).')
+@click.option('--fuzziness', default=0, help='Level of fuzziness in string matching (default: 0, i.e. none).')
 @click.option('--debug', is_flag=True, default=False, help='Print debug statements')
 def search(query, _from, _page_size, field, exact, fuzziness, debug):
     default_field = '_all_fields'
-    if exact and fuzziness>0:
+    if exact and fuzziness > 0:
         utils.error("You cannot request an exact query with fuzziness greater than zero (%s)" % fuzziness)
 
     _org_label = utils.get_organization_label(None)
