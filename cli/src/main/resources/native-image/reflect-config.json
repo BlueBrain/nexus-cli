@@ -1,0 +1,1271 @@
+[
+  {
+    "name": "boolean[]"
+  },
+  {
+    "name": "byte[]"
+  },
+  {
+    "name": "cats.Later",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "cats.effect.std.Semaphore$impl",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "cats.effect.unsafe.IORuntimeCompanionPlatform",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "cats.effect.unsafe.WorkStealingThreadPool",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "cats.effect.unsafe.metrics.ComputePoolSampler",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "cats.effect.unsafe.metrics.ComputePoolSamplerMBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "cats.effect.unsafe.metrics.LiveFiberSnapshotTrigger",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "cats.effect.unsafe.metrics.LiveFiberSnapshotTriggerMBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "cats.effect.unsafe.metrics.LocalQueueSampler",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "cats.effect.unsafe.metrics.LocalQueueSamplerMBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "cats.parse.Parser$State",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "cats.parse.Parser0",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "cats.parse.Parser0[]"
+  },
+  {
+    "name": "cats.parse.Parser[]"
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.impl.Config$$anon$1",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.impl.Config$LoginConfig$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.impl.Login$$anon$1",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.impl.Login$$anon$2",
+    "fields": [
+      {
+        "name": "0bitmap$3",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.impl.Login$AuthResponse$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.impl.Login$ErrorAuthResponse$",
+    "fields": [
+      {
+        "name": "0bitmap$4",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.Args$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.BearerToken$package$BearerToken$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.Label$package$Label$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.api.Api$$anon$1",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.api.Api$ErrorResponse$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.api.Identities$$anon$1",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.api.Identities$IdentityListingResponse$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.api.model.Realm$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.epfl.bluebrain.nexus.cli.sdk.api.model.Realm$$anon$1",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.encoder.PatternLayoutEncoder",
+    "allPublicMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.DateConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LevelConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LineSeparatorConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.LoggerConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.classic.pattern.MessageConverter",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.core.ConsoleAppender",
+    "allPublicMethods": true,
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "ch.qos.logback.core.status.NopStatusListener",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "char[]"
+  },
+  {
+    "name": "com.sun.management.GarbageCollectorMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.management.GcInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.management.HotSpotDiagnosticMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.management.ThreadMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.management.UnixOperatingSystemMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.management.VMOption",
+    "allPublicMethods": true
+  },
+  {
+    "name": "com.sun.management.internal.GarbageCollectorExtImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "com.sun.management.internal.HotSpotDiagnostic",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "com.sun.management.internal.HotSpotThreadImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "com.sun.management.internal.OperatingSystemImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "double[]"
+  },
+  {
+    "name": "fansi.Attr[]"
+  },
+  {
+    "name": "fansi.Category",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "fansi.Category[]"
+  },
+  {
+    "name": "fansi.Str",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "float[]"
+  },
+  {
+    "name": "fs2.Chunk$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "fs2.Chunk$Queue",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "fs2.internal.ScopedResource$$anon$1",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "fs2.io.file.Files$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "fs2.io.file.Path$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "int[]"
+  },
+  {
+    "name": "io.circe.Decoder$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "io.circe.DecodingFailure$$anon$2",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "io.circe.Encoder$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "io.circe.Encoder[]"
+  },
+  {
+    "name": "java.lang.Boolean",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Byte",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Character",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Deprecated",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.Double",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Float",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Integer",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Long",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Object[][]"
+  },
+  {
+    "name": "java.lang.Short",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.StackTraceElement",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.String"
+  },
+  {
+    "name": "java.lang.String[]"
+  },
+  {
+    "name": "java.lang.Void",
+    "fields": [
+      {
+        "name": "TYPE"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.invoke.VarHandle",
+    "methods": [
+      {
+        "name": "releaseFence",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.lang.management.BufferPoolMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.ClassLoadingMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.CompilationMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.LockInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.ManagementPermission",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.lang.management.MemoryMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.MemoryManagerMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.MemoryPoolMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.MemoryUsage",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.MonitorInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.PlatformLoggingMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.RuntimeMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.lang.management.ThreadInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "java.math.BigDecimal"
+  },
+  {
+    "name": "java.math.BigInteger"
+  },
+  {
+    "name": "java.nio.file.LinkOption[]"
+  },
+  {
+    "name": "java.util.Date"
+  },
+  {
+    "name": "java.util.PropertyPermission",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String",
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.logging.LogManager",
+    "methods": [
+      {
+        "name": "getLoggingMXBean",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.util.logging.LoggingMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "javax.management.MBeanOperationInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "javax.management.MBeanServerBuilder",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "javax.management.ObjectName"
+  },
+  {
+    "name": "javax.management.openmbean.CompositeData"
+  },
+  {
+    "name": "javax.management.openmbean.CompositeData[]"
+  },
+  {
+    "name": "javax.management.openmbean.OpenMBeanOperationInfoSupport"
+  },
+  {
+    "name": "javax.management.openmbean.TabularData"
+  },
+  {
+    "name": "jdk.management.jfr.ConfigurationInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "jdk.management.jfr.EventTypeInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "jdk.management.jfr.FlightRecorderMXBean",
+    "allPublicMethods": true
+  },
+  {
+    "name": "jdk.management.jfr.FlightRecorderMXBeanImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "jdk.management.jfr.RecordingInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "jdk.management.jfr.SettingDescriptorInfo",
+    "allPublicMethods": true
+  },
+  {
+    "name": "long[]"
+  },
+  {
+    "name": "org.http4s.Header$Raw$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.Headers$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MediaType$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$application$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "10bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "11bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "12bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "13bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "14bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "15bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "16bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "17bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "18bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "19bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "1bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "20bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "21bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "22bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "23bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "24bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "25bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "26bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "27bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "28bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "29bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "2bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "30bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "31bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "32bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "33bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "34bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "35bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "36bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "37bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "38bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "39bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "3bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "40bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "41bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "42bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "43bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "44bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "45bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "46bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "47bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "48bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "49bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "4bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "50bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "51bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "5bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "6bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "7bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "8bitmap$1",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "9bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$audio$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "1bitmap$2",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "2bitmap$2",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "3bitmap$2",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "4bitmap$2",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "5bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$chemical$",
+    "fields": [
+      {
+        "name": "0bitmap$3",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$font$",
+    "fields": [
+      {
+        "name": "0bitmap$4",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$image$",
+    "fields": [
+      {
+        "name": "0bitmap$5",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "1bitmap$3",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "2bitmap$3",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "3bitmap$3",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$message$",
+    "fields": [
+      {
+        "name": "0bitmap$6",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$model$",
+    "fields": [
+      {
+        "name": "0bitmap$7",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "1bitmap$4",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$multipart$",
+    "fields": [
+      {
+        "name": "0bitmap$8",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$text$",
+    "fields": [
+      {
+        "name": "0bitmap$9",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "1bitmap$5",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "2bitmap$4",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "3bitmap$4",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$video$",
+    "fields": [
+      {
+        "name": "0bitmap$10",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "1bitmap$6",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "2bitmap$5",
+        "allowUnsafeAccess": true
+      },
+      {
+        "name": "3bitmap$5",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$x_conference$",
+    "fields": [
+      {
+        "name": "0bitmap$11",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.MimeDB$x_shader$",
+    "fields": [
+      {
+        "name": "0bitmap$12",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.QValue$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.Query",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.Query$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.Request",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.Uri",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.Uri$",
+    "fields": [
+      {
+        "name": "0bitmap$3",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.Uri$Path$",
+    "fields": [
+      {
+        "name": "0bitmap$2",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.blaze.client.PoolManager",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.blaze.util.Execution$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.blaze.util.TickWheelExecutor",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.blaze.util.TickWheelExecutor$Bucket[]"
+  },
+  {
+    "name": "org.typelevel.ci.package$CIStringSyntax",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "org.http4s.circe.CirceInstances$",
+    "fields": [
+      {
+        "name": "0bitmap$1",
+        "allowUnsafeAccess": true
+      }
+    ]
+  },
+  {
+    "name": "short[]"
+  },
+  {
+    "name": "sun.management.ClassLoadingImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.management.CompilationImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.management.ManagementFactoryHelper$1",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.management.ManagementFactoryHelper$PlatformLoggingImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.management.MemoryImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.management.MemoryManagerImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.management.MemoryPoolImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.management.RuntimeImpl",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "sun.misc.Signal",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "handle",
+        "parameterTypes": [
+          "sun.misc.Signal",
+          "sun.misc.SignalHandler"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sun.misc.SignalHandler"
+  },
+  {
+    "name": "sun.misc.Unsafe",
+    "allDeclaredFields": true
+  }
+]

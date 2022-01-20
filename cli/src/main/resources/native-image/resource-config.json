@@ -1,0 +1,10 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": ".*logback.xml"
+      }
+    ]
+  },
+  "bundles": []
+}
