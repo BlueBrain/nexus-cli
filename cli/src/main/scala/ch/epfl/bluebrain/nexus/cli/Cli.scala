@@ -20,19 +20,30 @@ object Cli:
       Opts(Intent.ListPlugins)
     }
 
+  private val loginShow =
+    Opts.subcommand("show", "Show the current login information (Nexus instance endpoint, realm, token)") {
+      Opts(Intent.ShowLogin)
+    }
+
+  private val loginRemove =
+    Opts.subcommand("remove", "Removes the current login information (Nexus instance endpoint, realm, token)") {
+      Opts(Intent.RemoveLogin)
+    }
+
   private val login =
     Opts.subcommand(
       "login",
       "Authenticate to a Nexus Delta instance with a configured Identity Provider via Password Grant or explicit token"
     ) {
-      (
-        Opts.option[Uri]("endpoint", "The Nexus Delta api endpoint").orNone,
-        Opts.option[Label]("realm", "The realm to authenticate against").orNone,
-        Opts.option[BearerToken]("token", "A user provided token to be used for future commands").orNone,
-        Opts
-          .option[String]("client-id", "The client id to be used in the credentials exchange for a token")
-          .withDefault("nexus-cli")
-      ).mapN(Intent.Login.apply)
+      loginShow orElse loginRemove orElse
+        (
+          Opts.option[Uri]("endpoint", "The Nexus Delta api endpoint").orNone,
+          Opts.option[Label]("realm", "The realm to authenticate against").orNone,
+          Opts.option[BearerToken]("token", "A user provided token to be used for future commands").orNone,
+          Opts
+            .option[String]("client-id", "The client id to be used in the credentials exchange for a token")
+            .withDefault("nexus-cli")
+        ).mapN(Intent.Login.apply)
     }
 
   def printHelp(terminal: Terminal, help: Help): IO[Unit] =

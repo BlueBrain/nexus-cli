@@ -8,4 +8,6 @@ enum Intent:
   case ListPlugins
   case InvokePlugin(pluginName: String, path: Path, args: List[String])
   case Login(endpoint: Option[Uri], realm: Option[Label], token: Option[BearerToken], clientId: String)
+  case ShowLogin
+  case RemoveLogin
 //  case GetVersion

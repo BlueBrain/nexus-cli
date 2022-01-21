@@ -33,6 +33,12 @@ object Config:
       _       <- saveFile(cfgFile, cfg)
     yield ()
 
+  def remove: IO[Unit] =
+    for
+      cfgFile <- nexusDirPath.map(_ / "config.json")
+      _       <- Files[IO].deleteIfExists(cfgFile)
+    yield ()
+
   private def nexusDirPath: IO[Path] =
     IO.delay(sys.props.get("user.home")).flatMap {
       case Some(value) =>

@@ -38,6 +38,8 @@ object Main extends IOApp:
       case Intent.ListPlugins                             => impl.ListPlugins(term)
       case Intent.InvokePlugin(name, path, args)          => impl.InvokePlugin(name, path, args)
       case Intent.Login(endpoint, realm, token, clientId) => impl.Login(endpoint, realm, token, clientId, term)
+      case Intent.ShowLogin                               => impl.ShowLogin(term)
+      case Intent.RemoveLogin                             => impl.RemoveLogin()
 
   private def pluginInvocation(args: List[String], help: Help): Option[(String, List[String])] =
     (args, help.errors.headOption) match
