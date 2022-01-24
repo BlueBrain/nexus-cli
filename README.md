@@ -9,6 +9,12 @@ the correct reflection configuration, run the tool with native image agent:
 $JAVA_HOME/bin/java -agentlib:native-image-agent=config-output-dir=/path/to/config-dir/ -cp ...\
   ch.epfl.bluebrain.nexus.cli.Main list-plugins
 ```
+or directly from sbt:
+```
+cli/nativeImageRunAgent " args"
+cliSearch/nativeImageRunAgent " args"
+```
+(notice the space after the first quote)
 
 [This](https://github.com/lampepfl/dotty/issues/13985) issue tracks the progress of the use of reflection in scala 3.
 
