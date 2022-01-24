@@ -4,7 +4,7 @@ import cats.implicits.*
 import com.monovore.decline.Argument
 import org.http4s.Uri
 
-import java.nio.file.{Path, Paths}
+import fs2.io.file.Path
 import scala.concurrent.duration.Duration.Infinite
 import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.{Failure, Success, Try}
@@ -45,7 +45,7 @@ trait Args:
 
   given Argument[Path] =
     Argument.from("path") { str =>
-      Try(Paths.get(str)).toEither
+      Try(Path(str)).toEither
         .leftMap(_ => s"Invalid path: '$str'")
         .toValidatedNel
     }

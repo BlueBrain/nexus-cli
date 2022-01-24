@@ -13,7 +13,7 @@ import org.http4s.client.dsl.io.*
 import org.http4s.headers.{Accept, Authorization}
 import org.http4s.{MediaType, Uri}
 
-class Identities(endpoint: Uri, client: Client[IO], auth: Option[Authorization]):
+class Identities(client: Client[IO], endpoint: Uri, auth: Option[Authorization]):
 
   def list: IO[ApiResponse[List[Identity]]] =
     client.run(GET(endpoint / "identities").withAuthOpt(auth)).use { resp =>

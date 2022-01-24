@@ -39,7 +39,7 @@ object Login:
       case (Some(e), Some(r), Some(t)) =>
         BlazeClientBuilder[IO].resource.use { client =>
           getAndValidateRealm(e, r, client).flatMap { realm =>
-            val identities = new Identities(e, client, Some(t.toAuthorization))
+            val identities = new Identities(client, e, Some(t.toAuthorization))
             identities.list.flatMap {
               case ApiResponse.Successful(_, _, _, _)             =>
                 Config.save(LoginConfig(e, r, t, clientId)).as(ExitCode.Success)
@@ -84,7 +84,7 @@ object Login:
         IO.raiseError(CliErr.IncorrectLoginFlagsErr)
 
   private def getAndValidateRealm(endpoint: Uri, realm: Label, client: Client[IO]): IO[Realm] =
-    val realms = new Realms(endpoint, client, None)
+    val realms = new Realms(client, endpoint, None)
     realms.get(realm).flatMap {
       case ApiResponse.Successful(Some(r), _, _, _) if r._deprecated => IO.raiseError(CliErr.RealmIsDeprecatedErr)
       case ApiResponse.Successful(Some(r), _, _, _)                  => IO.pure(r)

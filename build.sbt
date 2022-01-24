@@ -1,3 +1,5 @@
+import sbtbuildinfo.BuildInfoPlugin.autoImport.buildInfoKeys
+
 /*
 scalafmt: {
   maxColumn = 150
@@ -37,6 +39,7 @@ lazy val munit         = "org.scalameta" %% "munit"               % munitVersion
 
 lazy val sdk = project
   .in(file("sdk"))
+  .enablePlugins(BuildInfoPlugin)
   .settings(compilationSettings)
   .settings(
     name                 := "cli-sdk",
@@ -55,21 +58,7 @@ lazy val sdk = project
       jlineTerminal,
       logback,
       munit % Test
-    )
-  )
-
-lazy val cli = project
-  .in(file("cli"))
-  .dependsOn(sdk)
-  .enablePlugins(NativeImagePlugin, BuildInfoPlugin)
-  .settings(compilationSettings, nativeImageSettings)
-  .settings(
-    name                 := "cli",
-    moduleName           := "cli",
-    libraryDependencies ++= Seq(
-      munit % Test
     ),
-    Compile / mainClass  := Some("ch.epfl.bluebrain.nexus.cli.Main"),
     cliName              := {
       sys.env.get("CLI_NAME") match {
         case Some(value) => value
@@ -77,13 +66,27 @@ lazy val cli = project
       }
     },
     buildInfoKeys        := Seq[BuildInfoKey](version, cliName),
-    buildInfoPackage     := "ch.epfl.bluebrain.nexus.cli"
+    buildInfoPackage     := "ch.epfl.bluebrain.nexus.cli.sdk"
+  )
+
+lazy val cli = project
+  .in(file("cli"))
+  .dependsOn(sdk)
+  .enablePlugins(NativeImagePlugin)
+  .settings(compilationSettings, nativeImageSettings)
+  .settings(
+    name                 := "cli",
+    moduleName           := "cli",
+    libraryDependencies ++= Seq(
+      munit % Test
+    ),
+    Compile / mainClass  := Some("ch.epfl.bluebrain.nexus.cli.Main")
   )
 
 lazy val cliSearch = project
   .in(file("cli-search"))
   .enablePlugins(NativeImagePlugin)
-  .dependsOn(cli)
+  .dependsOn(sdk)
   .settings(compilationSettings, nativeImageSettings)
   .settings(
     name                 := "cli-search",
@@ -107,9 +110,9 @@ val compilationSettings = Seq(
 )
 
 val nativeImageSettings = Seq(
-  nativeImageVersion  := "21.1.0",
-  nativeImageJvm      := "graalvm-ce-java16",
-  nativeImageJvmIndex := "jabba",
+  nativeImageVersion  := "21.3.0",
+  nativeImageJvm      := "graalvm-java17",
+  nativeImageJvmIndex := "https://github.com/coursier/jvm-index/raw/master/index.json", //jabba doesn't have 21.3.0 available yet
   nativeImageOptions ++= {
     val configDir = (Compile / resourceDirectory).value / "native-image"
     List(

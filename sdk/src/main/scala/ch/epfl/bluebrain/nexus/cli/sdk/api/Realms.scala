@@ -11,7 +11,7 @@ import org.http4s.client.dsl.io.*
 import org.http4s.headers.{Accept, Authorization}
 import org.http4s.{MediaType, Uri}
 
-class Realms(endpoint: Uri, client: Client[IO], auth: Option[Authorization]):
+class Realms(client: Client[IO], endpoint: Uri, auth: Option[Authorization]):
 
   def get(label: Label): IO[ApiResponse[Option[Realm]]] =
     client.run(GET(endpoint / "realms" / label.value).withAuthOpt(auth)).use { resp =>

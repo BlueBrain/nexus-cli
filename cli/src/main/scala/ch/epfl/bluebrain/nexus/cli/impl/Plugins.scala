@@ -1,7 +1,7 @@
 package ch.epfl.bluebrain.nexus.cli.impl
 
 import cats.effect.IO
-import ch.epfl.bluebrain.nexus.cli.BuildInfo
+import ch.epfl.bluebrain.nexus.cli.sdk.BuildInfo
 import fs2.Stream
 import fs2.io.file.{Files, Path}
 

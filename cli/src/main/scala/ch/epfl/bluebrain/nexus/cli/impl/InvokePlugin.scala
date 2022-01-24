@@ -7,7 +7,20 @@ import fs2.io.file.Path
 object InvokePlugin:
   def apply(pluginName: String, path: Path, args: List[String]): IO[ExitCode] =
     val acquire: Poll[IO] => IO[Process] =
-      _ => IO.blocking(new ProcessBuilder(path.absolute.toString :: args: _*).inheritIO().start())
+      _ =>
+        Config.load.flatMap {
+          case Some(value) =>
+            IO.blocking {
+              val builder = new ProcessBuilder(path.absolute.toString :: args: _*)
+              builder.environment().put("NEXUS_ENDPOINT", value.endpoint.toString)
+              builder.environment().put("NEXUS_TOKEN", value.token.value)
+              builder.inheritIO().start()
+            }
+          case None        =>
+            IO.blocking {
+              new ProcessBuilder(path.absolute.toString :: args: _*).inheritIO().start()
+            }
+        }
 
     val use: Process => IO[ExitCode] =
       process => IO.blocking(process.waitFor()).map(ExitCode.apply)

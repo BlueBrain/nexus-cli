@@ -2,7 +2,7 @@ package ch.epfl.bluebrain.nexus.cli
 
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.cli.sdk.Terminal.lineSep
-import ch.epfl.bluebrain.nexus.cli.sdk.{Err, Terminal}
+import ch.epfl.bluebrain.nexus.cli.sdk.{BuildInfo, Err, Terminal}
 import com.monovore.decline.Help
 import fansi.{Color, Str}
 import fs2.io.file.Path

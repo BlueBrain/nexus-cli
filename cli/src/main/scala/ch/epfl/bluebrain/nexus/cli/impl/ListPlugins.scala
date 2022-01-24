@@ -2,7 +2,7 @@ package ch.epfl.bluebrain.nexus.cli.impl
 
 import cats.effect.*
 import cats.implicits.*
-import ch.epfl.bluebrain.nexus.cli.BuildInfo
+import ch.epfl.bluebrain.nexus.cli.sdk.BuildInfo
 import ch.epfl.bluebrain.nexus.cli.sdk.Terminal
 import fansi.Color.*
 import fansi.Str

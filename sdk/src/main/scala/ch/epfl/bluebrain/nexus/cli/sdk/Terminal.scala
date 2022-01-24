@@ -6,6 +6,7 @@ import cats.effect.kernel.Resource
 import fansi.Str
 import org.jline.terminal.{Terminal as JTerminal, TerminalBuilder}
 import org.jline.reader.LineReaderBuilder
+import io.circe.Json
 
 import scala.annotation.tailrec
 
@@ -37,6 +38,13 @@ class Terminal private (underlying: JTerminal):
       val tokens        = tokenize(string)
       val paddingLength = padding.length
       inner(new StringBuilder, 0, tokens, w, paddingLength)
+    }
+
+  def renderJson(json: Json, padding: Str = Str("")): IO[String] =
+    IO.delay {
+      json.spaces2.split('\n').foldLeft(new StringBuilder) {
+        case (builder, line) => builder.append(padding.render).append(line).append(System.lineSeparator())
+      }.toString()
     }
 
   def writeLn(string: Str, padding: Str = Str("")): IO[Unit] =
