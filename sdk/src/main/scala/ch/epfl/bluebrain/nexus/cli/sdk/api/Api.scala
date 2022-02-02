@@ -23,6 +23,9 @@ object Api:
   def apply(client: Client[IO], endpoint: Uri, token: BearerToken): Api =
     new Api(client, endpoint, Some(token.toAuthorization))
 
+  def apply(client: Client[IO], endpoint: Uri, token: Option[BearerToken]): Api =
+    new Api(client, endpoint, token.map(_.toAuthorization))
+
   val accept: Accept        = Accept(MediaType.application.json)
   val `application/ld+json` = new MediaType("application", "ld+json", compressible = true, binary = false)
 

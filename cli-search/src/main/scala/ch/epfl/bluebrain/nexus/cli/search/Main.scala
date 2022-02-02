@@ -24,8 +24,7 @@ object Main extends IOApp:
             val token    = sys.env.get("NEXUS_TOKEN").map(str => BearerToken.unsafe(str))
             for
               e    <- IO.fromOption(endpoint)(Err.UnconfiguredErr)
-              t    <- IO.fromOption(token)(Err.UnconfiguredErr)
-              code <- evaluate(intent, terminal, e, t)
+              code <- evaluate(intent, terminal, e, token)
             yield code
 
         io.handleErrorWith {
@@ -34,7 +33,7 @@ object Main extends IOApp:
         }
       }
 
-  private def evaluate(intent: Intent, term: Terminal, endpoint: Uri, token: BearerToken): IO[ExitCode] =
+  private def evaluate(intent: Intent, term: Terminal, endpoint: Uri, token: Option[BearerToken]): IO[ExitCode] =
     BlazeClientBuilder[IO].resource.use { client =>
       val api = Api(client, endpoint, token)
       intent match
