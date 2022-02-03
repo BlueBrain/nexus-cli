@@ -13,7 +13,7 @@ scalafmt: {
 }
  */
 
-val catsEffectVersion = "3.3.1"
+val catsEffectVersion = "3.3.5"
 val circeVersion      = "0.15.0-M1"
 val declineVersion    = "2.2.0"
 val fansiVersion      = "0.3.0"
@@ -26,6 +26,7 @@ val munitVersion      = "0.7.29"
 lazy val catsEffect    = "org.typelevel" %% "cats-effect"         % catsEffectVersion
 lazy val circeCore     = "io.circe"      %% "circe-core"          % circeVersion
 lazy val circeParser   = "io.circe"      %% "circe-parser"        % circeVersion
+lazy val circeGeneric  = "io.circe"      %% "circe-generic"       % circeVersion
 lazy val decline       = "com.monovore"  %% "decline"             % declineVersion
 lazy val fansi         = "com.lihaoyi"   %% "fansi"               % fansiVersion
 lazy val fs2Core       = "co.fs2"        %% "fs2-core"            % fs2Version
@@ -47,6 +48,7 @@ lazy val sdk = project
     libraryDependencies ++= Seq(
       catsEffect,
       circeCore,
+      circeGeneric,
       circeParser,
       decline,
       fansi,
@@ -109,7 +111,7 @@ lazy val root = project
   .settings(compilationSettings, noPublish)
 
 lazy val compilationSettings = Seq(
-  scalaVersion := "3.1.0"
+  scalaVersion := "2.13.8"
 )
 
 lazy val noPublish = Seq(
@@ -117,11 +119,11 @@ lazy val noPublish = Seq(
 )
 
 val nativeImageSettings = Seq(
-  nativeImageVersion  := "21.3.0",
+  nativeImageVersion  := "22.0.0.2",
   nativeImageJvm      := "graalvm-java17",
-  nativeImageJvmIndex := "https://github.com/coursier/jvm-index/raw/master/index.json", //jabba doesn't have 21.3.0 available yet
+  nativeImageJvmIndex := "https://raw.githubusercontent.com/coursier/jvm-index/master/index.json", //jabba doesn't have 22.0.0.2 available yet
   nativeImageOptions ++= {
-    val configDir = (Compile / resourceDirectory).value / "native-image"
+    val configDir = (Compile / sourceDirectory).value / "native-image"
     List(
       "--verbose",
       "--no-server",
@@ -130,7 +132,7 @@ val nativeImageSettings = Seq(
       "--allow-incomplete-classpath",
       // "--trace-class-initialization=scala.package$",
       // due to org.http4s.client.package$defaults$
-      "--initialize-at-build-time=scala.math,scala.collection,scala.collection.immutable,scala.reflect,scala.concurrent.duration,scala.package$,scala.Predef$",
+      // "--initialize-at-build-time=scala.math,scala.collection,scala.collection.immutable,scala.reflect,scala.concurrent.duration,scala.package$,scala.Predef$",
       "-H:+ReportExceptionStackTraces",
       s"-H:ResourceConfigurationFiles=${configDir / "resource-config.json"}",
       s"-H:ReflectionConfigurationFiles=${configDir / "reflect-config.json"}",

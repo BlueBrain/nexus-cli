@@ -1,0 +1,18 @@
+{
+  "resources":{
+  "includes":[
+    {
+      "pattern":"\\Qlogback.xml\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/jline/utils/capabilities.txt\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/jline/utils/dumb.caps\\E"
+    }, 
+    {
+      "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+    }
+  ]},
+  "bundles":[]
+}
