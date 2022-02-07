@@ -5,16 +5,13 @@ import ch.epfl.bluebrain.nexus.cli.copy.CopyErr.ArgErr
 import ch.epfl.bluebrain.nexus.cli.sdk.Terminal.lineSep
 import ch.epfl.bluebrain.nexus.cli.sdk.{Err, Terminal}
 import com.monovore.decline.Help
-import io.circe.{DecodingFailure, Json, ParsingFailure}
 import org.http4s.Uri
 
 sealed abstract class CopyErr(val message: String, val description: String, val solution: Option[String]) extends Err {
   override def render(term: Terminal): IO[String] =
     this match {
-      case ArgErr(help)                           => IO.delay(help.toString)
-      case CopyErr.UnableToParseEventErr(raw, _)  => renderGeneric(term, Some(raw))
-      case CopyErr.UnableToDecodeEventErr(raw, _) => renderWithJson(term, "Event:", raw)
-      case _: CopyErr                             => renderHeader(term)
+      case ArgErr(help) => IO.delay(help.toString)
+      case _: CopyErr   => renderHeader(term)
     }
 }
 
@@ -24,20 +21,6 @@ object CopyErr {
       extends CopyErr(
         help.errors.mkString(", "),
         lineSep + "Usage: " + lineSep + help.usage.mkString(lineSep) + help.body.mkString(lineSep),
-        None
-      )
-
-  case class UnableToParseEventErr(body: String, cause: ParsingFailure)
-      extends CopyErr(
-        "Unable to parse event.",
-        s"An event read from the source environment could not be parsed, reason: ${cause.getMessage}",
-        None
-      )
-
-  case class UnableToDecodeEventErr(raw: Json, cause: DecodingFailure)
-      extends CopyErr(
-        "Unable to decode event.",
-        s"An event read from the source environment could not be decoded, reason: ${cause.getMessage}",
         None
       )
 

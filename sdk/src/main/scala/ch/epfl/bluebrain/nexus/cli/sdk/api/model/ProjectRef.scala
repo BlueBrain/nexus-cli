@@ -21,7 +21,7 @@ object ProjectRef {
     }
 
   implicit val projectRefArgument: Argument[ProjectRef] =
-    Argument.from("org/proj") { str =>
+    Argument.from("label/proj") { str =>
       ProjectRef.fromString(str) match {
         case Right(value) => Validated.validNel(value)
         case Left(err)    => Validated.invalidNel(err.description)

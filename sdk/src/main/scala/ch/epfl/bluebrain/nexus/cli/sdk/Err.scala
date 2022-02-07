@@ -5,7 +5,7 @@ import ch.epfl.bluebrain.nexus.cli.sdk.Terminal.lineSep
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.ApiResponse
 import fansi.{Color, Str}
 import fs2.io.file.Path
-import io.circe.Json
+import io.circe.{DecodingFailure, Json, ParsingFailure}
 import org.http4s.Status
 import org.http4s.headers.`Content-Type`
 
@@ -197,5 +197,21 @@ object Err {
     override val solution: Option[String] = None
 
     override def render(term: Terminal): IO[String] = renderHeader(term)
+  }
+
+  case class UnableToParseEventErr(body: String, cause: ParsingFailure) extends Err {
+    override val message: String                    = "Unable to parse event."
+    override val description: String                =
+      s"An event read from the source environment could not be parsed, reason: ${cause.getMessage}"
+    override val solution: Option[String]           = None
+    override def render(term: Terminal): IO[String] = renderGeneric(term, Some(body))
+  }
+
+  case class UnableToDecodeEventErr(raw: Json, cause: DecodingFailure) extends Err {
+    override val message: String                    = "Unable to decode event."
+    override val description: String                =
+      s"An event read from the event stream could not be decoded, reason: ${cause.getMessage}"
+    override val solution: Option[String]           = None
+    override def render(term: Terminal): IO[String] = renderWithJson(term, "Event:", raw)
   }
 }
