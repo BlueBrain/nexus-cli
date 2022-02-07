@@ -61,12 +61,6 @@ lazy val sdk = project
       logback,
       munit % Test
     ),
-    cliName              := {
-      sys.env.get("CLI_NAME") match {
-        case Some(value) => value
-        case None        => "nexusctl"
-      }
-    },
     buildInfoKeys        := Seq[BuildInfoKey](version, cliName),
     buildInfoPackage     := "ch.epfl.bluebrain.nexus.cli.sdk"
   )
@@ -77,8 +71,8 @@ lazy val cli = project
   .enablePlugins(NativeImagePlugin)
   .settings(compilationSettings, nativeImageSettings)
   .settings(
-    name                 := "cli",
-    moduleName           := "cli",
+    name                 := cliName.value,
+    moduleName           := cliName.value,
     libraryDependencies ++= Seq(
       munit % Test
     ),
@@ -91,18 +85,31 @@ lazy val cliSearch = project
   .dependsOn(sdk)
   .settings(compilationSettings, nativeImageSettings)
   .settings(
-    name                 := "cli-search",
-    moduleName           := "cli-search",
+    name                 := cliName.value + "-search",
+    moduleName           := cliName.value + "-search",
     libraryDependencies ++= Seq(
       munit % Test
     ),
     Compile / mainClass  := Some("ch.epfl.bluebrain.nexus.cli.search.Main")
   )
 
+lazy val cliCopy = project
+  .in(file("plugins/cli-copy"))
+  .enablePlugins(NativeImagePlugin)
+  .dependsOn(sdk)
+  .settings(compilationSettings, nativeImageSettings)
+  .settings(
+    name                 := cliName.value + "-copy",
+    moduleName           := cliName.value + "-copy",
+    libraryDependencies ++= Seq(
+      munit % Test
+    ),
+    Compile / mainClass  := Some("ch.epfl.bluebrain.nexus.cli.copy.Main")
+  )
 
 lazy val plugins = project
   .in(file("plugins"))
-  .aggregate(cliSearch)
+  .aggregate(cliSearch, cliCopy)
   .settings(compilationSettings, noPublish)
 
 lazy val root = project
@@ -111,7 +118,13 @@ lazy val root = project
   .settings(compilationSettings, noPublish)
 
 lazy val compilationSettings = Seq(
-  scalaVersion := "2.13.8"
+  scalaVersion := "2.13.8", // scala 3 native image compilation requires manual config, see https://github.com/lampepfl/dotty/issues/13985
+  cliName      := {
+    sys.env.get("CLI_NAME") match {
+      case Some(value) => value
+      case None        => "nexusctl"
+    }
+  }
 )
 
 lazy val noPublish = Seq(
@@ -121,7 +134,7 @@ lazy val noPublish = Seq(
 val nativeImageSettings = Seq(
   nativeImageVersion  := "22.0.0.2",
   nativeImageJvm      := "graalvm-java17",
-  nativeImageJvmIndex := "https://raw.githubusercontent.com/coursier/jvm-index/master/index.json", //jabba doesn't have 22.0.0.2 available yet
+  nativeImageJvmIndex := "https://raw.githubusercontent.com/coursier/jvm-index/master/index.json", // jabba doesn't have 22.0.0.2 available yet
   nativeImageOptions ++= {
     val configDir = (Compile / sourceDirectory).value / "native-image"
     List(

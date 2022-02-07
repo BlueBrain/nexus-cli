@@ -16,6 +16,8 @@ class Api(val client: Client[IO], val endpoint: Uri, val auth: Option[Authorizat
   val identities: Identities         = new Identities(client, endpoint, auth)
   val projects: Projects             = new Projects(client, endpoint, auth)
   val compositeViews: CompositeViews = new CompositeViews(client, endpoint, auth)
+  val resources: Resources           = new Resources(client, endpoint, auth)
+  val files: Files                   = new Files(client, endpoint, auth)
 }
 
 object Api {

@@ -50,18 +50,26 @@ trait Err extends Throwable {
     for {
       header <- renderHeader(term)
       err    <- additional match {
-                  case Some(value) => term.render(Color.Red("Error: ") ++ Str(value), Err.padding)
+                  case Some(value) => term.render(Color.Red("Details: ") ++ Str(value), Err.padding)
                   case None        => IO.pure("")
                 }
     } yield header + err
 
   protected def renderWithResponse(term: Terminal, status: Status, body: Json): IO[String] =
     for {
+      header    <- renderHeader(term)
+      details   <- term.render(Color.Red("Details: "), Err.padding).map(_ + lineSep)
+      st        <- term.render(Color.Red("Status: ") ++ Str(status.code.toString), Err.padding).map(_ + lineSep)
+      respTitle <- term.render(Color.Red("Response body:")).map(_ + lineSep)
+      resp      <- term.renderJson(body, Err.padding)
+    } yield header + details + st + respTitle + resp
+
+  protected def renderWithJson(term: Terminal, description: String, json: Json): IO[String] =
+    for {
       header  <- renderHeader(term)
-      details <- term.render(Color.Red("Details: "), Err.padding).map(_ + lineSep)
-      st      <- term.render(Color.Red("Status: ") ++ Str(status.code.toString)).map(_ + lineSep)
-      resp    <- term.render(Color.Red("Response body:")).map(str => str + lineSep + body.spaces2)
-    } yield header + details + st + resp
+      desc    <- term.render(Color.Red(description), Err.padding).map(_ + lineSep)
+      jsonStr <- term.renderJson(json, Err.padding)
+    } yield header + desc + jsonStr
 
   protected def renderHeader(term: Terminal): IO[String] =
     for {
