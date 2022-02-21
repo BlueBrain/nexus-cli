@@ -96,6 +96,28 @@ object Api {
             }
           }
 
+    def discard: IO[ApiResponse[Unit]] =
+      r.status match {
+        case status if status.isSuccess => IO.pure(Successful((), status, Json.obj(), r.headers))
+        case status                     =>
+          checkCt >>
+            bodyAsJson(r).map { raw =>
+              status match {
+                case Status.Unauthorized =>
+                  raw.as[ErrorResponse] match {
+                    case Left(_)      => Unknown(r.status, raw, r.headers)
+                    case Right(value) => Unauthorized(value.`@type`, value.reason, r.status, raw, r.headers)
+                  }
+                case Status.Forbidden    =>
+                  raw.as[ErrorResponse] match {
+                    case Left(_)      => Unknown(r.status, raw, r.headers)
+                    case Right(value) => Forbidden(value.`@type`, value.reason, r.status, raw, r.headers)
+                  }
+                case _                   => Unknown(status, raw, r.headers)
+              }
+            }
+      }
+
     private def checkCt: IO[Unit] =
       IO.raiseUnless(
         r.contentType.exists(ct =>
@@ -117,11 +139,11 @@ object Api {
     }
 
   implicit class RichResourceApiResponse(val res: Resource[IO, Response[IO]]) extends AnyVal {
-    def decodeAsStream: Resource[IO, ApiResponse[Stream[IO, Byte]]] =
+    def decodeAsStream: Resource[IO, ApiResponse[(Stream[IO, Byte], Option[Long])]] =
       res.flatMap { r =>
         r.status match {
           case status if status.isSuccess =>
-            Resource.pure(Successful(r.body, status, Json.obj(), r.headers))
+            Resource.pure(Successful((r.body, r.contentLength), status, Json.obj(), r.headers))
           case Status.Unauthorized        =>
             Resource.eval(bodyAsJson(r)).map { raw =>
               raw.as[ErrorResponse] match {

@@ -57,7 +57,7 @@ class Projects(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) {
       .evalMapFilter {
         // TODO: add logging
         case ServerSentEvent(Some(data), Some(eventType), Some(offset), _, _) =>
-          IO.pure(Event.from(offset.value, eventType, data).toOption)
+          IO.print('.') >> IO.pure(Event.from(offset.value, eventType, data).toOption)
         case _                                                                => IO.none
       }
   }

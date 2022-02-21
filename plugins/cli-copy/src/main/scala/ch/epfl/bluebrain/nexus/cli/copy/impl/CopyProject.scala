@@ -10,14 +10,14 @@ import ch.epfl.bluebrain.nexus.cli.sdk.api.Api._
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.{ApiResponse, Event, ProjectFields}
 import ch.epfl.bluebrain.nexus.cli.sdk.{Err, PathUtils, Terminal}
 import fansi.{Color, Str}
-import fs2.Chunk
 import fs2.io.file.Path
 import io.circe.Json
 import org.http4s.blaze.client.BlazeClientBuilder
 import org.http4s.client.Client
 import org.http4s.{MediaType, Status}
 
-import scala.concurrent.duration.DurationInt
+import java.util.concurrent.TimeoutException
+import scala.concurrent.duration.{Duration, DurationInt}
 
 object CopyProject {
 
@@ -29,18 +29,24 @@ object CopyProject {
       concurrency: Int,
       preload: Option[NonEmptyList[Path]]
   ): IO[ExitCode] =
-    BlazeClientBuilder[IO].resource.use { client =>
-      for {
-        _                  <- verifyEnvRef(client, source)
-        _                  <- verifyEnvRef(client, target)
-        resourcesToPreload <- loadPreloadPaths(preload)
-        confirmed          <- confirmation(term, source, target, offset, concurrency, preload)
-        _                  <- IO.raiseUnless(confirmed)(CopyErr.ConfirmationNotReceivedErr)
-        _                  <- createOrgProj(client, target)
-        _                  <- preloadResources(client, target, resourcesToPreload)
-        _                  <- streamProject(term, client, source, target, offset, concurrency)
-      } yield ExitCode.Success
-    }
+    BlazeClientBuilder[IO]
+      .withMaxTotalConnections(2 * concurrency + 1)
+      .withRequestTimeout(Duration.Inf)
+      .resource
+      .use { client =>
+        for {
+          _                  <- verifyEnvRef(client, source)
+          _                  <- verifyEnvRef(client, target)
+          resourcesToPreload <- loadPreloadPaths(preload)
+          confirmed          <- confirmation(term, source, target, offset, concurrency, preload)
+          _                  <- IO.raiseUnless(confirmed)(CopyErr.ConfirmationNotReceivedErr)
+          _                  <- createOrgProj(client, target)
+          _                  <- term.writeLn("Preloading default resources")
+          _                  <- preloadResources(client, target, resourcesToPreload)
+          _                  <- term.writeLn("Starting copy stream")
+          _                  <- streamProject(term, client, source, target, offset, concurrency)
+        } yield ExitCode.Success
+      }
 
   def streamProject(
       term: Terminal,
@@ -56,14 +62,15 @@ object CopyProject {
       .chunkN(concurrency)
       .flatMap { chunk =>
         val hasDuplicates = chunk.map(_.resourceId).toList.toSet.size != chunk.size
-        if (hasDuplicates) fs2.Stream.apply(chunk.toList: _*).map(ev => Chunk(ev))
-        else fs2.Stream.apply(chunk)
+        if (hasDuplicates) fs2.Stream.iterable(chunk.toList).map(ev => List(ev))
+        else fs2.Stream.apply(chunk.toList)
       }
-      .evalMap { chunk => IO.parTraverseN(concurrency)(chunk)(event => evalEvent(client, source, target, event)) }
-      .unchunks
-      .evalMap {
-        case e @ Error(_, status, error) => term.writeLn(s"Status: $status\n$error") >> IO.pure(e)
-        case other                       => IO.pure(other)
+      .evalTap(_ => IO.print('c'))
+      .evalMap { chunk => evalChunk(chunk, client, source, target) }
+      .flatMap(results => fs2.Stream.iterable(results))
+      .evalTap {
+        case Error(_, status, error) => term.writeLn(s"Status: $status\n$error")
+        case _                       => IO.unit
       }
       .mapAccumulate(CopyStatus(0L, 0L, 0L, 0L)) {
         case (status, Ok(offset))          => (status.incrementSuccesses, offset)
@@ -74,12 +81,32 @@ object CopyProject {
       .debounce(5.seconds)
       .evalMap { case (CopyStatus(successes, conflicts, discarded, errors), offset) =>
         term.writeLn(
-          s"Written $successes events, conflicts $conflicts, discarded $discarded, errors $errors, current offset: '$offset'"
+          s"\nWritten $successes events, conflicts $conflicts, discarded $discarded, errors $errors, current offset: '$offset'"
         )
       }
       .compile
       .drain
   }
+
+  private def evalChunk(
+      chunk: List[Event],
+      client: Client[IO],
+      source: CopyRef,
+      target: CopyRef
+  ): IO[List[EvaluationResult]] =
+    fs2.Stream
+      .iterable(chunk)
+      .covary[IO]
+      .parEvalMapUnordered(chunk.size) { event =>
+        evalEvent(client, source, target, event)
+          .timeout(2.minutes)
+          .handleErrorWith {
+            case _: TimeoutException => IO.pure(Error(event.offset, Status.RequestTimeout, "Client Timeout"))
+            case th                  => IO.raiseError(th)
+          }
+      }
+      .compile
+      .toList
 
   private def evalEvent(client: Client[IO], source: CopyRef, target: CopyRef, event: Event): IO[EvaluationResult] = {
     val sourceApi = Api(client, source.endpoint, source.token)
@@ -101,14 +128,16 @@ object CopyProject {
         val rev = if (event.rev == 1L) None else Some(event.rev - 1)
         filenameAndMediaType(event) match {
           case Some((filename, mediaType)) =>
-            sourceApi.files.download(source.project, event.resourceId, Some(event.rev)).use {
-              case ApiResponse.Successful(stream, _, _, _) =>
-                targetApi.files.upload(target.project, event.resourceId, stream, filename, mediaType, rev).map {
-                  case _: ApiResponse.Successful[_]                                       => Ok(event.offset)
-                  case r: ApiResponse.Unsuccessful.Unknown if r.status == Status.Conflict => Conflict(event.offset)
-                  case r                                                                  => Error(event.offset, r.status, s"Upload Error:\n${r.raw.spaces2}")
-                }
-              case r: ApiResponse.Unsuccessful             =>
+            sourceApi.files.downloadAsTemp(source.project, event.resourceId, Some(event.rev)).use {
+              case ApiResponse.Successful((path, length), _, _, _) =>
+                targetApi.files
+                  .uploadFromPath(path, target.project, event.resourceId, length, filename, mediaType, rev)
+                  .map {
+                    case _: ApiResponse.Successful[_]                                       => Ok(event.offset)
+                    case r: ApiResponse.Unsuccessful.Unknown if r.status == Status.Conflict => Conflict(event.offset)
+                    case r                                                                  => Error(event.offset, r.status, s"Upload Error:\n${r.raw.spaces2}")
+                  }
+              case r: ApiResponse.Unsuccessful                     =>
                 IO.pure(Error(event.offset, r.status, s"Download Error:\n${r.raw.spaces2}"))
             }
           case None                        => IO.pure(EvaluationResult.Discarded(event.offset))

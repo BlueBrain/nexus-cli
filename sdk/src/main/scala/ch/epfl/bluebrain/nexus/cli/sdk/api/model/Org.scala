@@ -12,7 +12,7 @@ import java.util.UUID
 case class Org(
     `@id`: Uri,
     `@type`: String,
-    description: String,
+    description: Option[String],
     _constrainedBy: Uri,
     _createdAt: Instant,
     _createdBy: Uri,
