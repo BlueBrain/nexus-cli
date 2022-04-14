@@ -2,11 +2,11 @@ package ch.epfl.bluebrain.nexus.cli.sdk
 
 import cats.effect._
 import ch.epfl.bluebrain.nexus.cli.sdk.Terminal.lineSep
-import ch.epfl.bluebrain.nexus.cli.sdk.api.model.ApiResponse
+import ch.epfl.bluebrain.nexus.cli.sdk.api.model.{ApiResponse, ProjectRef}
 import fansi.{Color, Str}
 import fs2.io.file.Path
 import io.circe.{DecodingFailure, Json, ParsingFailure}
-import org.http4s.Status
+import org.http4s.{Status, Uri}
 import org.http4s.headers.`Content-Type`
 
 import scala.util.Try
@@ -213,5 +213,21 @@ object Err {
       s"An event read from the event stream could not be decoded, reason: ${cause.getMessage}"
     override val solution: Option[String]           = None
     override def render(term: Terminal): IO[String] = renderWithJson(term, "Event:", raw)
+  }
+
+  case class ResourceNotFoundErr(project: ProjectRef, id: Uri) extends Err {
+    override val message: String                    = "The resource was not found."
+    override val description: String                =
+      s"The resource with id '${id.renderString}' was not found in project '${project.toString}'."
+    override val solution: Option[String]           = None
+    override def render(term: Terminal): IO[String] = renderHeader(term)
+  }
+
+  case class UnableToDecodeResourceJsonErr(project: ProjectRef, id: Uri, df: DecodingFailure) extends Err {
+    override val message: String                    = "Unable to decode a resource Json."
+    override val description: String                =
+      s"Unable to decode the resource Json representation for id '${id.renderString}' in project '${project.toString}'."
+    override val solution: Option[String]           = None
+    override def render(term: Terminal): IO[String] = renderGeneric(term, Some(df.getMessage()))
   }
 }

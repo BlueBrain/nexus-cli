@@ -1,7 +1,7 @@
 package ch.epfl.bluebrain.nexus.cli.sdk.api
 
 import cats.effect.{IO, Resource}
-import ch.epfl.bluebrain.nexus.cli.sdk.api.Api.{RichRequestIO, RichResourceApiResponse, RichResponseIO, acceptAll}
+import ch.epfl.bluebrain.nexus.cli.sdk.api.Api.{acceptAll, RichRequestIO, RichResourceApiResponse, RichResponseIO}
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.ApiResponse.{Successful, Unsuccessful}
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.{ApiResponse, ProjectRef}
 import fs2.Stream
@@ -10,7 +10,7 @@ import fs2.io.file.Path
 import org.http4s.Method.{GET, PUT}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io._
-import org.http4s.headers.{Authorization, `Content-Type`}
+import org.http4s.headers.{`Content-Type`, Authorization}
 import org.http4s.multipart.{Multipart, Part}
 import org.http4s.{Entity, MediaType, Uri}
 

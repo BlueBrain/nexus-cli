@@ -3,6 +3,7 @@ package ch.epfl.bluebrain.nexus.cli.sdk
 import cats.implicits._
 import com.monovore.decline.Argument
 import fs2.io.file.Path
+import io.circe._
 import org.http4s.Uri
 
 import scala.concurrent.duration.Duration.Infinite
@@ -35,6 +36,14 @@ trait Args {
     Argument.from("path") { str =>
       Try(Path(str)).toEither
         .leftMap(_ => s"Invalid path: '$str'")
+        .toValidatedNel
+    }
+
+  implicit val jsonArgument: Argument[Json] =
+    Argument.from("json") { str =>
+      parser
+        .parse(str)
+        .leftMap(pf => s"Invalid json: '${pf.getMessage()}'")
         .toValidatedNel
     }
 }

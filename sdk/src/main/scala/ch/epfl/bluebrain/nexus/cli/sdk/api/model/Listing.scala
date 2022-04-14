@@ -10,7 +10,8 @@ import scala.annotation.unused
 case class Listing[A](
     `@context`: List[Uri],
     _total: Long,
-    _results: List[A]
+    _results: List[A],
+    _next: Option[Uri]
 )
 
 object Listing {
