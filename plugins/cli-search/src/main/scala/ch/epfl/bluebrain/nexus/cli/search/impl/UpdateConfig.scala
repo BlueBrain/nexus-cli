@@ -3,7 +3,6 @@ package ch.epfl.bluebrain.nexus.cli.search.impl
 import cats.effect.{ExitCode, IO}
 import cats.implicits._
 import ch.epfl.bluebrain.nexus.cli.sdk.api.Api
-import ch.epfl.bluebrain.nexus.cli.sdk.api.Api.RichIOAPIResponseA
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.Project
 import ch.epfl.bluebrain.nexus.cli.sdk.{Err, PathUtils, Terminal}
 import fs2.io.file.Path
@@ -19,8 +18,7 @@ object UpdateConfig {
     for {
       view     <- PathUtils.loadPathAsJson(compositeViewPath)
       projects <- api.projects
-                    .list(None, Some(1000), Some(false))
-                    .raiseIfUnsuccessful
+                    .list(None, None, Some(1000), Some(false))
                     .map(_._results.sortBy(p => s"${p._organizationLabel.value}/${p._label.value}"))
       _        <- term.writeLn(s"Found ${projects.size} to update.")
       _        <- projects.traverse(p => updateView(p, view, term, api))

@@ -13,7 +13,7 @@ object CliOpts {
 
   def command: Command[Intent] =
     Command(BuildInfo.cliName, s"Nexus CLI (version ${BuildInfo.version})", helpFlag = true) {
-      listPlugins orElse login orElse resources
+      listPlugins orElse login orElse resources orElse orgs orElse projects
     }
 
   private val listPlugins =
@@ -85,6 +85,29 @@ object CliOpts {
     "Operations on resources"
   ) {
     listResources orElse getResourceSource orElse updateResource
+  }
+
+  private val orgs = Opts.subcommand(
+    "orgs",
+    "Operations on organizations"
+  ) {
+    (
+      Opts.option[Int]("from", "The start page").orNone,
+      Opts.option[Int]("size", "The max number of results").orNone,
+      Opts.option[Boolean]("deprecated", "The deprecation status of the organization").orNone
+    ).mapN(Intent.ListOrgs.apply)
+  }
+
+  private val projects = Opts.subcommand(
+    "projects",
+    "Operations on projects"
+  ) {
+    (
+      Opts.option[Label]("org", "The parent organization").orNone,
+      Opts.option[Int]("from", "The start page").orNone,
+      Opts.option[Int]("size", "The max number of results").orNone,
+      Opts.option[Boolean]("deprecated", "The deprecation status of the organization").orNone
+    ).mapN(Intent.ListProjects.apply)
   }
 
   def printHelp(term: Terminal, help: Help): IO[Unit] =

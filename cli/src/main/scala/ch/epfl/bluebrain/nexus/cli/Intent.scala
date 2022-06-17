@@ -24,4 +24,9 @@ object Intent {
   case class ListResources(project: ProjectRef, includeAll: Boolean)    extends Intent
   case class GetResourceSource(project: ProjectRef, id: Uri)            extends Intent
   case class UpdateResource(project: ProjectRef, id: Uri, source: Json) extends Intent
+
+  case class ListOrgs(from: Option[Int], size: Option[Int], deprecated: Option[Boolean]) extends Intent
+
+  case class ListProjects(org: Option[Label], from: Option[Int], size: Option[Int], deprecated: Option[Boolean])
+      extends Intent
 }

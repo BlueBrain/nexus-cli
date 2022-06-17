@@ -3,7 +3,7 @@ package ch.epfl.bluebrain.nexus.cli.sdk.api
 import cats.effect.IO
 import ch.epfl.bluebrain.nexus.cli.sdk.Label
 import ch.epfl.bluebrain.nexus.cli.sdk.api.Api._
-import ch.epfl.bluebrain.nexus.cli.sdk.api.model.Org
+import ch.epfl.bluebrain.nexus.cli.sdk.api.model.{Listing, Org}
 import io.circe.Json
 import org.http4s.Method.{GET, PUT}
 import org.http4s.Uri
@@ -13,6 +13,13 @@ import org.http4s.client.dsl.io._
 import org.http4s.headers.Authorization
 
 class Orgs(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) {
+
+  def list(from: Option[Int], size: Option[Int], deprecated: Option[Boolean]): IO[Listing[Org]] = {
+    val req = GET(endpoint / "orgs" +?? ("from" -> from) +?? ("size" -> size) +?? ("deprecated", deprecated))
+    client.run(req.withAuthOpt(auth)).use { resp =>
+      resp.decode[Listing[Org]].raiseIfUnsuccessful
+    }
+  }
 
   def get(label: Label): IO[Option[Org]] =
     client.run(GET(endpoint / "orgs" / label.value).withAuthOpt(auth)).use { resp =>

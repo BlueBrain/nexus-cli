@@ -10,16 +10,17 @@ import io.circe._
 import io.circe.parser._
 import org.http4s._
 import org.http4s.client.Client
-import org.http4s.headers.{`Content-Type`, Accept, Authorization}
+import org.http4s.headers.{Accept, Authorization, `Content-Type`}
 
 class Api(val client: Client[IO], val endpoint: Uri, val auth: Option[Authorization]) {
-  val realms: Realms                 = new Realms(client, endpoint, auth)
-  val identities: Identities         = new Identities(client, endpoint, auth)
-  val orgs: Orgs                     = new Orgs(client, endpoint, auth)
-  val projects: Projects             = new Projects(client, endpoint, auth)
-  val compositeViews: CompositeViews = new CompositeViews(client, endpoint, auth)
-  val resources: Resources           = new Resources(client, endpoint, auth)
-  val files: Files                   = new Files(client, endpoint, auth)
+  val realms: Realms                         = new Realms(client, endpoint, auth)
+  val identities: Identities                 = new Identities(client, endpoint, auth)
+  val orgs: Orgs                             = new Orgs(client, endpoint, auth)
+  val projects: Projects                     = new Projects(client, endpoint, auth)
+  val compositeViews: CompositeViews         = new CompositeViews(client, endpoint, auth)
+  val elasticSearchViews: ElasticSearchViews = new ElasticSearchViews(client, endpoint, auth)
+  val resources: Resources                   = new Resources(client, endpoint, auth)
+  val files: Files                           = new Files(client, endpoint, auth)
 }
 
 object Api {

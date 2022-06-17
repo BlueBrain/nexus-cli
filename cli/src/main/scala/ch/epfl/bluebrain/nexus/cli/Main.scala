@@ -44,6 +44,8 @@ object Main extends IOApp {
       case i: Intent.ListResources                        => apiResource.use(api => impl.Resources(i, api, term))
       case i: Intent.GetResourceSource                    => apiResource.use(api => impl.Resources(i, api, term))
       case i: Intent.UpdateResource                       => apiResource.use(api => impl.Resources(i, api))
+      case i: Intent.ListOrgs                             => apiResource.use(api => impl.Orgs(i, api, term))
+      case i: Intent.ListProjects                         => apiResource.use(api => impl.Projects(i, api, term))
     }
 
   private def apiResource: Resource[IO, Api] =

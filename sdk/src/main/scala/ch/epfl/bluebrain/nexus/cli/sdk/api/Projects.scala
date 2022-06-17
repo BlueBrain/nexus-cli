@@ -1,25 +1,32 @@
 package ch.epfl.bluebrain.nexus.cli.sdk.api
 
 import cats.effect.IO
+import ch.epfl.bluebrain.nexus.cli.sdk.Label
 import ch.epfl.bluebrain.nexus.cli.sdk.api.Api._
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model._
+import fs2.Stream
 import io.circe.Json
 import io.circe.syntax.EncoderOps
 import org.http4s.Method.{GET, PUT}
-import org.http4s.{Headers, Request, ServerSentEvent, Uri}
+import org.http4s.ServerSentEvent.EventId
 import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.dsl.io._
-import org.http4s.headers.{`Last-Event-Id`, Authorization}
-import fs2.Stream
-import org.http4s.ServerSentEvent.EventId
+import org.http4s.headers.{Authorization, `Last-Event-Id`}
+import org.http4s.{Headers, Request, ServerSentEvent, Uri}
 
 class Projects(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) {
 
-  def list(from: Option[Int], size: Option[Int], deprecated: Option[Boolean]): IO[ApiResponse[Listing[Project]]] = {
-    val req = GET(endpoint / "projects" +?? ("from" -> from) +?? ("size" -> size) +?? ("deprecated", deprecated))
+  def list(
+      org: Option[Label],
+      from: Option[Int],
+      size: Option[Int],
+      deprecated: Option[Boolean]
+  ): IO[Listing[Project]] = {
+    val base = org.map(o => endpoint / "projects" / o.value).getOrElse(endpoint / "projects")
+    val req  = GET(base +?? ("from" -> from) +?? ("size" -> size) +?? ("deprecated", deprecated))
     client.run(req.withAuthOpt(auth)).use { resp =>
-      resp.decode[Listing[Project]]
+      resp.decode[Listing[Project]].raiseIfUnsuccessful
     }
   }
 

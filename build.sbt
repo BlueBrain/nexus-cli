@@ -132,9 +132,9 @@ lazy val noPublish = Seq(
 )
 
 val nativeImageSettings = Seq(
-  nativeImageVersion  := "22.0.0.2",
+  nativeImageVersion  := "22.1.0",
   nativeImageJvm      := "graalvm-java17",
-  nativeImageJvmIndex := "https://raw.githubusercontent.com/coursier/jvm-index/master/index.json", // jabba doesn't have 22.0.0.2 available yet
+  nativeImageJvmIndex := "https://raw.githubusercontent.com/coursier/jvm-index/master/index.json",
   nativeImageOptions ++= {
     val configDir = (Compile / sourceDirectory).value / "native-image"
     List(
@@ -143,6 +143,9 @@ val nativeImageSettings = Seq(
       "--no-fallback",
       "--install-exit-handlers",
       "--allow-incomplete-classpath",
+      "--enable-https",
+      "-Djavax.net.ssl.trustStore=$JAVA_HOME/lib/security/cacerts",
+      "-Djavax.net.ssl.trustStorePassword=changeit",
       // "--trace-class-initialization=scala.package$",
       // due to org.http4s.client.package$defaults$
       // "--initialize-at-build-time=scala.math,scala.collection,scala.collection.immutable,scala.reflect,scala.concurrent.duration,scala.package$,scala.Predef$",

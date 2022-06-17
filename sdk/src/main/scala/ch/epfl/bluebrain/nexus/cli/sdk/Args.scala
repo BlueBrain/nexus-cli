@@ -46,6 +46,13 @@ trait Args {
         .leftMap(pf => s"Invalid json: '${pf.getMessage()}'")
         .toValidatedNel
     }
+
+  implicit val booleanArgument: Argument[Boolean] =
+    Argument.from("boolean") { str =>
+      str.toBooleanOption
+        .toRight(s"Invalid boolean value: $str")
+        .toValidatedNel
+    }
 }
 
 object Args extends Args
