@@ -95,6 +95,7 @@ object MigrateNs {
           }
         case v: Unauthorized                         => IO.raiseError(Err.UnauthorizedErr(v.reason))
         case v: Forbidden                            => IO.raiseError(Err.ForbiddenErr(v.reason))
+        case v: Unknown if v.status.code == 404      => term.writeLn(s"Failed to fetch resource identified as '${elem.id}'")
         case v: Unknown                              =>
           term.writeLn(s"Failed to read source for resource '${elem.id}', status '${v.status}', retrying...") >> IO
             .sleep(1.second) >> update(elem, api, term)
