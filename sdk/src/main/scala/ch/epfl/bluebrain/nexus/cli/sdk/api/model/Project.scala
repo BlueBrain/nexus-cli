@@ -30,7 +30,9 @@ case class Project(
     _updatedAt: Instant,
     _updatedBy: Uri,
     _uuid: UUID
-)
+) {
+  def ref: ProjectRef = ProjectRef(_organizationLabel, _label)
+}
 
 object Project {
 

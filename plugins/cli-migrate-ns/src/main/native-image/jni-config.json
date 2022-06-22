@@ -6,7 +6,7 @@
   "name":"[Lcom.sun.management.internal.DiagnosticCommandInfo;"}
 ,
 {
-  "name":"ch.epfl.bluebrain.nexus.cli.Main",
+  "name":"ch.epfl.bluebrain.nexus.cli.migrate.ns.Main",
   "methods":[{"name":"main","parameterTypes":["java.lang.String[]"] }]}
 ,
 {

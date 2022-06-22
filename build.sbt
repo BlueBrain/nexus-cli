@@ -13,18 +13,19 @@ scalafmt: {
 }
  */
 
-val catsEffectVersion = "3.3.5"
+val catsEffectVersion = "3.3.12"
 val circeVersion      = "0.15.0-M1"
 val declineVersion    = "2.2.0"
 val fansiVersion      = "0.3.1"
-val fs2Version        = "3.2.5"
-val http4sVersion     = "1.0.0-M31"
+val fs2Version        = "3.2.8"
+val http4sVersion     = "1.0.0-M33"
 val jlineVersion      = "3.21.0"
-val logbackVersion    = "1.2.10"
+val logbackVersion    = "1.2.11"
 val munitVersion      = "0.7.29"
 
 lazy val catsEffect    = "org.typelevel" %% "cats-effect"         % catsEffectVersion
 lazy val circeCore     = "io.circe"      %% "circe-core"          % circeVersion
+lazy val circeLiteral  = "io.circe"      %% "circe-literal"       % circeVersion
 lazy val circeParser   = "io.circe"      %% "circe-parser"        % circeVersion
 lazy val circeGeneric  = "io.circe"      %% "circe-generic"       % circeVersion
 lazy val decline       = "com.monovore"  %% "decline"             % declineVersion
@@ -48,6 +49,7 @@ lazy val sdk = project
     libraryDependencies ++= Seq(
       catsEffect,
       circeCore,
+      circeLiteral,
       circeGeneric,
       circeParser,
       decline,
@@ -107,9 +109,23 @@ lazy val cliCopy = project
     Compile / mainClass  := Some("ch.epfl.bluebrain.nexus.cli.copy.Main")
   )
 
+lazy val cliMigrateNs = project
+  .in(file("plugins/cli-migrate-ns"))
+  .enablePlugins(NativeImagePlugin)
+  .dependsOn(sdk)
+  .settings(compilationSettings, nativeImageSettings)
+  .settings(
+    name                 := cliName.value + "-migrate-ns",
+    moduleName           := cliName.value + "-migrate-ns",
+    libraryDependencies ++= Seq(
+      munit % Test
+    ),
+    Compile / mainClass  := Some("ch.epfl.bluebrain.nexus.cli.migrate.ns.Main")
+  )
+
 lazy val plugins = project
   .in(file("plugins"))
-  .aggregate(cliSearch, cliCopy)
+  .aggregate(cliSearch, cliCopy, cliMigrateNs)
   .settings(compilationSettings, noPublish)
 
 lazy val root = project
@@ -143,9 +159,9 @@ val nativeImageSettings = Seq(
       "--no-fallback",
       "--install-exit-handlers",
       "--allow-incomplete-classpath",
+      "--enable-http",
       "--enable-https",
-      "-Djavax.net.ssl.trustStore=$JAVA_HOME/lib/security/cacerts",
-      "-Djavax.net.ssl.trustStorePassword=changeit",
+      "--enable-all-security-services",
       // "--trace-class-initialization=scala.package$",
       // due to org.http4s.client.package$defaults$
       // "--initialize-at-build-time=scala.math,scala.collection,scala.collection.immutable,scala.reflect,scala.concurrent.duration,scala.package$,scala.Predef$",

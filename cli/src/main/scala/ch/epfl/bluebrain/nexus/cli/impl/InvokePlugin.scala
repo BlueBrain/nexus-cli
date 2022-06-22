@@ -12,7 +12,10 @@ object InvokePlugin {
         Config.load.flatMap {
           case Some(value) =>
             IO.blocking {
-              val builder = new ProcessBuilder(path.absolute.toString :: args: _*)
+              val trustStoreArgs =
+                argFromProp("javax.net.ssl.trustStore") ++
+                  argFromProp("javax.net.ssl.trustStorePassword")
+              val builder        = new ProcessBuilder(path.absolute.toString :: trustStoreArgs ++ args: _*)
               builder.environment().put("NEXUS_ENDPOINT", value.endpoint.toString)
               value.asUserLogin.foreach { case UserLoginConfig(_, _, token, _) =>
                 builder.environment().put("NEXUS_TOKEN", token.value)
@@ -36,4 +39,7 @@ object InvokePlugin {
 
     IO.bracketFull(acquire)(use)(release)
   }
+
+  private def argFromProp(propName: String): List[String] =
+    sys.props.get(propName).map(value => s"-D$propName=$value").toList
 }

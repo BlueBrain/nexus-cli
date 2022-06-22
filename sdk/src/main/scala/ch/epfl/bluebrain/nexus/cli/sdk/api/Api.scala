@@ -4,13 +4,15 @@ import cats.effect.{IO, Resource}
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.ApiResponse
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.ApiResponse.Successful
 import ch.epfl.bluebrain.nexus.cli.sdk.api.model.ApiResponse.Unsuccessful._
-import ch.epfl.bluebrain.nexus.cli.sdk.{BearerToken, Err}
+import ch.epfl.bluebrain.nexus.cli.sdk.{BearerToken, Err, Terminal}
 import fs2.Stream
 import io.circe._
 import io.circe.parser._
 import org.http4s._
 import org.http4s.client.Client
-import org.http4s.headers.{Accept, Authorization, `Content-Type`}
+import org.http4s.headers.{`Content-Type`, Accept, Authorization}
+
+import scala.concurrent.duration.FiniteDuration
 
 class Api(val client: Client[IO], val endpoint: Uri, val auth: Option[Authorization]) {
   val realms: Realms                         = new Realms(client, endpoint, auth)
@@ -169,12 +171,27 @@ object Api {
   }
 
   implicit class RichIOAPIResponseA[A](val r: IO[ApiResponse[A]]) extends AnyVal {
-    def raiseIfUnsuccessful: IO[A] =
+    def raiseIfUnsuccessful: IO[A]                                                            =
       r.flatMap {
         case Successful(value, _, _, _) => IO.pure(value)
         case v: Unauthorized            => IO.raiseError(Err.UnauthorizedErr(v.reason))
         case v: Forbidden               => IO.raiseError(Err.ForbiddenErr(v.reason))
         case v: Unknown                 => IO.raiseError(Err.UnsuccessfulResponseErr(v))
+      }
+    def retryfor(condition: Unknown => Boolean, delay: FiniteDuration, term: Terminal): IO[A] =
+      r.flatMap {
+        case Successful(value, _, _, _) => IO.pure(value)
+        case v: Unauthorized            => IO.raiseError(Err.UnauthorizedErr(v.reason))
+        case v: Forbidden               => IO.raiseError(Err.ForbiddenErr(v.reason))
+        case v: Unknown                 =>
+          if (condition(v))
+            term.writeLn(s"Unsuccessful api response, status '${v.status}', retrying...") >> IO
+              .sleep(delay) >> retryfor(
+              condition,
+              delay,
+              term
+            )
+          else IO.raiseError(Err.UnsuccessfulResponseErr(v))
       }
   }
   private[api] case class ErrorResponse(`@type`: String, reason: String)

@@ -36,6 +36,9 @@ class Resources(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) 
     }
   }
 
+  def update(project: ProjectRef, id: Uri, rev: Long, json: Json): IO[ApiResponse[Unit]] =
+    createOrUpdate(project, id, json, Some(rev))
+
   def listAll(project: ProjectRef): Stream[IO, ResourceMetadata] = {
     def page(uri: Uri): IO[Listing[ResourceMetadata]]  =
       client.run(GET(uri, accept).withAuthOpt(auth)).use { resp =>
@@ -82,5 +85,4 @@ class Resources(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) 
         }
     }
   }
-
 }

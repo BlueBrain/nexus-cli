@@ -11,7 +11,7 @@ import org.http4s.Method.{GET, PUT}
 import org.http4s.client.Client
 import org.http4s.client.dsl.io._
 import org.http4s.headers.{`Content-Type`, Authorization}
-import org.http4s.multipart.{Multipart, Part}
+import org.http4s.multipart.{Multiparts, Part}
 import org.http4s.{Entity, MediaType, Uri}
 
 class Files(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) {
@@ -49,22 +49,28 @@ class Files(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) {
       mediaType: MediaType,
       rev: Option[Long]
   ): IO[ApiResponse[Unit]] = {
-    val multipart = Multipart[IO](
-      Vector(
-        Part.fileData(
-          name = "file",
-          filename = fileName,
-          entity = Entity(bytes, length),
-          `Content-Type`(mediaType)
-        )
-      )
-    )
-    val req       =
-      PUT(multipart, endpoint / "files" / ref.org.value / ref.project.value / id.renderString +?? ("rev" -> rev))
-        .withHeaders(multipart.headers)
+    val multipart = for {
+      multiparts <- Multiparts.forSync[IO]
+      multipart  <- multiparts.multipart(
+                      Vector(
+                        Part.fileData(
+                          name = "file",
+                          filename = fileName,
+                          entity = Entity(bytes, length),
+                          `Content-Type`(mediaType)
+                        )
+                      )
+                    )
+
+    } yield multipart
+
+    multipart.flatMap { mp =>
+      val req = PUT(mp, endpoint / "files" / ref.org.value / ref.project.value / id.renderString +?? ("rev" -> rev))
+        .withHeaders(mp.headers)
         .withAuthOpt(auth)
-    client.run(req).use { resp =>
-      resp.discard
+      client.run(req).use { resp =>
+        resp.discard
+      }
     }
   }
 
