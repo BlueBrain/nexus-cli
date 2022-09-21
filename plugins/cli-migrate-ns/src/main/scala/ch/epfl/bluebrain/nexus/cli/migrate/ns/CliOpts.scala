@@ -22,7 +22,10 @@ object CliOpts {
           .withDefault(Instant.now()),
         Opts.option[Int]("page-size", "The page size when querying Elasticsearch").withDefault(20),
         Opts.option[Int]("concurrency", "How many updates to perform in parallel.").withDefault(1),
-        Opts.options[ProjectRef]("project", "How many updates to perform in parallel.").map(_.toList).withDefault(List.empty)
+        Opts
+          .options[ProjectRef]("project", "How many updates to perform in parallel.")
+          .map(_.toList)
+          .withDefault(List.empty)
       ).mapN(Intent.MigrateNs.apply)
     }
 

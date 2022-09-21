@@ -8,12 +8,10 @@ sealed trait Intent extends Product with Serializable
 
 object Intent {
 
-  final case class MigrateNs(lastUpdate: Instant,
-                             pageSize: Int,
-                             concurrency: Int,
-                             projects: List[ProjectRef]) extends Intent {
+  final case class MigrateNs(lastUpdate: Instant, pageSize: Int, concurrency: Int, projects: List[ProjectRef])
+      extends Intent {
     def filter(input: List[ProjectRef]): List[ProjectRef] =
-      if(projects.isEmpty)
+      if (projects.isEmpty)
         input
       else
         input.intersect(projects)

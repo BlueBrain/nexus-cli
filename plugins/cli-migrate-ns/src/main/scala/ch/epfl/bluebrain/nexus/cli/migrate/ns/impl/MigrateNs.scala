@@ -24,7 +24,7 @@ object MigrateNs {
 
   def apply(intent: Intent.MigrateNs, term: Terminal, api: Api): IO[ExitCode] = {
     val stream = for {
-      projects <- Stream.eval(projects(api).map{ i => intent.filter(i)})
+      projects <- Stream.eval(projects(api).map { i => intent.filter(i) })
       project  <- Stream.iterable(projects).evalTap(p => term.writeLn(s"==> $p"))
       elems    <- resources(project, api, intent.lastUpdate, intent.pageSize, term)
                     .parEvalMap(intent.concurrency)(el =>
