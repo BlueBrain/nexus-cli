@@ -4,6 +4,7 @@ import cats.effect.IO
 import ch.epfl.bluebrain.nexus.cli.sdk.{BuildInfo, Terminal}
 import com.monovore.decline.time.defaultInstant
 import cats.implicits._
+import ch.epfl.bluebrain.nexus.cli.sdk.api.model.ProjectRef
 import com.monovore.decline.{Command, Help, Opts}
 
 import java.time.Instant
@@ -20,7 +21,11 @@ object CliOpts {
           )
           .withDefault(Instant.now()),
         Opts.option[Int]("page-size", "The page size when querying Elasticsearch").withDefault(20),
-        Opts.option[Int]("concurrency", "How many updates to perform in parallel.").withDefault(1)
+        Opts.option[Int]("concurrency", "How many updates to perform in parallel.").withDefault(1),
+        Opts
+          .options[ProjectRef]("project", "How many updates to perform in parallel.")
+          .map(_.toList)
+          .withDefault(List.empty)
       ).mapN(Intent.MigrateNs.apply)
     }
 
