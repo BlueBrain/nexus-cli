@@ -12,7 +12,7 @@ import org.http4s.ServerSentEvent.EventId
 import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.dsl.io._
-import org.http4s.headers.{Authorization, `Last-Event-Id`}
+import org.http4s.headers.{`Last-Event-Id`, Authorization}
 import org.http4s.{Headers, Request, ServerSentEvent, Uri}
 
 class Projects(client: Client[IO], endpoint: Uri, auth: Option[Authorization]) {
